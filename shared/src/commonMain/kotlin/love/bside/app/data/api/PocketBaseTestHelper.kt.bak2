@@ -1,0 +1,189 @@
+package love.bside.app.data.api
+
+import love.bside.app.core.AppLogger
+import love.bside.app.core.logDebug
+import love.bside.app.core.logError
+import love.bside.app.core.logInfo
+import love.bside.app.core.Result
+
+/**
+ * Testing utilities for PocketBase integration
+ */
+object PocketBaseTestHelper {
+    
+    /**
+     * Test connection to PocketBase
+     */
+    suspend fun testConnection(client: PocketBaseClient): Result<Boolean> {
+        logInfo("🧪 Testing PocketBase connection...")
+        
+        return try {
+            // Try to fetch key values (should be publicly readable)
+            client.getList<Map<String, Any>>(
+                collection = "s_key_values",
+                page = 1,
+                perPage = 1
+            ).map { result ->
+                logInfo("✅ PocketBase connection successful! Found ${result.totalItems} key values")
+                true
+            }
+        } catch (e: Exception) {
+            logError("❌ PocketBase connection failed", e)
+            Result.Error(love.bside.app.core.AppException.Network.NoConnection())
+        }
+    }
+    
+    /**
+     * Test authentication flow
+     */
+    suspend fun testAuth(
+        client: PocketBaseClient,
+        email: String,
+        password: String
+    ): Result<String> {
+        logInfo("🧪 Testing authentication for: $email")
+        
+        return client.authWithPassword<Map<String, Any>>(
+            collection = "users",
+            identity = email,
+            password = password
+        ).map { authResponse ->
+            val token = authResponse.token
+            val userId = (authResponse.record["id"] as? String) ?: "unknown"
+            logInfo("✅ Authentication successful! Token: ${token.take(20)}... UserId: $userId")
+            token
+        }.onError { error ->
+            logError("❌ Authentication failed", error)
+        }
+    }
+    
+    /**
+     * Test CRUD operations
+     */
+    suspend fun testCrudOperations(
+        client: PocketBaseClient
+    ): Result<Boolean> {
+        logInfo("🧪 Testing CRUD operations...")
+        
+        // This would require authentication first
+        // For now, just test read operations
+        return client.getList<Map<String, Any>>(
+            collection = "s_key_values",
+            page = 1,
+            perPage = 5
+        ).map { result ->
+            logInfo("✅ CRUD test passed! Fetched ${result.items.size} items")
+            logDebug("Sample item: ${result.items.firstOrNull()}")
+            true
+        }.onError { error ->
+            logError("❌ CRUD test failed", error)
+        }
+    }
+    
+    /**
+     * Comprehensive health check
+     */
+    suspend fun healthCheck(
+        client: PocketBaseClient,
+        includeAuth: Boolean = false,
+        testEmail: String? = null,
+        testPassword: String? = null
+    ): HealthCheckResult {
+        logInfo("🏥 Running PocketBase health check...")
+        
+        val results = mutableMapOf<String, Boolean>()
+        val errors = mutableListOf<String>()
+        
+        // Test 1: Connection
+        testConnection(client).fold(
+            onSuccess = { 
+                results["connection"] = true
+                AppLogger.info("PocketBaseTest", "  ✅ Connection: OK")
+            },
+            onFailure = { exception ->
+                results["connection"] = false
+                errors.add("Connection failed: ${exception.message}")
+                AppLogger.error("PocketBaseTest", "  ❌ Connection: FAILED")
+            }
+        )
+        
+        // Test 2: Read operation
+        client.getList<Map<String, Any>>(
+            collection = "s_key_values",
+            page = 1,
+            perPage = 1
+        ).fold(
+            onSuccess = { _ ->
+                results["read"] = true
+                AppLogger.info("PocketBaseTest", "  ✅ Read operation: OK")
+            },
+            onFailure = { exception ->
+                results["read"] = false
+                errors.add("Read failed: ${exception.message}")
+                AppLogger.error("PocketBaseTest", "  ❌ Read operation: FAILED")
+            }
+        )
+        
+        // Test 3: Authentication (if credentials provided)
+        if (includeAuth && testEmail != null && testPassword != null) {
+            testAuth(client, testEmail, testPassword).fold(
+                onSuccess = { _ ->
+                    results["auth"] = true
+                    AppLogger.info("PocketBaseTest", "  ✅ Authentication: OK")
+                },
+                onFailure = { exception ->
+                    results["auth"] = false
+                    errors.add("Auth failed: ${exception.message}")
+                    AppLogger.error("PocketBaseTest", "  ❌ Authentication: FAILED")
+                }
+            )
+        }
+        
+        val allPassed = results.values.all { it }
+        val summary = if (allPassed) {
+            "✅ All health checks passed!"
+        } else {
+            "⚠️ Some health checks failed. See details above."
+        }
+        
+        logInfo(summary)
+        
+        return HealthCheckResult(
+            passed = allPassed,
+            results = results,
+            errors = errors,
+            summary = summary
+        )
+    }
+}
+
+/**
+ * Result of health check
+ */
+data class HealthCheckResult(
+    val passed: Boolean,
+    val results: Map<String, Boolean>,
+    val errors: List<String>,
+    val summary: String
+) {
+    fun prettyPrint(): String = buildString {
+        appendLine("\n╔════════════════════════════════════════╗")
+        appendLine("║     PocketBase Health Check Report     ║")
+        appendLine("╚════════════════════════════════════════╝\n")
+        
+        results.forEach { (test, passed) ->
+            val icon = if (passed) "✅" else "❌"
+            appendLine("  $icon $test: ${if (passed) "PASS" else "FAIL"}")
+        }
+        
+        if (errors.isNotEmpty()) {
+            appendLine("\n❌ Errors:")
+            errors.forEach { error ->
+                appendLine("  - $error")
+            }
+        }
+        
+        appendLine("\n$summary")
+        appendLine("\n" + "─".repeat(40))
+    }
+}

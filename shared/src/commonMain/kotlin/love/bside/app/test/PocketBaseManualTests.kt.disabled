@@ -1,0 +1,189 @@
+package love.bside.app.test
+
+import kotlinx.coroutines.runBlocking
+import love.bside.app.core.logError
+import love.bside.app.core.logInfo
+import love.bside.app.data.api.PocketBaseClient
+import love.bside.app.data.api.PocketBaseTestHelper
+
+/**
+ * Manual testing suite for PocketBase integration
+ * 
+ * Usage:
+ * 1. Run this in your app's main() or onCreate()
+ * 2. Check console logs for results
+ * 3. Verify all tests pass before proceeding
+ */
+object PocketBaseManualTests {
+    
+    /**
+     * Run all tests
+     */
+    fun runAllTests(client: PocketBaseClient) {
+        logInfo("🚀 Starting PocketBase manual test suite...")
+        logInfo("━".repeat(50))
+        
+        runBlocking {
+            try {
+                // Test 1: Health check
+                logInfo("\n📋 Test 1: Running health check...")
+                val healthCheck = PocketBaseTestHelper.healthCheck(client)
+                println(healthCheck.prettyPrint())
+                
+                if (!healthCheck.passed) {
+                    logError("⚠️ Health check failed! Fix issues before proceeding.")
+                    return@runBlocking
+                }
+                
+                // Test 2: Connection test
+                logInfo("\n📋 Test 2: Testing connection...")
+                PocketBaseTestHelper.testConnection(client)
+                    .onSuccess { logInfo("✅ Connection test passed") }
+                    .onError { e -> logError("❌ Connection test failed: ${e.getUserMessage()}") }
+                
+                // Test 3: CRUD operations
+                logInfo("\n📋 Test 3: Testing CRUD operations...")
+                PocketBaseTestHelper.testCrudOperations(client)
+                    .onSuccess { logInfo("✅ CRUD test passed") }
+                    .onError { e -> logError("❌ CRUD test failed: ${e.getUserMessage()}") }
+                
+                // Test 4: Fetch key values
+                logInfo("\n📋 Test 4: Fetching key values...")
+                testFetchKeyValues(client)
+                
+                // Test 5: Test with filter
+                logInfo("\n📋 Test 5: Testing filtered queries...")
+                testFilteredQuery(client)
+                
+                logInfo("\n" + "━".repeat(50))
+                logInfo("✅ All manual tests completed! Check logs above for any failures.")
+                
+            } catch (e: Exception) {
+                logError("💥 Test suite crashed!", e)
+            }
+        }
+    }
+    
+    /**
+     * Test fetching key values
+     */
+    private suspend fun testFetchKeyValues(client: PocketBaseClient) {
+        client.getList<Map<String, Any>>(
+            collection = "s_key_values",
+            page = 1,
+            perPage = 5
+        ).onSuccess { result ->
+            logInfo("✅ Fetched ${result.items.size} key values")
+            logInfo("   Total items: ${result.totalItems}, Total pages: ${result.totalPages}")
+            result.items.forEachIndexed { index, item ->
+                val key = item["key"] ?: "unknown"
+                val category = item["category"] ?: "unknown"
+                logInfo("   ${index + 1}. $key ($category)")
+            }
+        }.onError { e ->
+            logError("❌ Failed to fetch key values: ${e.getUserMessage()}", e)
+        }
+    }
+    
+    /**
+     * Test filtered query
+     */
+    private suspend fun testFilteredQuery(client: PocketBaseClient) {
+        client.getList<Map<String, Any>>(
+            collection = "s_key_values",
+            filter = "(category='PERSONALITY')",
+            perPage = 3
+        ).onSuccess { result ->
+            logInfo("✅ Filtered query returned ${result.items.size} items")
+            result.items.forEach { item ->
+                logInfo("   - ${item["key"]} (${item["category"]})")
+            }
+        }.onError { e ->
+            logError("❌ Filtered query failed: ${e.getUserMessage()}", e)
+        }
+    }
+    
+    /**
+     * Test authentication (requires test credentials)
+     */
+    fun testAuthentication(
+        client: PocketBaseClient,
+        email: String,
+        password: String
+    ) {
+        logInfo("\n🔐 Testing authentication...")
+        
+        runBlocking {
+            PocketBaseTestHelper.testAuth(client, email, password)
+                .onSuccess { token ->
+                    logInfo("✅ Authentication successful!")
+                    logInfo("   Token (first 20 chars): ${token.take(20)}...")
+                }
+                .onError { e ->
+                    logError("❌ Authentication failed: ${e.getUserMessage()}", e)
+                    when (e) {
+                        is love.bside.app.core.AppException.Auth.InvalidCredentials -> {
+                            logError("   💡 Tip: Check that the email and password are correct")
+                        }
+                        is love.bside.app.core.AppException.Network.NoConnection -> {
+                            logError("   💡 Tip: Check your internet connection and PocketBase URL")
+                        }
+                        else -> {
+                            logError("   💡 Tip: Check PocketBase logs for more details")
+                        }
+                    }
+                }
+        }
+    }
+    
+    /**
+     * Test profile operations (requires authentication)
+     */
+    fun testProfileOperations(
+        client: PocketBaseClient,
+        userId: String
+    ) {
+        logInfo("\n👤 Testing profile operations...")
+        
+        runBlocking {
+            client.getList<Map<String, Any>>(
+                collection = "s_profiles",
+                filter = "(userId='$userId')",
+                perPage = 1
+            ).onSuccess { result ->
+                if (result.items.isEmpty()) {
+                    logInfo("⚠️ No profile found for user $userId")
+                } else {
+                    logInfo("✅ Profile found!")
+                    val profile = result.items.first()
+                    logInfo("   Name: ${profile["firstName"]} ${profile["lastName"]}")
+                    logInfo("   Location: ${profile["location"] ?: "Not set"}")
+                    logInfo("   Seeking: ${profile["seeking"]}")
+                }
+            }.onError { e ->
+                logError("❌ Failed to fetch profile: ${e.getUserMessage()}", e)
+            }
+        }
+    }
+    
+    /**
+     * Quick smoke test - runs minimal checks
+     */
+    fun quickSmokeTest(client: PocketBaseClient): Boolean {
+        logInfo("\n🔥 Running quick smoke test...")
+        
+        var passed = true
+        runBlocking {
+            PocketBaseTestHelper.testConnection(client)
+                .onSuccess { 
+                    logInfo("✅ Smoke test passed!")
+                }
+                .onError { 
+                    logError("❌ Smoke test failed!")
+                    passed = false
+                }
+        }
+        
+        return passed
+    }
+}
