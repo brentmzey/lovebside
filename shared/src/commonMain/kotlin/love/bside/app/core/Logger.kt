@@ -43,11 +43,11 @@ class ConsoleLogger : Logger {
 /**
  * Global logger instance - platform-specific implementation
  */
-expect object AppLogger {
-    fun debug(tag: String, message: String, throwable: Throwable? = null)
-    fun info(tag: String, message: String, throwable: Throwable? = null)
-    fun warn(tag: String, message: String, throwable: Throwable? = null)
-    fun error(tag: String, message: String, throwable: Throwable? = null)
+expect object AppLogger : Logger {
+    override fun debug(tag: String, message: String, throwable: Throwable?)
+    override fun info(tag: String, message: String, throwable: Throwable?)
+    override fun warn(tag: String, message: String, throwable: Throwable?)
+    override fun error(tag: String, message: String, throwable: Throwable?)
 }
 
 /**

@@ -8,10 +8,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import love.bside.app.core.AppException
 import love.bside.app.core.logError
-import love.bside.app.di.getDI
 import love.bside.app.domain.models.AuthDetails
 import love.bside.app.domain.usecase.LoginUseCase
 import love.bside.app.domain.usecase.SignUpUseCase
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 interface LoginScreenComponent {
     val uiState: StateFlow<AuthUiState>
@@ -30,11 +31,10 @@ sealed class AuthUiState {
 class DefaultLoginScreenComponent(
     componentContext: ComponentContext,
     private val onLoginSuccess: () -> Unit
-) : LoginScreenComponent, ComponentContext by componentContext {
+) : LoginScreenComponent, ComponentContext by componentContext, KoinComponent {
 
-    private val di = getDI()
-    private val loginUseCase: LoginUseCase by di.inject(LoginUseCase::class)
-    private val signUpUseCase: SignUpUseCase by di.inject(SignUpUseCase::class)
+    private val loginUseCase: LoginUseCase by inject()
+    private val signUpUseCase: SignUpUseCase by inject()
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     override val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()

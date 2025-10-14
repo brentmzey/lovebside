@@ -3,17 +3,19 @@ package love.bside.app.data.storage
 import love.bside.app.domain.models.Profile
 
 interface SessionManager {
-    fun saveSession(profile: Profile)
+    fun saveSession(profile: Profile, token: String? = null)
     fun getProfile(): Profile?
+    fun getToken(): String?
     fun clearSession()
 }
 
 class SessionManagerImpl(private val settings: com.russhwolf.settings.Settings) : SessionManager {
-    override fun saveSession(profile: Profile) {
+    override fun saveSession(profile: Profile, token: String?) {
         settings.putString(PROFILE_ID_KEY, profile.id)
         settings.putString(USER_ID_KEY, profile.userId)
         settings.putString(FIRST_NAME_KEY, profile.firstName)
         settings.putString(LAST_NAME_KEY, profile.lastName)
+        token?.let { settings.putString(TOKEN_KEY, it) }
         // ... save other fields as needed
     }
 
@@ -36,11 +38,16 @@ class SessionManagerImpl(private val settings: com.russhwolf.settings.Settings) 
         )
     }
 
+    override fun getToken(): String? {
+        return settings.getStringOrNull(TOKEN_KEY)
+    }
+
     override fun clearSession() {
         settings.remove(PROFILE_ID_KEY)
         settings.remove(USER_ID_KEY)
         settings.remove(FIRST_NAME_KEY)
         settings.remove(LAST_NAME_KEY)
+        settings.remove(TOKEN_KEY)
     }
 
     companion object {
@@ -48,5 +55,6 @@ class SessionManagerImpl(private val settings: com.russhwolf.settings.Settings) 
         private const val USER_ID_KEY = "user_id"
         private const val FIRST_NAME_KEY = "first_name"
         private const val LAST_NAME_KEY = "last_name"
+        private const val TOKEN_KEY = "auth_token"
     }
 }

@@ -5,7 +5,8 @@ package love.bside.app.core
  * Allows environment-specific settings and feature flags.
  */
 data class AppConfig(
-    val apiBaseUrl: String,
+    val apiBaseUrl: String = "https://bside.pockethost.io/api/",
+    val pocketBaseUrl: String = "https://bside.pockethost.io/api/",
     val apiTimeout: Long = 30_000L,
     val maxRetryAttempts: Int = 3,
     val retryDelayMs: Long = 1000L,

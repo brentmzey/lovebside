@@ -3,18 +3,34 @@ package love.bside.app
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import love.bside.server.config.*
+import love.bside.server.plugins.*
+import love.bside.server.routes.configureRouting
+
+// Server port configuration
+const val SERVER_PORT = 8080
 
 fun main() {
-    embeddedServer(Netty, port = SERVER_PORT, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
+    embeddedServer(
+        Netty,
+        port = SERVER_PORT,
+        host = "0.0.0.0",
+        module = Application::module
+    ).start(wait = true)
 }
 
 fun Application.module() {
-    routing {
-        get("/") {
-            call.respondText("Ktor: ${Greeting().greet()}")
-        }
-    }
+    // Load configuration
+    val config = ServerConfig.load(this)
+    
+    // Configure plugins
+    configureSerialization()
+    configureHTTP(config)
+    configureMonitoring()
+    configureSecurity(config)
+    configureStatusPages()
+    configureDependencyInjection(config)
+    
+    // Configure routing
+    configureRouting()
 }

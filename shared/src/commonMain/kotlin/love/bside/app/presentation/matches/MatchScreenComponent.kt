@@ -7,10 +7,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import love.bside.app.data.storage.SessionManager
-import love.bside.app.di.getDI
 import love.bside.app.domain.models.Match
 import love.bside.app.domain.repository.MatchRepository
 import love.bside.app.ui.components.UiState
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 interface MatchScreenComponent {
     val uiState: StateFlow<MatchUiState>
@@ -26,11 +27,10 @@ data class MatchUiState(
 class DefaultMatchScreenComponent(
     componentContext: ComponentContext,
     private val onMatchClicked: (String) -> Unit
-) : MatchScreenComponent, ComponentContext by componentContext {
+) : MatchScreenComponent, ComponentContext by componentContext, KoinComponent {
 
-    private val di = getDI()
-    private val matchRepository: MatchRepository by di.inject(MatchRepository::class)
-    private val sessionManager: SessionManager by di.inject(SessionManager::class)
+    private val matchRepository: MatchRepository by inject()
+    private val sessionManager: SessionManager by inject()
 
     private val _uiState = MutableStateFlow(MatchUiState())
     override val uiState: StateFlow<MatchUiState> = _uiState.asStateFlow()
@@ -55,6 +55,6 @@ class DefaultMatchScreenComponent(
     }
 
     override fun onMatchClicked(matchId: String) {
-        onMatchClicked(matchId)
+        onMatchClicked.invoke(matchId)
     }
 }

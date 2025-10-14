@@ -34,16 +34,20 @@ kotlin {
         binaries.executable()
     }
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        binaries.executable()
-    }
+    // WasmJS target disabled - Koin doesn't support WasmJS yet
+    // @OptIn(ExperimentalWasmDsl::class)
+    // wasmJs {
+    //     browser()
+    //     binaries.executable()
+    // }
 
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.koin.android)
+            implementation(libs.koin.compose)
+            implementation(libs.multiplatform.settings)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -54,6 +58,10 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.decompose)
+            implementation(libs.decompose.extensions.compose)
+            implementation(libs.koin.core)
+            implementation(libs.multiplatform.settings)
             implementation(projects.shared)
         }
         commonTest.dependencies {
@@ -62,6 +70,16 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(libs.koin.core)
+            implementation(libs.multiplatform.settings)
+        }
+        iosMain.dependencies {
+            implementation(libs.koin.core)
+            implementation(libs.multiplatform.settings)
+        }
+        jsMain.dependencies {
+            implementation(libs.koin.core)
+            implementation(libs.multiplatform.settings)
         }
     }
 }

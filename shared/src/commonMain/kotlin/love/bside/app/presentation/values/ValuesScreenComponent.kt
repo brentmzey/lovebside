@@ -9,10 +9,11 @@ import kotlinx.coroutines.launch
 import love.bside.app.core.AppException
 import love.bside.app.core.logError
 import love.bside.app.data.storage.SessionManager
-import love.bside.app.di.getDI
 import love.bside.app.domain.models.KeyValue
 import love.bside.app.domain.models.UserValue
 import love.bside.app.domain.repository.ValuesRepository
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 interface ValuesScreenComponent {
     val uiState: StateFlow<ValuesUiState>
@@ -33,11 +34,10 @@ sealed class ValuesUiState {
 class DefaultValuesScreenComponent(
     componentContext: ComponentContext,
     private val onBack: () -> Unit
-) : ValuesScreenComponent, ComponentContext by componentContext {
+) : ValuesScreenComponent, ComponentContext by componentContext, KoinComponent {
 
-    private val di = getDI()
-    private val valuesRepository: ValuesRepository by di.inject(ValuesRepository::class)
-    private val sessionManager: SessionManager by di.inject(SessionManager::class)
+    private val valuesRepository: ValuesRepository by inject()
+    private val sessionManager: SessionManager by inject()
 
     private val _uiState = MutableStateFlow<ValuesUiState>(ValuesUiState.Idle)
     override val uiState: StateFlow<ValuesUiState> = _uiState.asStateFlow()

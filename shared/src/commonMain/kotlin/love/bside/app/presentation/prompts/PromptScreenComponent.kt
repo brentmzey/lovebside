@@ -6,10 +6,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import love.bside.app.di.getDI
 import love.bside.app.domain.models.Prompt
 import love.bside.app.domain.repository.MatchRepository
 import love.bside.app.ui.components.UiState
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 interface PromptScreenComponent {
     val uiState: StateFlow<PromptUiState>
@@ -24,10 +25,9 @@ data class PromptUiState(
 class DefaultPromptScreenComponent(
     componentContext: ComponentContext,
     private val matchId: String
-) : PromptScreenComponent, ComponentContext by componentContext {
+) : PromptScreenComponent, ComponentContext by componentContext, KoinComponent {
 
-    private val di = getDI()
-    private val matchRepository: MatchRepository by di.inject(MatchRepository::class)
+    private val matchRepository: MatchRepository by inject()
 
     private val _uiState = MutableStateFlow(PromptUiState())
     override val uiState: StateFlow<PromptUiState> = _uiState.asStateFlow()

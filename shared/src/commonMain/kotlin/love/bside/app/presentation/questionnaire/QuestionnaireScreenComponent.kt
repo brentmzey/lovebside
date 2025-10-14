@@ -7,11 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import love.bside.app.data.storage.SessionManager
-import love.bside.app.di.getDI
 import love.bside.app.domain.models.ProustQuestionnaire
 import love.bside.app.domain.models.UserAnswer
 import love.bside.app.domain.repository.QuestionnaireRepository
 import love.bside.app.ui.components.UiState
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 interface QuestionnaireScreenComponent {
     val uiState: StateFlow<QuestionnaireUiState>
@@ -27,11 +28,10 @@ data class QuestionnaireUiState(
 
 class DefaultQuestionnaireScreenComponent(
     componentContext: ComponentContext
-) : QuestionnaireScreenComponent, ComponentContext by componentContext {
+) : QuestionnaireScreenComponent, ComponentContext by componentContext, KoinComponent {
 
-    private val di = getDI()
-    private val questionnaireRepository: QuestionnaireRepository by di.inject(QuestionnaireRepository::class)
-    private val sessionManager: SessionManager by di.inject(SessionManager::class)
+    private val questionnaireRepository: QuestionnaireRepository by inject()
+    private val sessionManager: SessionManager by inject()
 
     private val _uiState = MutableStateFlow(QuestionnaireUiState())
     override val uiState: StateFlow<QuestionnaireUiState> = _uiState.asStateFlow()

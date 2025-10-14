@@ -32,11 +32,11 @@ kotlin {
         browser()
     }
 
-    // WasmJS target (experimental)
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-    }
+    // WasmJS target (experimental) - Disabled temporarily due to Koin compatibility
+    // @OptIn(ExperimentalWasmDsl::class)
+    // wasmJs {
+    //     browser()
+    // }
 
     sourceSets {
         // Common source set - shared across all platforms
@@ -54,12 +54,14 @@ kotlin {
             implementation(libs.decompose.extensions.compose)
             implementation(libs.essenty.lifecycle)
             implementation(libs.essenty.lifecycle.coroutines)
+            implementation(libs.koin.core)
             
             // Compose dependencies for UI components
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
         }
         
@@ -93,11 +95,11 @@ kotlin {
             implementation(libs.koin.core)
         }
 
-        // WebAssembly source set
-        wasmJsMain.dependencies {
-            implementation(libs.ktor.client.js)
-            // Note: Koin doesn't support WasmJS yet - using manual DI
-        }
+        // WebAssembly source set - Disabled temporarily
+        // wasmJsMain.dependencies {
+        //     implementation(libs.ktor.client.js)
+        //     // Note: Koin doesn't support WasmJS yet - using manual DI
+        // }
         
         // Test source sets
         androidUnitTest.dependencies {

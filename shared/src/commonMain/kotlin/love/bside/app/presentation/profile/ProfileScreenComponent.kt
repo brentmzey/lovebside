@@ -7,11 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import love.bside.app.data.storage.SessionManager
-import love.bside.app.di.getDI
 import love.bside.app.domain.models.Profile
 import love.bside.app.domain.usecase.GetUserProfileUseCase
 import love.bside.app.domain.usecase.LogoutUseCase
 import love.bside.app.ui.components.UiState
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
 interface ProfileScreenComponent {
     val uiState: StateFlow<ProfileUiState>
@@ -30,12 +31,11 @@ class DefaultProfileScreenComponent(
     private val onNavigateToQuestionnaire: () -> Unit,
     private val onNavigateToValues: () -> Unit,
     private val onNavigateToMatches: () -> Unit
-) : ProfileScreenComponent, ComponentContext by componentContext {
+) : ProfileScreenComponent, ComponentContext by componentContext, KoinComponent {
 
-    private val di = getDI()
-    private val getUserProfileUseCase: GetUserProfileUseCase by di.inject(GetUserProfileUseCase::class)
-    private val logoutUseCase: LogoutUseCase by di.inject(LogoutUseCase::class)
-    private val sessionManager: SessionManager by di.inject(SessionManager::class)
+    private val getUserProfileUseCase: GetUserProfileUseCase by inject()
+    private val logoutUseCase: LogoutUseCase by inject()
+    private val sessionManager: SessionManager by inject()
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     override val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()

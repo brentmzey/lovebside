@@ -3,6 +3,10 @@ package love.bside.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import com.arkivanov.decompose.defaultComponentContext
+import love.bside.app.routing.RootComponent
 import org.koin.android.ext.android.get
 
 class MainActivity : ComponentActivity() {
@@ -15,10 +19,4 @@ class MainActivity : ComponentActivity() {
             App(root)
         }
     }
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
 }
