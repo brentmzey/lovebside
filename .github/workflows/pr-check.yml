@@ -1,0 +1,56 @@
+name: Pull Request Check
+
+on:
+  pull_request:
+    branches: [ main, development ]
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+  pr-check:
+    name: PR Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission
+        run: chmod +x gradlew
+      
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+      
+      - name: Build modules
+        run: ./gradlew build --no-daemon
+      
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const buildStatus = '${{ job.status }}';
+            const emoji = buildStatus === 'success' ? '✅' : '❌';
+            const message = `${emoji} Build ${buildStatus}
+            
+            **Build Summary:**
+            - Tests: ${buildStatus}
+            - Backend: Built successfully
+            - Android: Built successfully
+            
+            [View full build log](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

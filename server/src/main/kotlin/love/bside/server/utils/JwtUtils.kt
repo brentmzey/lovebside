@@ -3,6 +3,9 @@ package love.bside.server.utils
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.interfaces.DecodedJWT
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import love.bside.server.config.ServerConfig
 import love.bside.server.models.domain.AuthToken
 import kotlinx.datetime.Clock
@@ -97,4 +100,14 @@ object JwtUtils {
         val expiresAt = decoded.expiresAt?.time ?: return true
         return expiresAt < System.currentTimeMillis()
     }
+}
+
+/**
+ * Extension function to get user ID from JWT principal in ApplicationCall
+ */
+fun ApplicationCall.getUserId(): String {
+    val principal = principal<JWTPrincipal>()
+        ?: throw IllegalStateException("No JWT principal found")
+    return principal.payload.getClaim("userId").asString()
+        ?: throw IllegalStateException("No userId claim in JWT")
 }

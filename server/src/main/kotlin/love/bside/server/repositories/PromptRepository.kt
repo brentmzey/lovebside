@@ -1,6 +1,6 @@
 package love.bside.server.repositories
 
-import love.bside.app.data.network.PocketBaseClient
+import love.bside.app.data.api.PocketBaseClient
 import love.bside.app.core.Result
 import love.bside.server.models.domain.Prompt
 import love.bside.server.models.domain.UserAnswer
@@ -9,6 +9,7 @@ import love.bside.server.models.db.PBUserAnswer
 import love.bside.server.utils.toDomain
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Repository interface for prompt operations
@@ -33,14 +34,16 @@ class PromptRepositoryImpl(
     override suspend fun getAllPrompts(): Result<List<Prompt>> {
         return when (val result = pocketBase.getList<PBPrompt>(promptsCollection, perPage = 500)) {
             is Result.Success -> Result.Success(result.data.items.map { it.toDomain() })
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
     override suspend fun getPromptById(id: String): Result<Prompt> {
         return when (val result = pocketBase.getOne<PBPrompt>(promptsCollection, id)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -50,7 +53,8 @@ class PromptRepositoryImpl(
         
         return when (val result = pocketBase.getList<PBUserAnswer>(answersCollection, filter = filter, expand = expand, perPage = 500)) {
             is Result.Success -> Result.Success(result.data.items.map { it.toDomain() })
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -61,9 +65,10 @@ class PromptRepositoryImpl(
             put("answer", answer)
         }
         
-        return when (val result = pocketBase.create<PBUserAnswer>(answersCollection, body)) {
+        return when (val result = pocketBase.create<JsonObject, PBUserAnswer>(answersCollection, body)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
 }

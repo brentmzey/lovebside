@@ -1,0 +1,39 @@
+package love.bside.app.repository
+
+import kotlinx.coroutines.test.runTest
+import love.bside.app.core.Result
+import love.bside.app.data.repository.RepositoryCache
+import love.bside.app.data.repository.Page
+import love.bside.app.data.repository.safeRepositoryCall
+import kotlin.test.*
+
+/**
+ * Tests for repository extension functions
+ */
+class RepositoryExtensionsTest {
+
+    @Test
+    fun `cache stores and retrieves values`() {
+        val cache = RepositoryCache<String, String>()
+        cache.put("key1", "value1")
+        assertEquals("value1", cache.get("key1"))
+    }
+
+    @Test
+    fun `safe repository call wraps successful result`() = runTest {
+        val result = safeRepositoryCall { "success" }
+        assertTrue(result is Result.Success)
+    }
+
+    @Test
+    fun `pagination calculates pages correctly`() {
+        val page = Page.create(
+            items = (1..10).toList(),
+            page = 1,
+            pageSize = 10,
+            totalItems = 25
+        )
+        assertEquals(3, page.totalPages)
+        assertTrue(page.hasNext)
+    }
+}

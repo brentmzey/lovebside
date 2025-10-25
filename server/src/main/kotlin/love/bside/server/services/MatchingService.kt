@@ -24,6 +24,7 @@ class MatchingService(
         val matches = when (val result = matchRepository.getMatchesForUser(userId)) {
             is Result.Success -> result.data
             is Result.Error -> throw Exception("Failed to get matches: ${result.exception.message}")
+            is Result.Loading -> throw Exception("Matches lookup is still loading")
         }
         
         // Transform to DTOs with expanded user data
@@ -31,12 +32,14 @@ class MatchingService(
             val matchedUser = when (val userResult = userRepository.getUserById(match.matchedUserId)) {
                 is Result.Success -> userResult.data
                 is Result.Error -> null
+                is Result.Loading -> null
             }
             
             val matchedProfile = matchedUser?.let { user ->
                 when (val profileResult = profileRepository.getProfileByUserId(user.id)) {
                     is Result.Success -> profileResult.data
                     is Result.Error -> null
+                    is Result.Loading -> null
                 }
             }
             
@@ -67,17 +70,20 @@ class MatchingService(
         val match = when (val result = matchRepository.updateMatchStatus(matchId, "LIKED")) {
             is Result.Success -> result.data
             is Result.Error -> throw Exception("Failed to like match: ${result.exception.message}")
+            is Result.Loading -> throw Exception("Match update is still loading")
         }
         
         // Get matched user details
         val matchedUser = when (val userResult = userRepository.getUserById(match.matchedUserId)) {
             is Result.Success -> userResult.data
             is Result.Error -> throw Exception("User not found")
+            is Result.Loading -> throw Exception("User lookup is still loading")
         }
         
         val matchedProfile = when (val profileResult = profileRepository.getProfileByUserId(matchedUser.id)) {
             is Result.Success -> profileResult.data
             is Result.Error -> null
+            is Result.Loading -> null
         }
         
         return match.toDTO(matchedUser, matchedProfile, emptyList())
@@ -90,17 +96,20 @@ class MatchingService(
         val match = when (val result = matchRepository.updateMatchStatus(matchId, "PASSED")) {
             is Result.Success -> result.data
             is Result.Error -> throw Exception("Failed to pass match: ${result.exception.message}")
+            is Result.Loading -> throw Exception("Match update is still loading")
         }
         
         // Get matched user details
         val matchedUser = when (val userResult = userRepository.getUserById(match.matchedUserId)) {
             is Result.Success -> userResult.data
             is Result.Error -> throw Exception("User not found")
+            is Result.Loading -> throw Exception("User lookup is still loading")
         }
         
         val matchedProfile = when (val profileResult = profileRepository.getProfileByUserId(matchedUser.id)) {
             is Result.Success -> profileResult.data
             is Result.Error -> null
+            is Result.Loading -> null
         }
         
         return match.toDTO(matchedUser, matchedProfile, emptyList())

@@ -1,5 +1,6 @@
 package love.bside.server.routes
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.response.*
@@ -18,7 +19,7 @@ fun Application.configureRouting() {
     routing {
         // Health check endpoint
         get("/health") {
-            call.respond(HealthResponse(
+            call.respond(HttpStatusCode.OK, HealthResponse(
                 status = "healthy",
                 version = "1.0.0",
                 timestamp = Clock.System.now().toString()

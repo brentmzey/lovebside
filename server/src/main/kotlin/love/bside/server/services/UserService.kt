@@ -24,11 +24,13 @@ class UserService(
         val user = when (val result = userRepository.getUserById(userId)) {
             is Result.Success -> result.data
             is Result.Error -> throw NotFoundException("User not found")
+            is Result.Loading -> throw NotFoundException("User lookup is still loading")
         }
         
         val profile = when (val result = profileRepository.getProfileByUserId(userId)) {
             is Result.Success -> result.data
             is Result.Error -> null
+            is Result.Loading -> null
         }
         
         return user.toDTO(profile)
@@ -49,6 +51,7 @@ class UserService(
         val profile = when (val result = profileRepository.updateProfile(userId, updates)) {
             is Result.Success -> result.data
             is Result.Error -> throw Exception("Failed to update profile: ${result.exception.message}")
+            is Result.Loading -> throw Exception("Profile update is still loading")
         }
         
         return profile.toDTO()
@@ -65,6 +68,7 @@ class UserService(
         when (userRepository.deleteUser(userId)) {
             is Result.Success -> {}
             is Result.Error -> throw Exception("Failed to delete user")
+            is Result.Loading -> throw Exception("User deletion is still loading")
         }
     }
 }

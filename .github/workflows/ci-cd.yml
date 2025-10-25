@@ -1,0 +1,428 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+  release:
+    types: [ created ]
+
+env:
+  JAVA_VERSION: '17'
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true
+
+jobs:
+  # Job 1: Build and Test Backend
+  build-backend:
+    name: Build Backend Server
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Run backend tests
+        run: ./gradlew :server:test --no-daemon --stacktrace
+      
+      - name: Build backend JAR
+        run: ./gradlew :server:shadowJar --no-daemon
+      
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-server
+          path: server/build/libs/server-1.0.0-all.jar
+          retention-days: 30
+      
+      - name: Verify backend JAR
+        run: |
+          ls -lh server/build/libs/
+          file server/build/libs/server-1.0.0-all.jar
+
+  # Job 2: Build Android
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build shared module
+        run: ./gradlew :shared:build --no-daemon
+      
+      - name: Run Android tests
+        run: ./gradlew :composeApp:testDebugUnitTest --no-daemon
+      
+      - name: Build Android Debug APK
+        run: ./gradlew :composeApp:assembleDebug --no-daemon
+      
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-debug
+          path: composeApp/build/outputs/apk/debug/composeApp-debug.apk
+          retention-days: 30
+      
+      - name: Verify APK
+        run: |
+          ls -lh composeApp/build/outputs/apk/debug/
+          file composeApp/build/outputs/apk/debug/composeApp-debug.apk
+
+  # Job 3: Build Desktop
+  build-desktop:
+    name: Build Desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: desktop-linux
+            artifact_path: composeApp/build/compose/binaries/main/deb/*.deb
+          - os: macos-latest
+            artifact_name: desktop-macos
+            artifact_path: composeApp/build/compose/binaries/main/dmg/*.dmg
+          - os: windows-latest
+            artifact_name: desktop-windows
+            artifact_path: composeApp/build/compose/binaries/main/msi/*.msi
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission for gradlew (Unix)
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+      
+      - name: Build shared module
+        run: ./gradlew :shared:jvmJar --no-daemon
+      
+      - name: Build Desktop package
+        run: ./gradlew :composeApp:packageDistributionForCurrentOS --no-daemon
+      
+      - name: List Desktop artifacts (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          ls -lh composeApp/build/compose/binaries/main/ || true
+          find composeApp/build/compose/binaries/main/ -type f \( -name "*.dmg" -o -name "*.deb" -o -name "*.msi" \) || true
+      
+      - name: List Desktop artifacts (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          dir composeApp\build\compose\binaries\main\
+        shell: cmd
+      
+      - name: Upload Desktop artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+          retention-days: 30
+        continue-on-error: true
+
+  # Job 4: Build Web
+  build-web:
+    name: Build Web App
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build shared module for JS
+        run: ./gradlew :shared:jsJar --no-daemon
+      
+      - name: Build Web distribution
+        run: ./gradlew :composeApp:jsBrowserDistribution --no-daemon
+        continue-on-error: true
+      
+      - name: Upload Web distribution
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-distribution
+          path: composeApp/build/dist/js/productionExecutable/
+          retention-days: 30
+
+  # Job 5: Run Tests
+  test:
+    name: Run All Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Run all tests
+        run: ./gradlew test --no-daemon --stacktrace
+      
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            **/build/test-results/**/*.xml
+        continue-on-error: true
+      
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
+          retention-days: 7
+
+  # Job 6: Code Quality & Security
+  code-quality:
+    name: Code Quality & Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for better analysis
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Run Detekt (Kotlin linter)
+        run: ./gradlew detekt --no-daemon
+        continue-on-error: true
+      
+      - name: Dependency vulnerability scan
+        run: ./gradlew dependencyCheckAnalyze --no-daemon
+        continue-on-error: true
+
+  # Job 7: Deploy Backend (Production only)
+  deploy-backend:
+    name: Deploy Backend to Production
+    needs: [build-backend, test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
+    
+    steps:
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-server
+      
+      - name: Display backend artifact
+        run: |
+          ls -lh
+          file server-1.0.0-all.jar
+      
+      - name: Deploy to server via SCP
+        if: github.event_name == 'release'
+        run: |
+          echo "🚀 Would deploy to production server here"
+          echo "scp server-1.0.0-all.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/bside/"
+          echo "ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'sudo systemctl restart bside-server'"
+        # Uncomment below when secrets are configured:
+        # - name: Deploy to production
+        #   uses: appleboy/scp-action@master
+        #   with:
+        #     host: ${{ secrets.SERVER_HOST }}
+        #     username: ${{ secrets.SERVER_USER }}
+        #     key: ${{ secrets.SERVER_SSH_KEY }}
+        #     source: "server-1.0.0-all.jar"
+        #     target: "/opt/bside/"
+        # 
+        # - name: Restart backend service
+        #   uses: appleboy/ssh-action@master
+        #   with:
+        #     host: ${{ secrets.SERVER_HOST }}
+        #     username: ${{ secrets.SERVER_USER }}
+        #     key: ${{ secrets.SERVER_SSH_KEY }}
+        #     script: |
+        #       sudo systemctl restart bside-server
+        #       sleep 5
+        #       curl -f http://localhost:8080/health || exit 1
+
+  # Job 8: Deploy Web (Production only)
+  deploy-web:
+    name: Deploy Web App
+    needs: [build-web, test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || (github.ref == 'refs/heads/main' && github.event_name == 'push')
+    
+    steps:
+      - name: Download web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-distribution
+        continue-on-error: true
+      
+      - name: Display web artifacts
+        run: |
+          ls -lh || echo "No web artifacts"
+      
+      # Uncomment when ready to deploy:
+      # - name: Deploy to Netlify/Vercel/Cloudflare
+      #   run: |
+      #     echo "Deploy web app here"
+      #     # npx netlify-cli deploy --prod --dir=.
+      #     # or: vercel --prod
+      #     # or: wrangler pages publish .
+
+  # Job 9: Create GitHub Release with Artifacts
+  create-release:
+    name: Create GitHub Release
+    needs: [build-backend, build-android, build-desktop]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+      
+      - name: Display structure of downloaded files
+        run: ls -R artifacts/
+      
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/backend-server/server-1.0.0-all.jar
+            artifacts/android-apk-debug/composeApp-debug.apk
+            artifacts/desktop-macos/*.dmg
+            artifacts/desktop-linux/*.deb
+            artifacts/desktop-windows/*.msi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+  # Job 10: Docker Build and Push
+  docker-build:
+    name: Build and Push Docker Images
+    needs: [build-backend, test]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-server
+          path: server/build/libs/
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        if: github.event_name == 'release'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        continue-on-error: true
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: bside/server
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+      
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          file: ./server/Dockerfile
+          push: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Job 11: Notification
+  notify:
+    name: Send Notifications
+    needs: [build-backend, build-android, build-desktop, test]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Check build status
+        run: |
+          echo "Build Status Summary:"
+          echo "Backend: ${{ needs.build-backend.result }}"
+          echo "Android: ${{ needs.build-android.result }}"
+          echo "Desktop: ${{ needs.build-desktop.result }}"
+          echo "Tests: ${{ needs.test.result }}"
+      
+      # Uncomment when you want Slack notifications:
+      # - name: Slack Notification
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: ${{ job.status }}
+      #     text: 'Build ${{ github.run_number }} completed'
+      #     webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      #   if: always()

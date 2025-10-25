@@ -1,24 +1,36 @@
 package love.bside.app
 
-import androidx.compose.runtime.Composable
-import com.arkivanov.decompose.extensions.compose.stack.Children
-import com.arkivanov.decompose.extensions.compose.stack.animation.slide
-import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import love.bside.app.routing.RootComponent
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import love.bside.app.ui.theme.BsideTheme
-import love.bside.app.presentation.login.LoginScreen
-import love.bside.app.presentation.main.MainScreen
 
 @Composable
-fun App(root: RootComponent) {
+fun App() {
     BsideTheme {
-        Children(
-            stack = root.childStack,
-            animation = stackAnimation(slide())
-        ) {
-            when (val child = it.instance) {
-                is RootComponent.Child.Login -> LoginScreen(child.component)
-                is RootComponent.Child.Main -> MainScreen(child.component)
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "B-Side Dating App",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Multiplatform App Running!",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(onClick = { }) {
+                    Text("Get Started")
+                }
             }
         }
     }

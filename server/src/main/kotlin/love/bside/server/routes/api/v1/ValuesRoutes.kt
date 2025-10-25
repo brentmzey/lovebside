@@ -48,25 +48,3 @@ fun Route.valuesRoutes() {
         }
     }
 }
-
-fun Route.matchRoutes() {
-    // TODO: Implement match routes
-    authenticate("auth-jwt") {
-        route("/matches") {
-            get {
-                call.respond(HttpStatusCode.OK, emptyList<Any>().toSuccessResponse())
-            }
-        }
-    }
-}
-
-fun Route.promptRoutes() {
-    // TODO: Implement prompt routes
-    authenticate("auth-jwt") {
-        route("/prompts") {
-            get {
-                call.respond(HttpStatusCode.OK, emptyList<Any>().toSuccessResponse())
-            }
-        }
-    }
-}

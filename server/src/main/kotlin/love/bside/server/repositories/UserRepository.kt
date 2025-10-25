@@ -1,6 +1,6 @@
 package love.bside.server.repositories
 
-import love.bside.app.data.network.PocketBaseClient
+import love.bside.app.data.api.PocketBaseClient
 import love.bside.app.core.Result
 import love.bside.server.models.domain.User
 import love.bside.server.models.db.PBUser
@@ -8,6 +8,7 @@ import love.bside.server.utils.toDomain
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import love.bside.app.core.AppException
 
 /**
  * Repository interface for user operations
@@ -37,16 +38,18 @@ class UserRepositoryImpl(
             put("passwordConfirm", password)
         }
         
-        return when (val result = pocketBase.create<PBUser>(collection, body)) {
+        return when (val result = pocketBase.create<JsonObject, PBUser>(collection, body)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
     override suspend fun getUserById(id: String): Result<User> {
         return when (val result = pocketBase.getOne<PBUser>(collection, id)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -58,7 +61,8 @@ class UserRepositoryImpl(
                 val user = result.data.items.firstOrNull()
                 Result.Success(user?.toDomain())
             }
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -73,9 +77,10 @@ class UserRepositoryImpl(
             }
         }
         
-        return when (val result = pocketBase.update<PBUser>(collection, id, body)) {
+        return when (val result = pocketBase.update<JsonObject, PBUser>(collection, id, body)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -84,14 +89,15 @@ class UserRepositoryImpl(
     }
     
     override suspend fun authenticate(email: String, password: String): Result<Pair<String, User>> {
-        return when (val result = pocketBase.authenticate(email, password)) {
+        return when (val result = pocketBase.authWithPassword<PBUser>(collection, email, password)) {
             is Result.Success -> {
                 // PocketBase returns token and user record
                 val token = result.data.token
-                val user = result.data.user.toDomain()
+                val user = result.data.record.toDomain()
                 Result.Success(Pair(token, user))
             }
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
 }

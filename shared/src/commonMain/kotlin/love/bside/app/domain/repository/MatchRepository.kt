@@ -1,5 +1,6 @@
 package love.bside.app.domain.repository
 
+import love.bside.app.core.Result
 import love.bside.app.domain.models.Match
 import love.bside.app.domain.models.Prompt
 

@@ -1,0 +1,1159 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Calculating task graph as no cached configuration is available for tasks: assemble
+Type-safe project accessors is an incubating feature.
+Configuration 'jsNpmAggregated' was resolved during configuration time.
+This is a build performance and scalability issue.
+See https://github.com/gradle/gradle/issues/2298
+Run with --info for a stacktrace.
+Configuration 'jsTestNpmAggregated' was resolved during configuration time.
+This is a build performance and scalability issue.
+See https://github.com/gradle/gradle/issues/2298
+Run with --info for a stacktrace.
+Configuration 'jsNpmAggregated' was resolved during configuration time.
+This is a build performance and scalability issue.
+See https://github.com/gradle/gradle/issues/2298
+Run with --info for a stacktrace.
+Configuration 'jsTestNpmAggregated' was resolved during configuration time.
+This is a build performance and scalability issue.
+See https://github.com/gradle/gradle/issues/2298
+Run with --info for a stacktrace.
+Configuration 'jsNpmAggregated' was resolved during configuration time.
+This is a build performance and scalability issue.
+See https://github.com/gradle/gradle/issues/2298
+Run with --info for a stacktrace.
+Configuration 'jsTestNpmAggregated' was resolved during configuration time.
+This is a build performance and scalability issue.
+See https://github.com/gradle/gradle/issues/2298
+Run with --info for a stacktrace.
+> Task :assemble UP-TO-DATE
+> Task :composeApp:convertXmlValueResourcesForCommonMain NO-SOURCE
+> Task :shared:convertXmlValueResourcesForAppleMain NO-SOURCE
+> Task :shared:convertXmlValueResourcesForNativeMain NO-SOURCE
+> Task :shared:metadataCommonMainProcessResources NO-SOURCE
+> Task :shared:convertXmlValueResourcesForCommonMain NO-SOURCE
+> Task :shared:metadataNativeMainProcessResources NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForCommonMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForAppleMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForNativeMain NO-SOURCE
+> Task :shared:convertXmlValueResourcesForIosMain NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForNativeMain NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForAppleMain NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForCommonMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForIosMain NO-SOURCE
+> Task :shared:generateResourceAccessorsForNativeMain NO-SOURCE
+> Task :shared:generateResourceAccessorsForAppleMain NO-SOURCE
+> Task :shared:generateResourceAccessorsForCommonMain NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForIosMain NO-SOURCE
+> Task :shared:metadataAppleMainProcessResources NO-SOURCE
+> Task :shared:generateResourceAccessorsForIosMain NO-SOURCE
+> Task :shared:metadataIosMainProcessResources NO-SOURCE
+> Task :composeApp:preBuild UP-TO-DATE
+> Task :composeApp:preDebugBuild UP-TO-DATE
+> Task :shared:kmpPartiallyResolvedDependenciesChecker
+> Task :composeApp:kmpPartiallyResolvedDependenciesChecker
+> Task :composeApp:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :composeApp:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :shared:preBuild UP-TO-DATE
+> Task :composeApp:copyNonXmlValueResourcesForAndroidDebug NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForAndroidDebug NO-SOURCE
+> Task :shared:preDebugBuild UP-TO-DATE
+> Task :composeApp:prepareComposeResourcesTaskForAndroidMain NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForAndroidDebug NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForAndroidDebug NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForAndroidMain NO-SOURCE
+> Task :shared:exportRootPublicationCoordinatesForMetadataApiElements
+> Task :composeApp:generateDebugResValues FROM-CACHE
+> Task :shared:generateDebugResValues FROM-CACHE
+> Task :shared:generateProjectStructureMetadata
+> Task :shared:processDebugNavigationResources FROM-CACHE
+> Task :composeApp:metadataCommonMainProcessResources
+> Task :shared:generateDebugResources FROM-CACHE
+> Task :composeApp:copyNonXmlValueResourcesForCommonMain
+> Task :composeApp:generateProjectStructureMetadata
+> Task :composeApp:prepareComposeResourcesTaskForCommonMain UP-TO-DATE
+> Task :composeApp:generateDebugResources FROM-CACHE
+> Task :shared:extractDeepLinksDebug FROM-CACHE
+> Task :composeApp:extractDeepLinksDebug FROM-CACHE
+> Task :shared:convertXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :composeApp:createDebugCompatibleScreenManifests
+> Task :shared:prepareComposeResourcesTaskForAndroidMain NO-SOURCE
+> Task :shared:convertXmlValueResourcesForAndroidDebug NO-SOURCE
+> Task :shared:generateResourceAccessorsForAndroidMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForAndroidDebug NO-SOURCE
+> Task :shared:packageDebugResources FROM-CACHE
+> Task :shared:processDebugManifest FROM-CACHE
+> Task :shared:prepareComposeResourcesTaskForAndroidDebug NO-SOURCE
+> Task :composeApp:generateComposeResClass
+> Task :shared:generateComposeResClass
+> Task :shared:generateActualResourceCollectorsForAndroidMain
+> Task :composeApp:packageDebugResources FROM-CACHE
+> Task :composeApp:generateResourceAccessorsForCommonMain
+> Task :composeApp:generateExpectResourceCollectorsForCommonMain
+> Task :shared:generateExpectResourceCollectorsForCommonMain
+> Task :shared:generateResourceAccessorsForAndroidDebug NO-SOURCE
+> Task :shared:javaPreCompileDebug FROM-CACHE
+> Task :shared:compileDebugLibraryResources FROM-CACHE
+> Task :composeApp:javaPreCompileDebug FROM-CACHE
+> Task :composeApp:debugAssetsCopyForAGP NO-SOURCE
+> Task :composeApp:generateActualResourceCollectorsForAndroidMain
+> Task :shared:debugAssetsCopyForAGP NO-SOURCE
+> Task :shared:copyDebugComposeResourcesToAndroidAssets
+> Task :composeApp:copyDebugComposeResourcesToAndroidAssets
+> Task :shared:parseDebugLocalResources FROM-CACHE
+> Task :composeApp:desugarDebugFileDependencies FROM-CACHE
+> Task :shared:generateDebugRFile FROM-CACHE
+> Task :composeApp:validateSigningDebug
+> Task :composeApp:writeDebugAppMetadata
+> Task :shared:mergeDebugShaders
+> Task :shared:compileDebugShaders NO-SOURCE
+> Task :shared:generateDebugAssets UP-TO-DATE
+> Task :composeApp:writeDebugSigningConfigVersions
+> Task :composeApp:preReleaseBuild UP-TO-DATE
+> Task :shared:commonizeNativeDistribution
+> Task :shared:preReleaseBuild UP-TO-DATE
+> Task :shared:mergeDebugJniLibFolders
+> Task :shared:mergeDebugNativeLibs NO-SOURCE
+> Task :shared:writeDebugAarMetadata
+> Task :composeApp:mergeReleaseJniLibFolders
+> Task :shared:generateReleaseResValues FROM-CACHE
+> Task :shared:mergeReleaseJniLibFolders
+> Task :shared:generateReleaseResources FROM-CACHE
+> Task :shared:mergeReleaseNativeLibs NO-SOURCE
+> Task :shared:packageReleaseResources FROM-CACHE
+> Task :shared:processReleaseNavigationResources FROM-CACHE
+> Task :shared:parseReleaseLocalResources FROM-CACHE
+> Task :shared:generateReleaseRFile FROM-CACHE
+> Task :shared:convertXmlValueResourcesForAndroidRelease NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForAndroidRelease NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForAndroidRelease NO-SOURCE
+> Task :shared:generateResourceAccessorsForAndroidRelease NO-SOURCE
+> Task :shared:copyDebugJniLibsProjectOnly
+> Task :shared:javaPreCompileRelease FROM-CACHE
+> Task :composeApp:mergeDebugJniLibFolders
+> Task :composeApp:mergeDebugShaders
+> Task :composeApp:compileDebugShaders NO-SOURCE
+> Task :composeApp:generateDebugAssets UP-TO-DATE
+> Task :composeApp:buildKotlinToolingMetadata
+> Task :composeApp:convertXmlValueResourcesForAndroidRelease NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForAndroidRelease NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForAndroidRelease NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForAndroidRelease NO-SOURCE
+> Task :shared:copyReleaseJniLibsProjectOnly
+> Task :shared:mergeDebugAssets
+> Task :composeApp:checkDebugAarMetadata
+> Task :shared:writeReleaseAarMetadata
+> Task :composeApp:processDebugNavigationResources FROM-CACHE
+> Task :composeApp:processReleaseNavigationResources FROM-CACHE
+> Task :composeApp:mapDebugSourceSetPaths
+> Task :composeApp:compileDebugNavigationResources FROM-CACHE
+> Task :composeApp:compileReleaseNavigationResources FROM-CACHE
+> Task :composeApp:parseDebugLocalResources FROM-CACHE
+> Task :composeApp:checkReleaseAarMetadata
+> Task :composeApp:generateReleaseResValues FROM-CACHE
+> Task :composeApp:mergeDebugAssets
+> Task :composeApp:processDebugMainManifest FROM-CACHE
+> Task :composeApp:mergeReleaseNativeLibs
+> Task :composeApp:mergeDebugNativeLibs
+> Task :shared:extractDeepLinksRelease FROM-CACHE
+> Task :composeApp:createReleaseCompatibleScreenManifests
+> Task :composeApp:processDebugManifest FROM-CACHE
+> Task :composeApp:compressDebugAssets FROM-CACHE
+> Task :composeApp:mapReleaseSourceSetPaths
+> Task :composeApp:extractDeepLinksRelease FROM-CACHE
+> Task :composeApp:processDebugManifestForPackage FROM-CACHE
+> Task :composeApp:generateReleaseResources FROM-CACHE
+> Task :shared:compileReleaseLibraryResources FROM-CACHE
+> Task :composeApp:javaPreCompileRelease FROM-CACHE
+> Task :shared:processReleaseManifest FROM-CACHE
+> Task :composeApp:checkDebugDuplicateClasses
+> Task :composeApp:checkReleaseDuplicateClasses
+> Task :composeApp:mergeReleaseStartupProfile UP-TO-DATE
+> Task :shared:prepareReleaseArtProfile UP-TO-DATE
+
+> Task :composeApp:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so. Run with --info option to learn more.
+
+> Task :composeApp:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so. Run with --info option to learn more.
+
+> Task :composeApp:mergeReleaseShaders
+> Task :composeApp:desugarReleaseFileDependencies FROM-CACHE
+> Task :composeApp:releaseAssetsCopyForAGP NO-SOURCE
+> Task :composeApp:copyReleaseComposeResourcesToAndroidAssets
+> Task :composeApp:compileReleaseShaders NO-SOURCE
+> Task :composeApp:generateReleaseAssets UP-TO-DATE
+> Task :shared:releaseAssetsCopyForAGP NO-SOURCE
+> Task :shared:copyReleaseComposeResourcesToAndroidAssets
+> Task :composeApp:convertXmlValueResourcesForAppleMain NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForAppleMain NO-SOURCE
+> Task :composeApp:extractReleaseNativeSymbolTables FROM-CACHE
+> Task :composeApp:packageReleaseResources FROM-CACHE
+> Task :composeApp:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForAppleTest NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForAppleTest NO-SOURCE
+> Task :composeApp:parseReleaseLocalResources FROM-CACHE
+> Task :composeApp:prepareComposeResourcesTaskForAppleTest NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForAppleTest NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForIosArm64Main NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForIosArm64Main NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForAppleMain NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForCommonTest NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForCommonTest NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForAppleMain NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForIosArm64Main NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForCommonTest NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForIosArm64Main NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForIosArm64Test NO-SOURCE
+> Task :composeApp:mergeDebugResources FROM-CACHE
+> Task :composeApp:convertXmlValueResourcesForIosMain NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForIosMain NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForCommonTest NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForIosSimulatorArm64Main NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForIosMain NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForIosSimulatorArm64Main NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForIosArm64Test NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForIosMain NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForIosSimulatorArm64Test NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForIosSimulatorArm64Main NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForIosArm64Test NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForIosSimulatorArm64Test NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForIosArm64Test NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForIosSimulatorArm64Main NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForIosTest NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForJsMain NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForIosTest NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForIosSimulatorArm64Test NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForJsMain NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForIosSimulatorArm64Test NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForJsMain NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForIosTest NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForJvmMain NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForJsMain NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForJvmMain NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForNativeMain NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForNativeMain NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForJvmMain NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForJvmMain NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForNativeMain NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForIosTest NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForNativeTest NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForNativeTest NO-SOURCE
+> Task :composeApp:convertXmlValueResourcesForWebMain NO-SOURCE
+> Task :composeApp:copyNonXmlValueResourcesForWebMain NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForNativeTest NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForNativeTest NO-SOURCE
+> Task :composeApp:prepareComposeResourcesTaskForWebMain NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForWebMain NO-SOURCE
+> Task :shared:convertXmlValueResourcesForAppleTest NO-SOURCE
+> Task :composeApp:generateResourceAccessorsForNativeMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForAppleTest NO-SOURCE
+> Task :shared:convertXmlValueResourcesForCommonTest NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForAppleTest NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForCommonTest NO-SOURCE
+> Task :shared:generateResourceAccessorsForAppleTest NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForCommonTest NO-SOURCE
+> Task :shared:convertXmlValueResourcesForIosArm64Main NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForIosArm64Main NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForIosArm64Main NO-SOURCE
+> Task :shared:generateResourceAccessorsForIosArm64Main NO-SOURCE
+> Task :shared:convertXmlValueResourcesForIosArm64Test NO-SOURCE
+> Task :shared:generateResourceAccessorsForCommonTest NO-SOURCE
+> Task :shared:convertXmlValueResourcesForIosSimulatorArm64Main NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForIosArm64Test NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForIosSimulatorArm64Main NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForIosArm64Test NO-SOURCE
+> Task :composeApp:extractProguardFiles
+> Task :shared:compileDebugKotlinAndroid FROM-CACHE
+> Task :shared:convertXmlValueResourcesForIosSimulatorArm64Test NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForIosSimulatorArm64Main NO-SOURCE
+> Task :shared:generateResourceAccessorsForIosArm64Test NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForIosSimulatorArm64Test NO-SOURCE
+> Task :shared:generateResourceAccessorsForIosSimulatorArm64Main NO-SOURCE
+> Task :shared:convertXmlValueResourcesForIosTest NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForIosSimulatorArm64Test NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForIosTest NO-SOURCE
+> Task :shared:generateResourceAccessorsForIosSimulatorArm64Test NO-SOURCE
+> Task :shared:convertXmlValueResourcesForIosX64Main NO-SOURCE
+> Task :shared:compileDebugJavaWithJavac NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForIosTest NO-SOURCE
+> Task :shared:generateResourceAccessorsForIosTest NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForIosX64Main NO-SOURCE
+> Task :shared:compileReleaseKotlinAndroid FROM-CACHE
+> Task :shared:prepareComposeResourcesTaskForIosX64Main NO-SOURCE
+> Task :composeApp:extractReleaseVersionControlInfo
+> Task :shared:generateResourceAccessorsForIosX64Main NO-SOURCE
+> Task :shared:compileReleaseJavaWithJavac NO-SOURCE
+> Task :shared:convertXmlValueResourcesForIosX64Test NO-SOURCE
+> Task :shared:processDebugJavaRes
+> Task :shared:processReleaseJavaRes
+> Task :shared:copyNonXmlValueResourcesForIosX64Test NO-SOURCE
+> Task :composeApp:mergeReleaseResources FROM-CACHE
+> Task :shared:convertXmlValueResourcesForJsMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForJsMain NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForJsMain NO-SOURCE
+> Task :shared:generateResourceAccessorsForJsMain NO-SOURCE
+> Task :shared:convertXmlValueResourcesForJvmMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForJvmMain NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForIosX64Test NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForJvmMain NO-SOURCE
+> Task :shared:generateResourceAccessorsForIosX64Test NO-SOURCE
+> Task :shared:generateResourceAccessorsForJvmMain NO-SOURCE
+> Task :shared:convertXmlValueResourcesForNativeTest NO-SOURCE
+> Task :shared:convertXmlValueResourcesForWebMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForWebMain NO-SOURCE
+> Task :shared:copyNonXmlValueResourcesForNativeTest NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForWebMain NO-SOURCE
+> Task :shared:prepareComposeResourcesTaskForNativeTest NO-SOURCE
+> Task :shared:generateResourceAccessorsForWebMain NO-SOURCE
+> Task :shared:generateResourceAccessorsForNativeTest NO-SOURCE
+> Task :shared:prepareLintJarForPublish UP-TO-DATE
+> Task :shared:extractProguardFiles
+> Task :shared:bundleLibCompileToJarDebug
+> Task :shared:stripReleaseDebugSymbols NO-SOURCE
+> Task :shared:copyReleaseJniLibsProjectAndLocalJars
+> Task :shared:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :shared:bundleLibCompileToJarRelease
+> Task :shared:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :shared:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :shared:bundleLibRuntimeToJarRelease
+> Task :shared:createFullJarRelease
+> Task :shared:mergeReleaseShaders
+> Task :shared:compileReleaseShaders NO-SOURCE
+> Task :shared:generateReleaseAssets UP-TO-DATE
+> Task :shared:extractReleaseAnnotations FROM-CACHE
+> Task :shared:writeReleaseLintModelMetadata
+> Task :shared:mergeReleaseAssets
+> Task :shared:checkReleaseAarMetadata
+> Task :shared:lintVitalAnalyzeRelease FROM-CACHE
+> Task :composeApp:mergeReleaseAssets
+> Task :composeApp:writeReleaseAppMetadata
+> Task :composeApp:compressReleaseAssets FROM-CACHE
+> Task :composeApp:writeReleaseSigningConfigVersions
+> Task :composeApp:commonizeNativeDistribution
+> Task :composeApp:metadataNativeMainProcessResources
+> Task :composeApp:metadataAppleMainProcessResources
+> Task :composeApp:processReleaseMainManifest FROM-CACHE
+> Task :composeApp:generateActualResourceCollectorsForIosArm64Main
+> Task :shared:generateActualResourceCollectorsForIosArm64Main
+> Task :shared:mergeReleaseJavaResource
+> Task :composeApp:processReleaseManifest FROM-CACHE
+> Task :composeApp:generateActualResourceCollectorsForIosSimulatorArm64Main
+> Task :composeApp:processReleaseManifestForPackage FROM-CACHE
+> Task :shared:generateActualResourceCollectorsForIosSimulatorArm64Main
+> Task :shared:syncReleaseLibJars FROM-CACHE
+> Task :shared:generateReleaseLintModel
+> Task :composeApp:generateActualResourceCollectorsForJsMain
+> Task :shared:generateActualResourceCollectorsForJsMain
+> Task :shared:bundleReleaseLocalLintAar
+> Task :shared:bundleLibRuntimeToDirRelease
+> Task :composeApp:mergeReleaseArtProfile
+> Task :shared:generateReleaseLintVitalModel
+> Task :composeApp:assembleJsMainResources
+> Task :composeApp:jsResolveSelfResourcesCopyHierarchicalMultiplatformResources
+> Task :shared:assembleIosArm64MainResources
+> Task :shared:iosArm64CopyHierarchicalMultiplatformResources
+> Task :shared:iosArm64ZipMultiplatformResourcesForPublication
+> Task :composeApp:iosArm64ResolveResourcesFromDependencies
+> Task :composeApp:assembleIosArm64MainResources
+> Task :composeApp:iosArm64ResolveSelfResourcesCopyHierarchicalMultiplatformResources
+> Task :composeApp:collectReleaseDependencies
+> Task :composeApp:iosArm64AggregateResources
+> Task :composeApp:iosArm64ProcessResources
+> Task :shared:assembleIosSimulatorArm64MainResources
+> Task :shared:iosSimulatorArm64CopyHierarchicalMultiplatformResources
+> Task :shared:iosSimulatorArm64ZipMultiplatformResourcesForPublication
+> Task :composeApp:iosSimulatorArm64ResolveResourcesFromDependencies
+> Task :composeApp:assembleIosSimulatorArm64MainResources
+> Task :composeApp:iosSimulatorArm64ResolveSelfResourcesCopyHierarchicalMultiplatformResources
+> Task :composeApp:iosSimulatorArm64AggregateResources
+> Task :composeApp:iosSimulatorArm64ProcessResources
+> Task :composeApp:metadataIosMainProcessResources
+> Task :kotlinKotlinNpmCachesSetup
+> Task :shared:bundleLibRuntimeToDirDebug
+> Task :shared:assembleJsMainResources
+> Task :shared:jsCopyHierarchicalMultiplatformResources
+> Task :shared:jsZipMultiplatformResourcesForPublication
+> Task :composeApp:jsResolveResourcesFromDependencies
+> Task :kotlinRestoreYarnLock
+> Task :composeApp:unpackSkikoWasmRuntime
+> Task :composeApp:jsAggregateResources
+> Task :composeApp:sdkReleaseDependencyData
+> Task :composeApp:generateActualResourceCollectorsForJvmMain
+> Task :shared:generateActualResourceCollectorsForJvmMain
+> Task :composeApp:jsProcessResources
+> Task :shared:assembleJvmMainResources
+> Task :shared:jvmProcessResources
+> Task :shared:processJvmMainResources SKIPPED
+> Task :composeApp:assembleJvmMainResources
+> Task :composeApp:jvmProcessResources
+> Task :composeApp:processJvmMainResources SKIPPED
+> Task :pocketbase-kt-sdk:kmpPartiallyResolvedDependenciesChecker
+> Task :pocketbase-kt-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:compileKotlinJs FROM-CACHE
+> Task :composeApp:processReleaseResources FROM-CACHE
+> Task :pocketbase-kt-sdk:jsPackageJson
+> Task :composeApp:optimizeReleaseResources FROM-CACHE
+> Task :composeApp:compileKotlinJs FROM-CACHE
+> Task :composeApp:jsMainClasses
+> Task :composeApp:mergeLibDexDebug FROM-CACHE
+> Task :pocketbase-kt-sdk:jsPublicPackageJson
+> Task :pocketbase-kt-sdk:generateProjectStructureMetadata
+> Task :pocketbase-kt-sdk:metadataCommonMainProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:preBuild UP-TO-DATE
+> Task :pocketbase-kt-sdk:preDebugBuild UP-TO-DATE
+> Task :pocketbase-kt-sdk:checkDebugAarMetadata
+> Task :pocketbase-kt-sdk:mergeDebugJniLibFolders
+> Task :pocketbase-kt-sdk:mergeDebugNativeLibs NO-SOURCE
+> Task :pocketbase-kt-sdk:stripDebugDebugSymbols NO-SOURCE
+> Task :pocketbase-kt-sdk:copyDebugJniLibsProjectAndLocalJars
+> Task :pocketbase-kt-sdk:generateDebugResValues FROM-CACHE
+> Task :pocketbase-kt-sdk:generateDebugResources FROM-CACHE
+> Task :pocketbase-kt-sdk:packageDebugResources FROM-CACHE
+> Task :pocketbase-kt-sdk:processDebugNavigationResources FROM-CACHE
+> Task :pocketbase-kt-sdk:parseDebugLocalResources FROM-CACHE
+> Task :pocketbase-kt-sdk:generateDebugRFile FROM-CACHE
+> Task :pocketbase-kt-sdk:jsTestPackageJson
+> Task :pocketbase-kt-sdk:jsTestPublicPackageJson
+> Task :pocketbase-kt-sdk:compileDebugKotlinAndroid FROM-CACHE
+> Task :pocketbase-kt-sdk:extractDebugAnnotations FROM-CACHE
+> Task :pocketbase-kt-sdk:mergeDebugShaders
+> Task :pocketbase-kt-sdk:compileDebugShaders NO-SOURCE
+> Task :pocketbase-kt-sdk:debugAssetsCopyForAGP NO-SOURCE
+> Task :pocketbase-kt-sdk:generateDebugAssets UP-TO-DATE
+> Task :shared:transformCommonMainDependenciesMetadata
+> Task :shared:compileCommonMainKotlinMetadata FROM-CACHE
+> Task :shared:metadataCommonMainClasses UP-TO-DATE
+> Task :shared:allMetadataJar
+> Task :composeApp:mergeExtDexRelease FROM-CACHE
+> Task :pocketbase-kt-sdk:javaPreCompileDebug FROM-CACHE
+> Task :pocketbase-kt-sdk:compileDebugJavaWithJavac NO-SOURCE
+> Task :pocketbase-kt-sdk:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :pocketbase-kt-sdk:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :pocketbase-kt-sdk:prepareDebugArtProfile UP-TO-DATE
+> Task :pocketbase-kt-sdk:prepareLintJarForPublish UP-TO-DATE
+> Task :pocketbase-kt-sdk:processDebugManifest FROM-CACHE
+> Task :pocketbase-kt-sdk:processDebugJavaRes
+> Task :composeApp:compileProductionExecutableKotlinJs FROM-CACHE
+> Task :composeApp:mergeExtDexDebug FROM-CACHE
+> Task :pocketbase-kt-sdk:writeDebugAarMetadata
+> Task :pocketbase-kt-sdk:preReleaseBuild UP-TO-DATE
+> Task :pocketbase-kt-sdk:checkReleaseAarMetadata
+> Task :pocketbase-kt-sdk:mergeReleaseJniLibFolders
+> Task :pocketbase-kt-sdk:mergeReleaseNativeLibs NO-SOURCE
+> Task :pocketbase-kt-sdk:stripReleaseDebugSymbols NO-SOURCE
+> Task :pocketbase-kt-sdk:copyReleaseJniLibsProjectAndLocalJars
+> Task :pocketbase-kt-sdk:generateReleaseResValues FROM-CACHE
+> Task :pocketbase-kt-sdk:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :kotlinNodeJsSetup UP-TO-DATE
+> Task :kotlinYarnSetup UP-TO-DATE
+> Task :pocketbase-kt-sdk:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :pocketbase-kt-sdk:processReleaseNavigationResources FROM-CACHE
+> Task :pocketbase-kt-sdk:generateReleaseResources FROM-CACHE
+> Task :pocketbase-kt-sdk:releaseAssetsCopyForAGP NO-SOURCE
+> Task :composeApp:processDebugResources FROM-CACHE
+> Task :pocketbase-kt-sdk:javaPreCompileRelease FROM-CACHE
+> Task :pocketbase-kt-sdk:prepareReleaseArtProfile UP-TO-DATE
+> Task :pocketbase-kt-sdk:packageReleaseResources FROM-CACHE
+> Task :pocketbase-kt-sdk:parseReleaseLocalResources FROM-CACHE
+> Task :pocketbase-kt-sdk:processReleaseManifest FROM-CACHE
+> Task :pocketbase-kt-sdk:mergeReleaseShaders
+> Task :pocketbase-kt-sdk:compileReleaseShaders NO-SOURCE
+> Task :pocketbase-kt-sdk:generateReleaseAssets UP-TO-DATE
+> Task :pocketbase-kt-sdk:mergeDebugAssets
+> Task :pocketbase-kt-sdk:writeReleaseAarMetadata
+> Task :pocketbase-kt-sdk:generateReleaseRFile FROM-CACHE
+> Task :pocketbase-kt-sdk:mergeDebugJavaResource
+> Task :pocketbase-kt-sdk:mergeReleaseAssets
+> Task :pocketbase-kt-sdk:mapReleaseSourceSetPaths
+> Task :pocketbase-kt-sdk:metadataNativeMainProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:mergeReleaseResources FROM-CACHE
+> Task :pocketbase-kt-sdk:verifyReleaseResources FROM-CACHE
+> Task :pocketbase-kt-sdk:syncDebugLibJars FROM-CACHE
+> Task :pocketbase-kt-sdk:bundleDebugAar
+> Task :pocketbase-kt-sdk:assembleDebug
+> Task :pocketbase-kt-sdk:compileReleaseKotlinAndroid FROM-CACHE
+> Task :pocketbase-kt-sdk:extractReleaseAnnotations FROM-CACHE
+> Task :pocketbase-kt-sdk:compileReleaseJavaWithJavac NO-SOURCE
+> Task :pocketbase-kt-sdk:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :pocketbase-kt-sdk:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :pocketbase-kt-sdk:processReleaseJavaRes
+> Task :pocketbase-kt-sdk:transformCommonMainDependenciesMetadata
+> Task :composeApp:compileReleaseKotlinAndroid FROM-CACHE
+> Task :pocketbase-kt-sdk:mergeReleaseJavaResource
+> Task :composeApp:compileReleaseJavaWithJavac NO-SOURCE
+> Task :composeApp:processReleaseJavaRes
+> Task :composeApp:compileDebugKotlinAndroid FROM-CACHE
+> Task :composeApp:compileDebugJavaWithJavac NO-SOURCE
+> Task :composeApp:processDebugJavaRes
+
+> Task :composeApp:jsProductionExecutableCompileSync
+Cannot rewrite paths in JavaScript source maps: Too many sources or format is not supported
+
+> Task :pocketbase-kt-sdk:metadataAppleMainProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:commonizeNativeDistribution
+> Task :composeApp:lintVitalAnalyzeRelease FROM-CACHE
+> Task :pocketbase-kt-sdk:compileCommonMainKotlinMetadata FROM-CACHE
+> Task :pocketbase-kt-sdk:metadataCommonMainClasses UP-TO-DATE
+> Task :composeApp:generateReleaseLintVitalReportModel
+> Task :pocketbase-kt-sdk:allMetadataJar
+> Task :composeApp:dexBuilderRelease FROM-CACHE
+> Task :pocketbase-kt-sdk:syncReleaseLibJars FROM-CACHE
+> Task :shared:compileKotlinJvm FROM-CACHE
+> Task :shared:compileJvmMainJava NO-SOURCE
+> Task :shared:jvmMainClasses
+> Task :composeApp:dexBuilderDebug FROM-CACHE
+> Task :composeApp:mergeProjectDexDebug FROM-CACHE
+> Task :pocketbase-kt-sdk:bundleReleaseAar
+> Task :pocketbase-kt-sdk:assembleRelease
+> Task :pocketbase-kt-sdk:compileKotlinIosSimulatorArm64 FROM-CACHE
+> Task :pocketbase-kt-sdk:iosArm64ProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:iosSimulatorArm64ProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:iosSimulatorArm64MainKlibrary UP-TO-DATE
+> Task :pocketbase-kt-sdk:compileTestKotlinIosSimulatorArm64 NO-SOURCE
+> Task :pocketbase-kt-sdk:iosX64ProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:metadataIosMainProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:compileKotlinJs FROM-CACHE
+> Task :pocketbase-kt-sdk:jsProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:jsMainClasses UP-TO-DATE
+> Task :pocketbase-kt-sdk:jsJar
+> Task :shared:jvmJar
+> Task :shared:jsPackageJson
+> Task :pocketbase-kt-sdk:compileKotlinJvm FROM-CACHE
+> Task :composeApp:jsPackageJson
+> Task :shared:jsTestPackageJson
+> Task :composeApp:jsTestPackageJson
+> Task :composeApp:jsPublicPackageJson
+> Task :composeApp:jsTestPublicPackageJson
+> Task :shared:jsPublicPackageJson
+> Task :shared:jsTestPublicPackageJson
+> Task :kotlinPackageJsonUmbrella
+> Task :rootPackageJson
+> Task :shared:compileKotlinIosSimulatorArm64 FROM-CACHE
+> Task :composeApp:mergeReleaseGlobalSynthetics FROM-CACHE
+> Task :pocketbase-kt-sdk:compileJvmMainJava NO-SOURCE
+> Task :pocketbase-kt-sdk:jvmProcessResources NO-SOURCE
+> Task :pocketbase-kt-sdk:processJvmMainResources SKIPPED
+> Task :pocketbase-kt-sdk:jvmMainClasses UP-TO-DATE
+> Task :pocketbase-kt-sdk:compileKotlinIosArm64 FROM-CACHE
+> Task :pocketbase-kt-sdk:iosArm64MainKlibrary UP-TO-DATE
+> Task :pocketbase-kt-sdk:compileTestKotlinIosArm64 NO-SOURCE
+> Task :server:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :pocketbase-kt-sdk:jvmJar
+> Task :composeApp:compileKotlinIosSimulatorArm64 FROM-CACHE
+> Task :composeApp:iosSimulatorArm64MainKlibrary
+> Task :server:processResources
+> Task :pocketbase-kt-sdk:transformNativeMainDependenciesMetadata
+> Task :composeApp:compileTestKotlinIosSimulatorArm64 FROM-CACHE
+> Task :pocketbase-kt-sdk:compileNativeMainKotlinMetadata NO-SOURCE
+> Task :pocketbase-kt-sdk:metadataNativeMainClasses UP-TO-DATE
+> Task :pocketbase-kt-sdk:transformAppleMainDependenciesMetadata
+> Task :pocketbase-kt-sdk:compileAppleMainKotlinMetadata NO-SOURCE
+> Task :pocketbase-kt-sdk:metadataAppleMainClasses UP-TO-DATE
+> Task :composeApp:compileKotlinJvm FROM-CACHE
+> Task :composeApp:compileJvmMainJava NO-SOURCE
+> Task :composeApp:jvmMainClasses
+> Task :pocketbase-kt-sdk:transformIosMainDependenciesMetadata
+> Task :pocketbase-kt-sdk:compileIosMainKotlinMetadata NO-SOURCE
+> Task :pocketbase-kt-sdk:metadataIosMainClasses UP-TO-DATE
+> Task :pocketbase-kt-sdk:iosArm64MetadataElements
+> Task :pocketbase-kt-sdk:iosSimulatorArm64MetadataElements
+> Task :pocketbase-kt-sdk:iosX64MetadataElements
+> Task :shared:checkDebugAarMetadata
+> Task :shared:stripDebugDebugSymbols NO-SOURCE
+> Task :shared:copyDebugJniLibsProjectAndLocalJars
+> Task :shared:compileKotlinIosArm64 FROM-CACHE
+> Task :composeApp:jvmJar
+> Task :composeApp:compileKotlinIosArm64 FROM-CACHE
+> Task :composeApp:iosArm64MainKlibrary
+> Task :composeApp:compileTestKotlinIosArm64 FROM-CACHE
+> Task :server:compileKotlin FROM-CACHE
+> Task :shared:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :server:compileJava NO-SOURCE
+> Task :server:classes
+> Task :shared:extractDebugAnnotations FROM-CACHE
+> Task :shared:transformNativeMainDependenciesMetadata
+> Task :shared:compileNativeMainKotlinMetadata NO-SOURCE
+> Task :shared:metadataNativeMainClasses UP-TO-DATE
+> Task :shared:transformAppleMainDependenciesMetadata
+> Task :shared:compileAppleMainKotlinMetadata NO-SOURCE
+> Task :shared:metadataAppleMainClasses UP-TO-DATE
+> Task :server:jar
+> Task :pocketbase-kt-sdk:compileKotlinIosX64 FROM-CACHE
+> Task :pocketbase-kt-sdk:iosX64MainKlibrary UP-TO-DATE
+> Task :pocketbase-kt-sdk:compileTestKotlinIosX64 NO-SOURCE
+> Task :pocketbase-kt-sdk:assemble
+> Task :shared:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :shared:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :shared:prepareDebugArtProfile UP-TO-DATE
+> Task :shared:mergeDebugJavaResource
+> Task :composeApp:jsJar
+> Task :shared:syncDebugLibJars FROM-CACHE
+> Task :shared:bundleReleaseAar
+> Task :shared:mapReleaseSourceSetPaths
+> Task :shared:transformIosMainDependenciesMetadata
+> Task :shared:bundleDebugAar
+> Task :shared:assembleDebug
+> Task :shared:generateActualResourceCollectorsForIosX64Main
+> Task :shared:compileKotlinIosX64 FROM-CACHE
+> Task :shared:iosArm64ResolveResourcesFromDependencies
+
+> Task :kotlinNpmInstall
+warning Ignored scripts due to flag.
+
+> Task :shared:iosArm64ResolveSelfResourcesCopyHierarchicalMultiplatformResources
+> Task :kotlinStoreYarnLock FAILED
+> Task :shared:iosArm64AggregateResources
+> Task :shared:iosArm64ProcessResources
+> Task :shared:mergeReleaseResources FROM-CACHE
+> Task :shared:compileIosMainKotlinMetadata FROM-CACHE
+> Task :server:startScripts
+> Task :composeApp:mergeReleaseJavaResource
+> Task :composeApp:mergeDebugJavaResource
+> Task :server:shadowJar FROM-CACHE
+> Task :composeApp:lintVitalReportRelease
+
+> Task :composeApp:mergeDexRelease FAILED
+ERROR: /Users/brentzey/bside/composeApp/build/intermediates/project_dex_archive/release/dexBuilderRelease/out/love/bside/app/ui/theme/ThemeKt.dex: D8: Type love.bside.app.ui.theme.ThemeKt is defined multiple times: /Users/brentzey/bside/composeApp/build/intermediates/project_dex_archive/release/dexBuilderRelease/out/love/bside/app/ui/theme/ThemeKt.dex, /Users/brentzey/bside/shared/build/.transforms/29d3dca6b4aa1e66ab8743021493a686/transformed/bundleLibRuntimeToDirRelease/bundleLibRuntimeToDirRelease_dex/love/bside/app/ui/theme/ThemeKt.dex
+com.android.builder.dexing.DexArchiveMergerException: Error while merging dex archives: 
+Learn how to resolve the issue at https://developer.android.com/studio/build/dependencies#duplicate_classes.
+Type love.bside.app.ui.theme.ThemeKt is defined multiple times: /Users/brentzey/bside/composeApp/build/intermediates/project_dex_archive/release/dexBuilderRelease/out/love/bside/app/ui/theme/ThemeKt.dex, /Users/brentzey/bside/shared/build/.transforms/29d3dca6b4aa1e66ab8743021493a686/transformed/bundleLibRuntimeToDirRelease/bundleLibRuntimeToDirRelease_dex/love/bside/app/ui/theme/ThemeKt.dex
+	at com.android.builder.dexing.D8DexArchiveMerger.getMergingExceptionToRethrow(D8DexArchiveMerger.java:230)
+	at com.android.builder.dexing.D8DexArchiveMerger.mergeDexArchives(D8DexArchiveMerger.java:218)
+	at com.android.build.gradle.internal.tasks.DexMergingWorkAction.merge(DexMergingTask.kt:935)
+	at com.android.build.gradle.internal.tasks.DexMergingWorkAction.run(DexMergingTask.kt:884)
+	at com.android.build.gradle.internal.profile.ProfileAwareWorkAction.execute(ProfileAwareWorkAction.kt:74)
+	at org.gradle.workers.internal.DefaultWorkerServer.execute(DefaultWorkerServer.java:63)
+	at org.gradle.workers.internal.NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:66)
+	at org.gradle.workers.internal.NoIsolationWorkerFactory$1$1.create(NoIsolationWorkerFactory.java:62)
+	at org.gradle.internal.classloader.ClassLoaderUtils.executeInClassloader(ClassLoaderUtils.java:100)
+	at org.gradle.workers.internal.NoIsolationWorkerFactory$1.lambda$execute$0(NoIsolationWorkerFactory.java:62)
+	at org.gradle.workers.internal.AbstractWorker$1.call(AbstractWorker.java:44)
+	at org.gradle.workers.internal.AbstractWorker$1.call(AbstractWorker.java:41)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+	at org.gradle.workers.internal.AbstractWorker.executeWrappedInBuildOperation(AbstractWorker.java:41)
+	at org.gradle.workers.internal.NoIsolationWorkerFactory$1.execute(NoIsolationWorkerFactory.java:59)
+	at org.gradle.workers.internal.DefaultWorkerExecutor.lambda$submitWork$0(DefaultWorkerExecutor.java:174)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runExecution(DefaultConditionalExecutionQueue.java:194)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.access$700(DefaultConditionalExecutionQueue.java:127)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner$1.run(DefaultConditionalExecutionQueue.java:169)
+	at org.gradle.internal.Factories$1.create(Factories.java:31)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.withLocks(DefaultWorkerLeaseService.java:263)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:127)
+	at org.gradle.internal.work.DefaultWorkerLeaseService.runAsWorkerThread(DefaultWorkerLeaseService.java:132)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.runBatch(DefaultConditionalExecutionQueue.java:164)
+	at org.gradle.internal.work.DefaultConditionalExecutionQueue$ExecutionRunner.run(DefaultConditionalExecutionQueue.java:133)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:572)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: com.android.tools.r8.CompilationFailedException: Compilation failed to complete, origin: /Users/brentzey/bside/composeApp/build/intermediates/project_dex_archive/release/dexBuilderRelease/out/love/bside/app/ui/theme/ThemeKt.dex
+	at Version.fakeStackEntry(Version_8.13.6.java:0)
+	at com.android.tools.r8.q0.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:1)
+	at com.android.tools.r8.internal.is0.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:81)
+	at com.android.tools.r8.internal.is0.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:32)
+	at com.android.tools.r8.internal.is0.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:31)
+	at com.android.tools.r8.internal.is0.b(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:2)
+	at com.android.tools.r8.D8.run(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:11)
+	at com.android.builder.dexing.D8DexArchiveMerger.mergeDexArchives(D8DexArchiveMerger.java:216)
+	... 37 more
+Caused by: com.android.tools.r8.internal.g: Type love.bside.app.ui.theme.ThemeKt is defined multiple times: /Users/brentzey/bside/composeApp/build/intermediates/project_dex_archive/release/dexBuilderRelease/out/love/bside/app/ui/theme/ThemeKt.dex, /Users/brentzey/bside/shared/build/.transforms/29d3dca6b4aa1e66ab8743021493a686/transformed/bundleLibRuntimeToDirRelease/bundleLibRuntimeToDirRelease_dex/love/bside/app/ui/theme/ThemeKt.dex
+	at com.android.tools.r8.internal.ff3.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:21)
+	at com.android.tools.r8.internal.lz2.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:54)
+	at com.android.tools.r8.internal.lz2.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:10)
+	at java.base/java.util.concurrent.ConcurrentHashMap.merge(ConcurrentHashMap.java:2056)
+	at com.android.tools.r8.internal.lz2.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:6)
+	at com.android.tools.r8.graph.u9$a.c(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:6)
+	at com.android.tools.r8.dex.c.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:56)
+	at com.android.tools.r8.dex.c.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:12)
+	at com.android.tools.r8.D8.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:33)
+	at com.android.tools.r8.D8.d(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:20)
+	at com.android.tools.r8.D8.b(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:1)
+	at com.android.tools.r8.internal.is0.a(R8_8.13.6_1c658b3b683138d620220f6965281391a8f410eddb02f3ff35a06caf88d6c59d:28)
+	... 40 more
+
+
+> Task :composeApp:linkDebugFrameworkIosArm64 FAILED
+e: Failed to build cache for /Users/brentzey/.gradle/caches/modules-2/files-2.1/com.arkivanov.decompose/extensions-compose-iosarm64/3.0.0/402badfe3844f8b7112ffb3fd75170e38ec034f2/extensions-compose.
+As a workaround, please try to disable compiler caches (kotlin.native.cacheKind=none)
+
+Also, consider filing an issue with full Gradle log here: https://kotl.in/issue
+
+Exception during generating code for following declaration:
+Inside: FILE fqName:com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback fileName:/Users/runner/work/Decompose/Decompose/extensions-compose/src/commonMain/kotlin/com/arkivanov/decompose/extensions/compose/stack/animation/predictiveback/DefaultPredictiveBackAnimatable.kt
+fun $/Users/runner/work/Decompose/Decompose/extensions-compose/src/commonMain/kotlin/com/arkivanov/decompose/extensions/compose/stack/animation/predictiveback/DefaultPredictiveBackAnimatable.kt.com_arkivanov_decompose_extensions_compose_stack_animation_predictiveback_DefaultPredictiveBackAnimatable$stable_get(): Int {
+  return #com_arkivanov_decompose_extensions_compose_stack_animation_predictiveback_DefaultPredictiveBackAnimatable$stable
+}
+
+
+
+
+org.jetbrains.kotlin.backend.konan.llvm.NativeCodeGeneratorException: Exception during generating code for following declaration:
+Inside: FILE fqName:com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback fileName:/Users/runner/work/Decompose/Decompose/extensions-compose/src/commonMain/kotlin/com/arkivanov/decompose/extensions/compose/stack/animation/predictiveback/DefaultPredictiveBackAnimatable.kt
+fun $/Users/runner/work/Decompose/Decompose/extensions-compose/src/commonMain/kotlin/com/arkivanov/decompose/extensions/compose/stack/animation/predictiveback/DefaultPredictiveBackAnimatable.kt.com_arkivanov_decompose_extensions_compose_stack_animation_predictiveback_DefaultPredictiveBackAnimatable$stable_get(): Int {
+  return #com_arkivanov_decompose_extensions_compose_stack_animation_predictiveback_DefaultPredictiveBackAnimatable$stable
+}
+
+
+
+	at org.jetbrains.kotlin.backend.konan.llvm.NativeCodeGeneratorException$Companion.wrap(IrToBitcode.kt:63)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor$FileScope.wrapException(IrToBitcode.kt:2065)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor$FileScope.wrapException(IrToBitcode.kt:2048)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitFile(IrToBitcode.kt:3112)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitFile(IrVisitorVoid.kt:180)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitFile(IrVisitorVoid.kt:18)
+	at org.jetbrains.kotlin.ir.declarations.IrFile.accept(IrFile.kt:27)
+	at org.jetbrains.kotlin.ir.declarations.IrModuleFragment.acceptChildren(IrModuleFragment.kt:42)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorsKt.acceptChildrenVoid(IrVisitors.kt:23)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitModuleFragment(IrToBitcode.kt:411)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitModuleFragment(IrVisitorVoid.kt:108)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitModuleFragment(IrVisitorVoid.kt:18)
+	at org.jetbrains.kotlin.ir.declarations.IrModuleFragment.accept(IrModuleFragment.kt:36)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorsKt.acceptVoid(IrVisitors.kt:11)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.BitcodeGenerationKt.CodegenPhase$lambda$0(BitcodeGeneration.kt:75)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseBuildersKt$createSimpleNamedCompilerPhase$3.phaseBody(PhaseBuilders.kt:78)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseBuildersKt$createSimpleNamedCompilerPhase$3.phaseBody(PhaseBuilders.kt:67)
+	at org.jetbrains.kotlin.config.phaser.NamedCompilerPhase.invoke(CompilerPhase.kt:102)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseEngine.runPhase(PhaseEngine.kt:64)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseEngine.runPhase$default(PhaseEngine.kt:56)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.runCodegen(TopLevelPhases.kt:522)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.runBackendCodegen(TopLevelPhases.kt:458)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.compileModule(TopLevelPhases.kt:382)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.runBackend$lambda$0$runAfterLowerings(TopLevelPhases.kt:214)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.runBackend(TopLevelPhases.kt:243)
+	at org.jetbrains.kotlin.backend.konan.driver.NativeCompilerDriver.produceBinary(NativeCompilerDriver.kt:206)
+	at org.jetbrains.kotlin.backend.konan.driver.NativeCompilerDriver.run$lambda$0$0$0(NativeCompilerDriver.kt:48)
+	at org.jetbrains.kotlin.backend.konan.driver.MachineryKt$startTopLevel$topLevelPhase$1.phaseBody(Machinery.kt:60)
+	at org.jetbrains.kotlin.backend.konan.driver.MachineryKt$startTopLevel$topLevelPhase$1.phaseBody(Machinery.kt:57)
+	at org.jetbrains.kotlin.config.phaser.NamedCompilerPhase.invoke(CompilerPhase.kt:102)
+	at org.jetbrains.kotlin.backend.konan.driver.MachineryKt.startTopLevel(Machinery.kt:67)
+	at org.jetbrains.kotlin.backend.konan.driver.NativeCompilerDriver.run(NativeCompilerDriver.kt:38)
+	at org.jetbrains.kotlin.backend.konan.KonanDriver.run(KonanDriver.kt:138)
+	at org.jetbrains.kotlin.cli.bc.K2Native.runKonanDriver(K2Native.kt:171)
+	at org.jetbrains.kotlin.cli.bc.K2Native.access$runKonanDriver(K2Native.kt:35)
+	at org.jetbrains.kotlin.cli.bc.K2Native$runKonanDriver$konanDriver$1.spawn(K2Native.kt:164)
+	at org.jetbrains.kotlin.backend.konan.CacheBuilder.spawnLibraryCacheBuild(CacheBuilder.kt:435)
+	at org.jetbrains.kotlin.backend.konan.CacheBuilder.tryBuildingLibraryCache(CacheBuilder.kt:399)
+	at org.jetbrains.kotlin.backend.konan.CacheBuilder.buildLibraryCache(CacheBuilder.kt:316)
+	at org.jetbrains.kotlin.backend.konan.CacheBuilder.build(CacheBuilder.kt:119)
+	at org.jetbrains.kotlin.backend.konan.KonanDriver.run(KonanDriver.kt:130)
+	at org.jetbrains.kotlin.cli.bc.K2Native.runKonanDriver(K2Native.kt:171)
+	at org.jetbrains.kotlin.cli.bc.K2Native.doExecute(K2Native.kt:68)
+	at org.jetbrains.kotlin.cli.bc.K2Native.doExecute(K2Native.kt:35)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:123)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:352)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:330)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:294)
+	at org.jetbrains.kotlin.cli.common.CLICompiler$Companion.doMainNoExit(CLICompiler.kt:431)
+	at org.jetbrains.kotlin.cli.bc.K2Native$Companion.mainNoExitWithRenderer$lambda$0(K2Native.kt:221)
+	at org.jetbrains.kotlin.util.UtilKt.profileIf(Util.kt:22)
+	at org.jetbrains.kotlin.util.UtilKt.profile(Util.kt:16)
+	at org.jetbrains.kotlin.cli.bc.K2Native$Companion.mainNoExitWithRenderer(K2Native.kt:220)
+	at org.jetbrains.kotlin.cli.bc.K2NativeKt.mainNoExitWithGradleRenderer(K2Native.kt:238)
+	at org.jetbrains.kotlin.cli.utilities.MainKt$daemonMain$1.invoke(main.kt:47)
+	at org.jetbrains.kotlin.cli.utilities.MainKt$daemonMain$1.invoke(main.kt:47)
+	at org.jetbrains.kotlin.cli.utilities.MainKt.mainImpl(main.kt:20)
+	at org.jetbrains.kotlin.cli.utilities.MainKt.inProcessMain(main.kt:53)
+	at org.jetbrains.kotlin.cli.utilities.MainKt.daemonMain(main.kt:47)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.jetbrains.kotlin.internal.compilerRunner.native.KotlinNativeToolRunner.runInProcess(KotlinNativeToolRunner.kt:178)
+	at org.jetbrains.kotlin.internal.compilerRunner.native.KotlinNativeToolRunner.runTool(KotlinNativeToolRunner.kt:68)
+	at org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink$compile$1.invoke(KotlinNativeLink.kt:488)
+	at org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink$compile$1.invoke(KotlinNativeLink.kt:443)
+	at org.jetbrains.kotlin.compilerRunner.ReportUtilsKt.addBuildMetricsForTaskAction(reportUtils.kt:260)
+	at org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink.compile(KotlinNativeLink.kt:443)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:125)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.doExecute(StandardTaskAction.java:58)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:51)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:29)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:244)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:229)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:212)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:195)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:162)
+	at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:105)
+	at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:44)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:59)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:56)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:56)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:44)
+	at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:42)
+	at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:75)
+	at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:50)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:28)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:67)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:37)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:61)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:26)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:40)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:29)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:75)
+	at org.gradle.internal.Either$Right.fold(Either.java:175)
+	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:73)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:48)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:46)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:35)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:49)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:27)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:71)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:39)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:65)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:36)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:107)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:56)
+	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:64)
+	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:43)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.executeWithNonEmptySources(AbstractSkipEmptyWorkStep.java:125)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:61)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:36)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:36)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:23)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:75)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:41)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$execute$0(AssignMutableWorkspaceStep.java:35)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:289)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:31)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:22)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:34)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:48)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:35)
+	at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:64)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:127)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:116)
+	at org.gradle.api.internal.tasks.execution.ProblemsTaskPathTrackingTaskExecuter.execute(ProblemsTaskPathTrackingTaskExecuter.java:41)
+	at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
+	at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
+	at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
+	at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:74)
+	at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
+	at org.gradle.execution.plan.LocalTaskNodeExecutor.execute(LocalTaskNodeExecutor.java:42)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:331)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:318)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.lambda$execute$0(DefaultTaskExecutionGraph.java:314)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:314)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.lang.ClassCastException: class org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl cannot be cast to class org.jetbrains.kotlin.ir.expressions.IrConst (org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl and org.jetbrains.kotlin.ir.expressions.IrConst are in unnamed module of loader java.net.URLClassLoader @78f758f7)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateGetField(IrToBitcode.kt:1693)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateExpression(IrToBitcode.kt:926)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateReturn(IrToBitcode.kt:1945)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateExpression(IrToBitcode.kt:929)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateExpression$default(IrToBitcode.kt:918)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.generateStatement(IrToBitcode.kt:952)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitSimpleFunction(IrToBitcode.kt:833)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitSimpleFunction(IrVisitorVoid.kt:140)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitSimpleFunction(IrVisitorVoid.kt:18)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:39)
+	at org.jetbrains.kotlin.ir.declarations.IrPackageFragment.acceptChildren(IrPackageFragment.kt:27)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorsKt.acceptChildrenVoid(IrVisitors.kt:23)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitFile$lambda$0$0(IrToBitcode.kt:568)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.runAndProcessInitializers(IrToBitcode.kt:391)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitFile(IrToBitcode.kt:567)
+	... 188 more
+
+
+> Task :composeApp:linkDebugFrameworkIosSimulatorArm64 FAILED
+e: Failed to build cache for /Users/brentzey/.gradle/caches/modules-2/files-2.1/com.arkivanov.decompose/extensions-compose-iossimulatorarm64/3.0.0/178512328bd56145e6bea45c3b93e173adac994b/extensions-compose.
+As a workaround, please try to disable compiler caches (kotlin.native.cacheKind=none)
+
+Also, consider filing an issue with full Gradle log here: https://kotl.in/issue
+
+Exception during generating code for following declaration:
+Inside: FILE fqName:com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback fileName:/Users/runner/work/Decompose/Decompose/extensions-compose/src/commonMain/kotlin/com/arkivanov/decompose/extensions/compose/stack/animation/predictiveback/DefaultPredictiveBackAnimatable.kt
+fun $/Users/runner/work/Decompose/Decompose/extensions-compose/src/commonMain/kotlin/com/arkivanov/decompose/extensions/compose/stack/animation/predictiveback/DefaultPredictiveBackAnimatable.kt.com_arkivanov_decompose_extensions_compose_stack_animation_predictiveback_DefaultPredictiveBackAnimatable$stable_get(): Int {
+  return #com_arkivanov_decompose_extensions_compose_stack_animation_predictiveback_DefaultPredictiveBackAnimatable$stable
+}
+
+
+
+
+org.jetbrains.kotlin.backend.konan.llvm.NativeCodeGeneratorException: Exception during generating code for following declaration:
+Inside: FILE fqName:com.arkivanov.decompose.extensions.compose.stack.animation.predictiveback fileName:/Users/runner/work/Decompose/Decompose/extensions-compose/src/commonMain/kotlin/com/arkivanov/decompose/extensions/compose/stack/animation/predictiveback/DefaultPredictiveBackAnimatable.kt
+fun $/Users/runner/work/Decompose/Decompose/extensions-compose/src/commonMain/kotlin/com/arkivanov/decompose/extensions/compose/stack/animation/predictiveback/DefaultPredictiveBackAnimatable.kt.com_arkivanov_decompose_extensions_compose_stack_animation_predictiveback_DefaultPredictiveBackAnimatable$stable_get(): Int {
+  return #com_arkivanov_decompose_extensions_compose_stack_animation_predictiveback_DefaultPredictiveBackAnimatable$stable
+}
+
+
+
+	at org.jetbrains.kotlin.backend.konan.llvm.NativeCodeGeneratorException$Companion.wrap(IrToBitcode.kt:63)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor$FileScope.wrapException(IrToBitcode.kt:2065)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor$FileScope.wrapException(IrToBitcode.kt:2048)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitFile(IrToBitcode.kt:3112)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitFile(IrVisitorVoid.kt:180)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitFile(IrVisitorVoid.kt:18)
+	at org.jetbrains.kotlin.ir.declarations.IrFile.accept(IrFile.kt:27)
+	at org.jetbrains.kotlin.ir.declarations.IrModuleFragment.acceptChildren(IrModuleFragment.kt:42)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorsKt.acceptChildrenVoid(IrVisitors.kt:23)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitModuleFragment(IrToBitcode.kt:411)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitModuleFragment(IrVisitorVoid.kt:108)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitModuleFragment(IrVisitorVoid.kt:18)
+	at org.jetbrains.kotlin.ir.declarations.IrModuleFragment.accept(IrModuleFragment.kt:36)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorsKt.acceptVoid(IrVisitors.kt:11)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.BitcodeGenerationKt.CodegenPhase$lambda$0(BitcodeGeneration.kt:75)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseBuildersKt$createSimpleNamedCompilerPhase$3.phaseBody(PhaseBuilders.kt:78)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseBuildersKt$createSimpleNamedCompilerPhase$3.phaseBody(PhaseBuilders.kt:67)
+	at org.jetbrains.kotlin.config.phaser.NamedCompilerPhase.invoke(CompilerPhase.kt:102)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseEngine.runPhase(PhaseEngine.kt:64)
+	at org.jetbrains.kotlin.backend.common.phaser.PhaseEngine.runPhase$default(PhaseEngine.kt:56)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.runCodegen(TopLevelPhases.kt:522)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.runBackendCodegen(TopLevelPhases.kt:458)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.compileModule(TopLevelPhases.kt:382)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.runBackend$lambda$0$runAfterLowerings(TopLevelPhases.kt:214)
+	at org.jetbrains.kotlin.backend.konan.driver.phases.TopLevelPhasesKt.runBackend(TopLevelPhases.kt:243)
+	at org.jetbrains.kotlin.backend.konan.driver.NativeCompilerDriver.produceBinary(NativeCompilerDriver.kt:206)
+	at org.jetbrains.kotlin.backend.konan.driver.NativeCompilerDriver.run$lambda$0$0$0(NativeCompilerDriver.kt:48)
+	at org.jetbrains.kotlin.backend.konan.driver.MachineryKt$startTopLevel$topLevelPhase$1.phaseBody(Machinery.kt:60)
+	at org.jetbrains.kotlin.backend.konan.driver.MachineryKt$startTopLevel$topLevelPhase$1.phaseBody(Machinery.kt:57)
+	at org.jetbrains.kotlin.config.phaser.NamedCompilerPhase.invoke(CompilerPhase.kt:102)
+	at org.jetbrains.kotlin.backend.konan.driver.MachineryKt.startTopLevel(Machinery.kt:67)
+	at org.jetbrains.kotlin.backend.konan.driver.NativeCompilerDriver.run(NativeCompilerDriver.kt:38)
+	at org.jetbrains.kotlin.backend.konan.KonanDriver.run(KonanDriver.kt:138)
+	at org.jetbrains.kotlin.cli.bc.K2Native.runKonanDriver(K2Native.kt:171)
+	at org.jetbrains.kotlin.cli.bc.K2Native.access$runKonanDriver(K2Native.kt:35)
+	at org.jetbrains.kotlin.cli.bc.K2Native$runKonanDriver$konanDriver$1.spawn(K2Native.kt:164)
+	at org.jetbrains.kotlin.backend.konan.CacheBuilder.spawnLibraryCacheBuild(CacheBuilder.kt:435)
+	at org.jetbrains.kotlin.backend.konan.CacheBuilder.tryBuildingLibraryCache(CacheBuilder.kt:399)
+	at org.jetbrains.kotlin.backend.konan.CacheBuilder.buildLibraryCache(CacheBuilder.kt:316)
+	at org.jetbrains.kotlin.backend.konan.CacheBuilder.build(CacheBuilder.kt:119)
+	at org.jetbrains.kotlin.backend.konan.KonanDriver.run(KonanDriver.kt:130)
+	at org.jetbrains.kotlin.cli.bc.K2Native.runKonanDriver(K2Native.kt:171)
+	at org.jetbrains.kotlin.cli.bc.K2Native.doExecute(K2Native.kt:68)
+	at org.jetbrains.kotlin.cli.bc.K2Native.doExecute(K2Native.kt:35)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:123)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:352)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:330)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.exec(CLICompiler.kt:294)
+	at org.jetbrains.kotlin.cli.common.CLICompiler$Companion.doMainNoExit(CLICompiler.kt:431)
+	at org.jetbrains.kotlin.cli.bc.K2Native$Companion.mainNoExitWithRenderer$lambda$0(K2Native.kt:221)
+	at org.jetbrains.kotlin.util.UtilKt.profileIf(Util.kt:22)
+	at org.jetbrains.kotlin.util.UtilKt.profile(Util.kt:16)
+	at org.jetbrains.kotlin.cli.bc.K2Native$Companion.mainNoExitWithRenderer(K2Native.kt:220)
+	at org.jetbrains.kotlin.cli.bc.K2NativeKt.mainNoExitWithGradleRenderer(K2Native.kt:238)
+	at org.jetbrains.kotlin.cli.utilities.MainKt$daemonMain$1.invoke(main.kt:47)
+	at org.jetbrains.kotlin.cli.utilities.MainKt$daemonMain$1.invoke(main.kt:47)
+	at org.jetbrains.kotlin.cli.utilities.MainKt.mainImpl(main.kt:20)
+	at org.jetbrains.kotlin.cli.utilities.MainKt.inProcessMain(main.kt:53)
+	at org.jetbrains.kotlin.cli.utilities.MainKt.daemonMain(main.kt:47)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.jetbrains.kotlin.internal.compilerRunner.native.KotlinNativeToolRunner.runInProcess(KotlinNativeToolRunner.kt:178)
+	at org.jetbrains.kotlin.internal.compilerRunner.native.KotlinNativeToolRunner.runTool(KotlinNativeToolRunner.kt:68)
+	at org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink$compile$1.invoke(KotlinNativeLink.kt:488)
+	at org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink$compile$1.invoke(KotlinNativeLink.kt:443)
+	at org.jetbrains.kotlin.compilerRunner.ReportUtilsKt.addBuildMetricsForTaskAction(reportUtils.kt:260)
+	at org.jetbrains.kotlin.gradle.tasks.KotlinNativeLink.compile(KotlinNativeLink.kt:443)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:125)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.doExecute(StandardTaskAction.java:58)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:51)
+	at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:29)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:244)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:30)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:27)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:48)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:229)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:212)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:195)
+	at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:162)
+	at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:105)
+	at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:44)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:59)
+	at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:56)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:56)
+	at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:44)
+	at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:42)
+	at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:75)
+	at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:50)
+	at org.gradle.internal.execution.steps.PreCreateOutputParentsStep.execute(PreCreateOutputParentsStep.java:28)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:67)
+	at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:37)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:61)
+	at org.gradle.internal.execution.steps.BroadcastChangingOutputsStep.execute(BroadcastChangingOutputsStep.java:26)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:69)
+	at org.gradle.internal.execution.steps.CaptureOutputsAfterExecutionStep.execute(CaptureOutputsAfterExecutionStep.java:46)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:40)
+	at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:29)
+	at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:189)
+	at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:75)
+	at org.gradle.internal.Either$Right.fold(Either.java:175)
+	at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:62)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:73)
+	at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:48)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:46)
+	at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:35)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:75)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:53)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:53)
+	at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:35)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:49)
+	at org.gradle.internal.execution.steps.ResolveIncrementalCachingStateStep.executeDelegate(ResolveIncrementalCachingStateStep.java:27)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:71)
+	at org.gradle.internal.execution.steps.AbstractResolveCachingStateStep.execute(AbstractResolveCachingStateStep.java:39)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:65)
+	at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:36)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:107)
+	at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:56)
+	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:64)
+	at org.gradle.internal.execution.steps.AbstractCaptureStateBeforeExecutionStep.execute(AbstractCaptureStateBeforeExecutionStep.java:43)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.executeWithNonEmptySources(AbstractSkipEmptyWorkStep.java:125)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:61)
+	at org.gradle.internal.execution.steps.AbstractSkipEmptyWorkStep.execute(AbstractSkipEmptyWorkStep.java:36)
+	at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:36)
+	at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:23)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:75)
+	at org.gradle.internal.execution.steps.HandleStaleOutputsStep.execute(HandleStaleOutputsStep.java:41)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.lambda$execute$0(AssignMutableWorkspaceStep.java:35)
+	at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:289)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:31)
+	at org.gradle.internal.execution.steps.AssignMutableWorkspaceStep.execute(AssignMutableWorkspaceStep.java:22)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:40)
+	at org.gradle.internal.execution.steps.ChoosePipelineStep.execute(ChoosePipelineStep.java:23)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:67)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:67)
+	at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:39)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:46)
+	at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:34)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:48)
+	at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:35)
+	at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:64)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:127)
+	at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:116)
+	at org.gradle.api.internal.tasks.execution.ProblemsTaskPathTrackingTaskExecuter.execute(ProblemsTaskPathTrackingTaskExecuter.java:41)
+	at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
+	at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
+	at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
+	at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:74)
+	at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:210)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:205)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:67)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:167)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:60)
+	at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:54)
+	at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
+	at org.gradle.execution.plan.LocalTaskNodeExecutor.execute(LocalTaskNodeExecutor.java:42)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:331)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:318)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.lambda$execute$0(DefaultTaskExecutionGraph.java:314)
+	at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:85)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:314)
+	at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:459)
+	at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:376)
+	at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
+	at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:48)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: java.lang.ClassCastException: class org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl cannot be cast to class org.jetbrains.kotlin.ir.expressions.IrConst (org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl and org.jetbrains.kotlin.ir.expressions.IrConst are in unnamed module of loader java.net.URLClassLoader @78f758f7)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateGetField(IrToBitcode.kt:1693)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateExpression(IrToBitcode.kt:926)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateReturn(IrToBitcode.kt:1945)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateExpression(IrToBitcode.kt:929)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.evaluateExpression$default(IrToBitcode.kt:918)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.generateStatement(IrToBitcode.kt:952)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitSimpleFunction(IrToBitcode.kt:833)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitSimpleFunction(IrVisitorVoid.kt:140)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorVoid.visitSimpleFunction(IrVisitorVoid.kt:18)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:39)
+	at org.jetbrains.kotlin.ir.declarations.IrPackageFragment.acceptChildren(IrPackageFragment.kt:27)
+	at org.jetbrains.kotlin.ir.visitors.IrVisitorsKt.acceptChildrenVoid(IrVisitors.kt:23)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitFile$lambda$0$0(IrToBitcode.kt:568)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.runAndProcessInitializers(IrToBitcode.kt:391)
+	at org.jetbrains.kotlin.backend.konan.llvm.CodeGeneratorVisitor.visitFile(IrToBitcode.kt:567)
+	... 188 more
+
+
+> Task :composeApp:linkReleaseFrameworkIosSimulatorArm64
+> Task :composeApp:linkReleaseFrameworkIosArm64

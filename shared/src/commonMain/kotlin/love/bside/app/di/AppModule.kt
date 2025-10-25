@@ -1,27 +1,17 @@
 package love.bside.app.di
 
 import com.russhwolf.settings.Settings
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.bearer
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
 import love.bside.app.core.AppConfig
-import love.bside.app.core.AppLogger
-import love.bside.app.data.api.PocketBaseClient
-import love.bside.app.data.repository.PocketBaseAuthRepository
-import love.bside.app.data.repository.PocketBaseMatchRepository
-import love.bside.app.data.repository.PocketBaseProfileRepository
-import love.bside.app.data.repository.PocketBaseQuestionnaireRepository
-import love.bside.app.data.repository.PocketBaseValuesRepository
+import love.bside.app.data.api.InternalApiClient
+import love.bside.app.data.repository.ApiAuthRepository
+import love.bside.app.data.repository.ApiMatchRepository
+import love.bside.app.data.repository.ApiProfileRepository
+import love.bside.app.data.repository.ApiQuestionnaireRepository
+import love.bside.app.data.repository.ApiValuesRepository
 import love.bside.app.data.storage.SessionManager
 import love.bside.app.data.storage.SessionManagerImpl
+import love.bside.app.data.storage.TokenStorage
+import love.bside.app.data.storage.TokenStorageImpl
 import love.bside.app.domain.repository.AuthRepository
 import love.bside.app.domain.repository.MatchRepository
 import love.bside.app.domain.repository.ProfileRepository
@@ -39,6 +29,9 @@ import org.koin.dsl.module
 /**
  * Main DI module configuration for the application  
  * Pass Settings instance during Koin initialization
+ * 
+ * IMPORTANT: This module now uses API-based repositories that communicate
+ * with our internal API instead of PocketBase directly!
  */
 fun appModule(settings: Settings) = module {
     // Core
@@ -47,56 +40,21 @@ fun appModule(settings: Settings) = module {
     // Settings
     single { settings }
     
-    // Session Manager
+    // Token Storage
+    single<TokenStorage> { TokenStorageImpl(get()) }
+    
+    // Session Manager (for backward compatibility)
     single<SessionManager> { SessionManagerImpl(get()) }
     
-    // HTTP Client with Bearer auth
-    single {
-        HttpClient {
-            install(ContentNegotiation) {
-                json(Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
-            }
-            
-            install(Logging) {
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        AppLogger.debug("HttpClient", message)
-                    }
-                }
-                level = LogLevel.INFO
-            }
-            
-            install(Auth) {
-                bearer {
-                    loadTokens {
-                        val sessionManager = get<SessionManager>()
-                        val token = sessionManager.getToken()
-                        token?.let {
-                            BearerTokens(accessToken = it, refreshToken = "")
-                        }
-                    }
-                }
-            }
-            
-            defaultRequest {
-                url(get<AppConfig>().pocketBaseUrl)
-            }
-        }
-    }
+    // Internal API Client - The ONLY way clients communicate with backend
+    single { InternalApiClient(get()) }
     
-    // PocketBase Client
-    single { PocketBaseClient(get(), get<AppConfig>().pocketBaseUrl) }
-    
-    // Repositories
-    singleOf(::PocketBaseAuthRepository) bind AuthRepository::class
-    singleOf(::PocketBaseProfileRepository) bind ProfileRepository::class
-    singleOf(::PocketBaseMatchRepository) bind MatchRepository::class
-    singleOf(::PocketBaseQuestionnaireRepository) bind QuestionnaireRepository::class
-    singleOf(::PocketBaseValuesRepository) bind ValuesRepository::class
+    // API-based Repositories - All use InternalApiClient
+    singleOf(::ApiAuthRepository) bind AuthRepository::class
+    singleOf(::ApiProfileRepository) bind ProfileRepository::class
+    singleOf(::ApiMatchRepository) bind MatchRepository::class
+    singleOf(::ApiQuestionnaireRepository) bind QuestionnaireRepository::class
+    singleOf(::ApiValuesRepository) bind ValuesRepository::class
     
     // Use Cases
     factoryOf(::LoginUseCase)

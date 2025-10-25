@@ -1,0 +1,68 @@
+name: Release Build
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        default: '1.0.0'
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+  build-release:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Set version
+        run: |
+          VERSION="${{ github.event.inputs.version || github.event.release.tag_name }}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Building version: $VERSION"
+      
+      - name: Grant execute permission
+        run: chmod +x gradlew
+      
+      - name: Build backend release
+        run: ./gradlew :server:shadowJar --no-daemon
+      
+      - name: Build Android release APK
+        run: ./gradlew :composeApp:assembleRelease --no-daemon
+        continue-on-error: true
+      
+      - name: Sign Android APK
+        if: success()
+        run: |
+          echo "Would sign APK here with release keystore"
+          # jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
+          #   -keystore ${{ secrets.ANDROID_KEYSTORE }} \
+          #   -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
+          #   -keypass ${{ secrets.KEY_PASSWORD }} \
+          #   composeApp/build/outputs/apk/release/composeApp-release-unsigned.apk \
+          #   ${{ secrets.KEY_ALIAS }}
+        continue-on-error: true
+      
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            server/build/libs/server-*.jar
+            composeApp/build/outputs/apk/release/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true

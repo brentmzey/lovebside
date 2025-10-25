@@ -1,10 +1,12 @@
 package love.bside.server.repositories
 
-import love.bside.app.data.network.PocketBaseClient
+import love.bside.app.data.api.PocketBaseClient
 import love.bside.app.core.Result
+import love.bside.app.core.AppException
 import love.bside.server.models.domain.Profile
 import love.bside.server.models.db.PBProfile
 import love.bside.server.utils.toDomain
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -42,9 +44,10 @@ class ProfileRepositoryImpl(
             put("seeking", seeking)
         }
         
-        return when (val result = pocketBase.create<PBProfile>(collection, body)) {
+        return when (val result = pocketBase.create<JsonObject, PBProfile>(collection, body)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -56,7 +59,8 @@ class ProfileRepositoryImpl(
                 val profile = result.data.items.firstOrNull()
                 Result.Success(profile?.toDomain())
             }
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -69,7 +73,7 @@ class ProfileRepositoryImpl(
             is Result.Success -> {
                 val profile = getResult.data.items.firstOrNull()
                 if (profile == null) {
-                    Result.Error(Exception("Profile not found"))
+                    Result.Error(AppException.Business.ResourceNotFound(collection, userId))
                 } else {
                     val body = buildJsonObject {
                         updates.forEach { (key, value) ->
@@ -81,13 +85,15 @@ class ProfileRepositoryImpl(
                         }
                     }
                     
-                    when (val updateResult = pocketBase.update<PBProfile>(collection, profile.id, body)) {
+                    when (val updateResult = pocketBase.update<JsonObject, PBProfile>(collection, profile.id, body)) {
                         is Result.Success -> Result.Success(updateResult.data.toDomain())
-                        is Result.Error -> Result.Error(updateResult.exception)
+                        is Result.Error -> updateResult
+                        is Result.Loading -> updateResult
                     }
                 }
             }
-            is Result.Error -> Result.Error(getResult.exception)
+            is Result.Error -> getResult
+            is Result.Loading -> getResult
         }
     }
     
@@ -105,7 +111,8 @@ class ProfileRepositoryImpl(
                     pocketBase.delete(collection, profile.id)
                 }
             }
-            is Result.Error -> Result.Error(getResult.exception)
+            is Result.Error -> getResult
+            is Result.Loading -> getResult
         }
     }
 }

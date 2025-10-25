@@ -17,11 +17,15 @@ fun Application.configureStatusPages() {
         exception<Throwable> { call, cause ->
             call.application.environment.log.error("Unhandled exception", cause)
             
+            // Check if development mode
+            val isDevelopment = call.application.environment.config
+                .propertyOrNull("app.environment")?.getString() == "development"
+            
             call.respond(
                 HttpStatusCode.InternalServerError,
                 "Internal server error".toErrorResponse(
                     code = "INTERNAL_ERROR",
-                    details = if (call.application.environment.developmentMode) {
+                    details = if (isDevelopment) {
                         mapOf("exception" to (cause.message ?: "Unknown error"))
                     } else null
                 )
@@ -32,7 +36,7 @@ fun Application.configureStatusPages() {
         exception<ValidationException> { call, cause ->
             call.respond(
                 HttpStatusCode.BadRequest,
-                cause.message.toErrorResponse(
+                (cause.message ?: "Validation error").toErrorResponse(
                     code = "VALIDATION_ERROR",
                     details = cause.details
                 )
@@ -43,7 +47,7 @@ fun Application.configureStatusPages() {
         exception<AuthenticationException> { call, cause ->
             call.respond(
                 HttpStatusCode.Unauthorized,
-                cause.message.toErrorResponse(code = "AUTHENTICATION_ERROR")
+                (cause.message ?: "Authentication failed").toErrorResponse(code = "AUTHENTICATION_ERROR")
             )
         }
         
@@ -51,7 +55,7 @@ fun Application.configureStatusPages() {
         exception<AuthorizationException> { call, cause ->
             call.respond(
                 HttpStatusCode.Forbidden,
-                cause.message.toErrorResponse(code = "AUTHORIZATION_ERROR")
+                (cause.message ?: "Access denied").toErrorResponse(code = "AUTHORIZATION_ERROR")
             )
         }
         
@@ -59,7 +63,7 @@ fun Application.configureStatusPages() {
         exception<NotFoundException> { call, cause ->
             call.respond(
                 HttpStatusCode.NotFound,
-                cause.message.toErrorResponse(code = "NOT_FOUND")
+                (cause.message ?: "Not found").toErrorResponse(code = "NOT_FOUND")
             )
         }
         
@@ -67,7 +71,7 @@ fun Application.configureStatusPages() {
         exception<ConflictException> { call, cause ->
             call.respond(
                 HttpStatusCode.Conflict,
-                cause.message.toErrorResponse(code = "CONFLICT")
+                (cause.message ?: "Conflict").toErrorResponse(code = "CONFLICT")
             )
         }
         

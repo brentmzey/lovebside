@@ -1,5 +1,6 @@
 package love.bside.app.domain.repository
 
+import love.bside.app.core.Result
 import love.bside.app.domain.models.ProustQuestionnaire
 import love.bside.app.domain.models.UserAnswer
 

@@ -1,0 +1,57 @@
+name: Nightly Build
+
+on:
+  schedule:
+    # Run every night at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+  nightly-build:
+    name: Nightly Build & Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: development
+      
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission
+        run: chmod +x gradlew
+      
+      - name: Run all tests
+        run: ./gradlew test --no-daemon --stacktrace
+      
+      - name: Build all modules
+        run: ./gradlew build --no-daemon
+      
+      - name: Build backend
+        run: ./gradlew :server:shadowJar --no-daemon
+      
+      - name: Build Android
+        run: ./gradlew :composeApp:assembleDebug --no-daemon
+      
+      - name: Archive nightly builds
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-build-${{ github.run_number }}
+          path: |
+            server/build/libs/server-*.jar
+            composeApp/build/outputs/apk/debug/*.apk
+          retention-days: 7
+      
+      - name: Report status
+        if: always()
+        run: |
+          echo "Nightly build completed with status: ${{ job.status }}"

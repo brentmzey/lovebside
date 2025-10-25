@@ -1,19 +1,23 @@
 package love.bside.server.config
 
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import love.bside.app.data.network.PocketBaseClient
+import kotlinx.serialization.json.Json
+import love.bside.app.data.api.PocketBaseClient
 import love.bside.server.repositories.*
 import love.bside.server.services.*
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
-import org.koin.logger.slf4jLogger
 
 /**
  * Configure dependency injection with Koin
  */
 fun Application.configureDependencyInjection(config: ServerConfig) {
     install(Koin) {
-        slf4jLogger()
+        // Removed slf4jLogger() - not available in Koin 3.5.6
         modules(serverModule(config))
     }
 }
@@ -25,11 +29,24 @@ fun serverModule(config: ServerConfig) = module {
     // Configuration
     single { config }
     
+    // HTTP Client for PocketBase
+    single {
+        HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json(Json {
+                    prettyPrint = true
+                    isLenient = true
+                    ignoreUnknownKeys = true
+                })
+            }
+        }
+    }
+    
     // PocketBase Client (reused from shared module)
     single {
         PocketBaseClient(
-            baseUrl = config.pocketbase.baseUrl,
-            timeout = config.pocketbase.timeout
+            client = get(),
+            baseUrl = config.pocketbase.baseUrl
         )
     }
     
@@ -39,6 +56,7 @@ fun serverModule(config: ServerConfig) = module {
     single<ValuesRepository> { ValuesRepositoryImpl(get()) }
     single<MatchRepository> { MatchRepositoryImpl(get()) }
     single<PromptRepository> { PromptRepositoryImpl(get()) }
+    single<MessagingRepository> { MessagingRepository(get()) }
     
     // Services
     single { AuthService(get(), get(), get()) }
@@ -46,4 +64,5 @@ fun serverModule(config: ServerConfig) = module {
     single { ValuesService(get()) }
     single { MatchingService(get(), get(), get()) }
     single { PromptService(get()) }
+    single { MessagingService(get()) }
 }

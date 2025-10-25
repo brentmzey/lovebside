@@ -1,11 +1,12 @@
 package love.bside.server.repositories
 
-import love.bside.app.data.network.PocketBaseClient
+import love.bside.app.data.api.PocketBaseClient
 import love.bside.app.core.Result
 import love.bside.server.models.domain.Match
 import love.bside.server.models.db.PBMatch
 import love.bside.server.utils.toDomain
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.put
 
 /**
@@ -33,7 +34,8 @@ class MatchRepositoryImpl(
         
         return when (val result = pocketBase.getList<PBMatch>(collection, filter = filter, expand = expand, perPage = 100)) {
             is Result.Success -> Result.Success(result.data.items.map { it.toDomain() })
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -42,7 +44,8 @@ class MatchRepositoryImpl(
         
         return when (val result = pocketBase.getOne<PBMatch>(collection, id, expand = expand)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -54,9 +57,10 @@ class MatchRepositoryImpl(
             put("status", "PENDING")
         }
         
-        return when (val result = pocketBase.create<PBMatch>(collection, body)) {
+        return when (val result = pocketBase.create<JsonObject, PBMatch>(collection, body)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -65,9 +69,10 @@ class MatchRepositoryImpl(
             put("status", status)
         }
         
-        return when (val result = pocketBase.update<PBMatch>(collection, id, body)) {
+        return when (val result = pocketBase.update<JsonObject, PBMatch>(collection, id, body)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
 }

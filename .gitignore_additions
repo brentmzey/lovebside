@@ -1,0 +1,58 @@
+# .gitignore additions for CI/CD
+
+# GitHub Actions local testing
+.github/workflows/.act/
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Secrets and credentials (NEVER COMMIT THESE!)
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+.env.production
+.env.secrets
+
+# CI/CD artifacts
+artifacts/
+release/
+dist/
+
+# Build caches
+.gradle/
+build/
+.kotlin/
+kotlin-js-store/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+server.log
+pocketbase.log
+
+# PocketBase data (don't commit user data!)
+pocketbase/pb_data/
+pocketbase/pb_hooks/
+!pocketbase/pb_migrations/
+
+# Local configuration
+local.properties
+gradle.properties
+
+# Temporary files
+*.tmp
+*.bak
+*~

@@ -1,6 +1,6 @@
 package love.bside.server.repositories
 
-import love.bside.app.data.network.PocketBaseClient
+import love.bside.app.data.api.PocketBaseClient
 import love.bside.app.core.Result
 import love.bside.server.models.domain.KeyValue
 import love.bside.server.models.domain.UserValue
@@ -9,6 +9,7 @@ import love.bside.server.models.db.PBUserValue
 import love.bside.server.utils.toDomain
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.serialization.json.JsonObject
 
 /**
  * Repository interface for values operations
@@ -34,7 +35,8 @@ class ValuesRepositoryImpl(
     override suspend fun getAllKeyValues(): Result<List<KeyValue>> {
         return when (val result = pocketBase.getList<PBKeyValue>(keyValuesCollection, perPage = 500)) {
             is Result.Success -> Result.Success(result.data.items.map { it.toDomain() })
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -42,7 +44,8 @@ class ValuesRepositoryImpl(
         val filter = "category = '$category'"
         return when (val result = pocketBase.getList<PBKeyValue>(keyValuesCollection, filter = filter, perPage = 500)) {
             is Result.Success -> Result.Success(result.data.items.map { it.toDomain() })
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -52,7 +55,8 @@ class ValuesRepositoryImpl(
         
         return when (val result = pocketBase.getList<PBUserValue>(userValuesCollection, filter = filter, expand = expand, perPage = 500)) {
             is Result.Success -> Result.Success(result.data.items.map { it.toDomain() })
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     
@@ -63,9 +67,10 @@ class ValuesRepositoryImpl(
             put("importance", importance)
         }
         
-        return when (val result = pocketBase.create<PBUserValue>(userValuesCollection, body)) {
+        return when (val result = pocketBase.create<JsonObject, PBUserValue>(userValuesCollection, body)) {
             is Result.Success -> Result.Success(result.data.toDomain())
-            is Result.Error -> Result.Error(result.exception)
+            is Result.Error -> result
+            is Result.Loading -> result
         }
     }
     

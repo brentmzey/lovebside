@@ -27,6 +27,7 @@ class ValuesService(
         return when (result) {
             is Result.Success -> result.data.map { it.toDTO() }
             is Result.Error -> throw Exception("Failed to get key values: ${result.exception.message}")
+            is Result.Loading -> emptyList() // Should not happen in direct repository calls
         }
     }
     
@@ -37,6 +38,7 @@ class ValuesService(
         return when (val result = valuesRepository.getUserValues(userId)) {
             is Result.Success -> result.data.map { it.toDTO() }
             is Result.Error -> throw Exception("Failed to get user values: ${result.exception.message}")
+            is Result.Loading -> emptyList() // Should not happen in direct repository calls
         }
     }
     
@@ -56,6 +58,7 @@ class ValuesService(
             when (result) {
                 is Result.Success -> savedValues.add(result.data.toDTO())
                 is Result.Error -> throw Exception("Failed to save value: ${result.exception.message}")
+                is Result.Loading -> {} // Should not happen in direct repository calls
             }
         }
         

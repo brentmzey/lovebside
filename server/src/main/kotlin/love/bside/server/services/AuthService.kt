@@ -34,7 +34,7 @@ class AuthService(
         // Authenticate with PocketBase
         val authResult = userRepository.authenticate(request.email, request.password)
         
-        when (authResult) {
+        return when (authResult) {
             is Result.Error -> {
                 throw AuthenticationException("Invalid email or password")
             }
@@ -45,12 +45,16 @@ class AuthService(
                 val profile = when (val profileResult = profileRepository.getProfileByUserId(user.id)) {
                     is Result.Success -> profileResult.data
                     is Result.Error -> null
+                    is Result.Loading -> null
                 }
                 
                 // Generate JWT tokens
                 val tokens = JwtUtils.generateTokenPair(user.id, user.email, config.jwt)
                 
-                return tokens.toAuthResponse(user, profile)
+                tokens.toAuthResponse(user, profile)
+            }
+            is Result.Loading -> {
+                throw AuthenticationException("Authentication is still loading")
             }
         }
     }
@@ -78,6 +82,9 @@ class AuthService(
             is Result.Error -> {
                 // Error checking, continue
             }
+            is Result.Loading -> {
+                // Skip check if loading
+            }
         }
         
         // Create user
@@ -85,6 +92,7 @@ class AuthService(
         val user = when (userResult) {
             is Result.Success -> userResult.data
             is Result.Error -> throw Exception("Failed to create user: ${userResult.exception.message}")
+            is Result.Loading -> throw Exception("User creation is still loading")
         }
         
         // Create profile
@@ -99,6 +107,7 @@ class AuthService(
         val profile = when (profileResult) {
             is Result.Success -> profileResult.data
             is Result.Error -> throw Exception("Failed to create profile: ${profileResult.exception.message}")
+            is Result.Loading -> throw Exception("Profile creation is still loading")
         }
         
         // Generate JWT tokens
@@ -110,76 +119,78 @@ class AuthService(
     /**
      * Refresh access token
      */
-    suspend fun refreshToken(refreshToken: String): AuthResponse {
-        // Verify refresh token
-        val userId = JwtUtils.getUserIdFromToken(refreshToken, config.jwt)
-            ?: throw AuthenticationException("Invalid refresh token")
-        
-        if (!JwtUtils.isRefreshToken(refreshToken, config.jwt)) {
-            throw AuthenticationException("Token is not a refresh token")
+        suspend fun refreshToken(refreshToken: String): AuthResponse {
+            // Verify refresh token
+            val userId = JwtUtils.getUserIdFromToken(refreshToken, config.jwt)
+                ?: throw AuthenticationException("Invalid refresh token")
+            
+            if (!JwtUtils.isRefreshToken(refreshToken, config.jwt)) {
+                throw AuthenticationException("Token is not a refresh token")
+            }
+            
+            // Get user
+            val user = when (val userResult = userRepository.getUserById(userId)) {
+                is Result.Success -> userResult.data
+                is Result.Error -> throw AuthenticationException("User not found")
+                is Result.Loading -> throw AuthenticationException("User lookup is still loading")
+            }
+            
+            // Get profile
+            val profile = when (val profileResult = profileRepository.getProfileByUserId(user.id)) {
+                is Result.Success -> profileResult.data
+                is Result.Error -> null
+                is Result.Loading -> null
+            }
+            
+            // Generate new tokens
+            val tokens = JwtUtils.generateTokenPair(user.id, user.email, config.jwt)
+            
+            return tokens.toAuthResponse(user, profile)
         }
         
-        // Get user
-        val user = when (val userResult = userRepository.getUserById(userId)) {
-            is Result.Success -> userResult.data
-            is Result.Error -> throw AuthenticationException("User not found")
+        // ===== Validation Helpers =====
+        
+        private fun validateEmail(email: String) {
+            if (email.isBlank()) {
+                throw ValidationException("Email is required")
+            }
+            if (!email.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"))) {
+                throw ValidationException("Invalid email format")
+            }
         }
         
-        // Get profile
-        val profile = when (val profileResult = profileRepository.getProfileByUserId(user.id)) {
-            is Result.Success -> profileResult.data
-            is Result.Error -> null
+        private fun validatePassword(password: String) {
+            if (password.length < 8) {
+                throw ValidationException("Password must be at least 8 characters long")
+            }
         }
         
-        // Generate new tokens
-        val tokens = JwtUtils.generateTokenPair(user.id, user.email, config.jwt)
+        private fun validatePasswordConfirmation(password: String, passwordConfirm: String) {
+            if (password != passwordConfirm) {
+                throw ValidationException("Passwords do not match")
+            }
+        }
         
-        return tokens.toAuthResponse(user, profile)
-    }
-    
-    // ===== Validation Helpers =====
-    
-    private fun validateEmail(email: String) {
-        if (email.isBlank()) {
-            throw ValidationException("Email is required")
+        private fun validateName(name: String, fieldName: String) {
+            if (name.isBlank()) {
+                throw ValidationException("$fieldName is required")
+            }
+            if (name.length > 50) {
+                throw ValidationException("$fieldName must be less than 50 characters")
+            }
         }
-        if (!email.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"))) {
-            throw ValidationException("Invalid email format")
+        
+        private fun validateBirthDate(birthDate: String) {
+            try {
+                kotlinx.datetime.LocalDate.parse(birthDate)
+            } catch (e: Exception) {
+                throw ValidationException("Invalid birth date format. Use YYYY-MM-DD")
+            }
         }
-    }
-    
-    private fun validatePassword(password: String) {
-        if (password.length < 8) {
-            throw ValidationException("Password must be at least 8 characters long")
-        }
-    }
-    
-    private fun validatePasswordConfirmation(password: String, passwordConfirm: String) {
-        if (password != passwordConfirm) {
-            throw ValidationException("Passwords do not match")
+        
+        private fun validateSeeking(seeking: String) {
+            if (seeking !in listOf("FRIENDSHIP", "RELATIONSHIP", "BOTH")) {
+                throw ValidationException("Invalid seeking value. Must be FRIENDSHIP, RELATIONSHIP, or BOTH")
+            }
         }
     }
-    
-    private fun validateName(name: String, fieldName: String) {
-        if (name.isBlank()) {
-            throw ValidationException("$fieldName is required")
-        }
-        if (name.length > 50) {
-            throw ValidationException("$fieldName must be less than 50 characters")
-        }
-    }
-    
-    private fun validateBirthDate(birthDate: String) {
-        try {
-            kotlinx.datetime.LocalDate.parse(birthDate)
-        } catch (e: Exception) {
-            throw ValidationException("Invalid birth date format. Use YYYY-MM-DD")
-        }
-    }
-    
-    private fun validateSeeking(seeking: String) {
-        if (seeking !in listOf("FRIENDSHIP", "RELATIONSHIP", "BOTH")) {
-            throw ValidationException("Invalid seeking value. Must be FRIENDSHIP, RELATIONSHIP, or BOTH")
-        }
-    }
-}

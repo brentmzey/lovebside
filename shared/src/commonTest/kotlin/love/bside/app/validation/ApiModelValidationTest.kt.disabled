@@ -1,0 +1,412 @@
+package love.bside.app.validation
+
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import love.bside.app.data.api.models.User
+import love.bside.app.data.api.models.Value
+import love.bside.app.data.api.models.UserValue
+import love.bside.app.data.api.models.Prompt
+import love.bside.app.data.api.models.Answer
+import love.bside.app.data.api.models.Match
+import love.bside.app.data.api.models.RegisterRequest
+import love.bside.app.data.api.models.LoginRequest
+import love.bside.app.data.api.models.UpdateProfileRequest
+import love.bside.app.data.api.models.AuthResponse
+import love.bside.app.data.api.models.ErrorResponse
+import kotlin.test.*
+
+/**
+ * Tests for API model validation and serialization
+ * Ensures all models can be properly serialized/deserialized
+ */
+class ApiModelValidationTest {
+
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
+
+    // ============================================================================
+    // USER MODEL TESTS
+    // ============================================================================
+
+    @Test
+    fun `User model serialization roundtrip`() {
+        val user = User(
+            id = "user_123",
+            email = "john@example.com",
+            firstName = "John",
+            lastName = "Doe",
+            birthDate = "1990-05-15",
+            seeking = "FRIENDSHIP",
+            bio = "I love hiking",
+            location = "San Francisco",
+            photoUrls = listOf("photo1.jpg", "photo2.jpg"),
+            verificationStatus = "VERIFIED",
+            created = "2025-01-01T00:00:00Z",
+            updated = "2025-01-01T00:00:00Z"
+        )
+
+        val jsonString = json.encodeToString(user)
+        val decoded = json.decodeFromString<User>(jsonString)
+
+        assertEquals(user.id, decoded.id)
+        assertEquals(user.email, decoded.email)
+        assertEquals(user.firstName, decoded.firstName)
+        assertEquals(user.photoUrls.size, decoded.photoUrls.size)
+    }
+
+    @Test
+    fun `User model handles missing optional fields`() {
+        val minimalJson = """
+            {
+                "id": "user_123",
+                "email": "john@example.com",
+                "firstName": "John",
+                "lastName": "Doe",
+                "birthDate": "1990-05-15",
+                "seeking": "FRIENDSHIP",
+                "verificationStatus": "PENDING",
+                "created": "2025-01-01T00:00:00Z",
+                "updated": "2025-01-01T00:00:00Z"
+            }
+        """.trimIndent()
+
+        val user = json.decodeFromString<User>(minimalJson)
+
+        assertEquals("user_123", user.id)
+        assertNull(user.bio)
+        assertNull(user.location)
+        assertTrue(user.photoUrls.isEmpty())
+    }
+
+    // ============================================================================
+    // VALUE MODEL TESTS
+    // ============================================================================
+
+    @Test
+    fun `Value model serialization roundtrip`() {
+        val value = Value(
+            id = "value_123",
+            name = "Honesty",
+            description = "Being truthful and transparent",
+            category = "CORE",
+            examples = listOf("Always tell the truth", "Be transparent")
+        )
+
+        val jsonString = json.encodeToString(value)
+        val decoded = json.decodeFromString<Value>(jsonString)
+
+        assertEquals(value.id, decoded.id)
+        assertEquals(value.name, decoded.name)
+        assertEquals(value.category, decoded.category)
+        assertEquals(value.examples.size, decoded.examples.size)
+    }
+
+    // ============================================================================
+    // USER VALUE MODEL TESTS
+    // ============================================================================
+
+    @Test
+    fun `UserValue model serialization roundtrip`() {
+        val userValue = UserValue(
+            id = "uv_123",
+            userId = "user_123",
+            valueId = "value_123",
+            importance = 8,
+            created = "2025-01-01T00:00:00Z"
+        )
+
+        val jsonString = json.encodeToString(userValue)
+        val decoded = json.decodeFromString<UserValue>(jsonString)
+
+        assertEquals(userValue.id, decoded.id)
+        assertEquals(userValue.importance, decoded.importance)
+    }
+
+    @Test
+    fun `UserValue importance must be between 1 and 10`() {
+        // This test validates the business rule
+        val validImportances = listOf(1, 5, 10)
+        val invalidImportances = listOf(0, -1, 11, 100)
+
+        // Valid values should be acceptable
+        validImportances.forEach { importance ->
+            assertTrue(importance in 1..10, "Importance $importance should be valid")
+        }
+
+        // Invalid values should be rejected
+        invalidImportances.forEach { importance ->
+            assertFalse(importance in 1..10, "Importance $importance should be invalid")
+        }
+    }
+
+    // ============================================================================
+    // PROMPT MODEL TESTS
+    // ============================================================================
+
+    @Test
+    fun `Prompt model serialization roundtrip`() {
+        val prompt = Prompt(
+            id = "prompt_123",
+            text = "What do you value most in a friendship?",
+            category = "FRIENDSHIP",
+            active = true,
+            created = "2025-01-01T00:00:00Z"
+        )
+
+        val jsonString = json.encodeToString(prompt)
+        val decoded = json.decodeFromString<Prompt>(jsonString)
+
+        assertEquals(prompt.id, decoded.id)
+        assertEquals(prompt.text, decoded.text)
+        assertEquals(prompt.active, decoded.active)
+    }
+
+    // ============================================================================
+    // ANSWER MODEL TESTS
+    // ============================================================================
+
+    @Test
+    fun `Answer model serialization roundtrip`() {
+        val answer = Answer(
+            id = "answer_123",
+            userId = "user_123",
+            promptId = "prompt_123",
+            answerText = "I value honesty and trust above all in friendships.",
+            created = "2025-01-01T00:00:00Z",
+            updated = "2025-01-01T00:00:00Z"
+        )
+
+        val jsonString = json.encodeToString(answer)
+        val decoded = json.decodeFromString<Answer>(jsonString)
+
+        assertEquals(answer.id, decoded.id)
+        assertEquals(answer.answerText, decoded.answerText)
+    }
+
+    // ============================================================================
+    // MATCH MODEL TESTS
+    // ============================================================================
+
+    @Test
+    fun `Match model serialization roundtrip`() {
+        val match = Match(
+            id = "match_123",
+            userId1 = "user_123",
+            userId2 = "user_456",
+            compatibilityScore = 87.5,
+            status = "PENDING",
+            created = "2025-01-01T00:00:00Z",
+            updated = "2025-01-01T00:00:00Z"
+        )
+
+        val jsonString = json.encodeToString(match)
+        val decoded = json.decodeFromString<Match>(jsonString)
+
+        assertEquals(match.id, decoded.id)
+        assertEquals(match.compatibilityScore, decoded.compatibilityScore)
+        assertEquals(match.status, decoded.status)
+    }
+
+    @Test
+    fun `Match cannot have same user as both parties`() {
+        val sameUserId = "user_123"
+        
+        // Business rule validation
+        assertFalse(sameUserId == sameUserId && sameUserId == sameUserId, 
+            "Match should not allow same user for both parties")
+    }
+
+    @Test
+    fun `Match compatibility score must be between 0 and 100`() {
+        val validScores = listOf(0.0, 50.5, 100.0)
+        val invalidScores = listOf(-1.0, -50.0, 100.1, 150.0)
+
+        validScores.forEach { score ->
+            assertTrue(score in 0.0..100.0, "Score $score should be valid")
+        }
+
+        invalidScores.forEach { score ->
+            assertFalse(score in 0.0..100.0, "Score $score should be invalid")
+        }
+    }
+
+    // ============================================================================
+    // REQUEST MODELS TESTS
+    // ============================================================================
+
+    @Test
+    fun `RegisterRequest serialization roundtrip`() {
+        val request = RegisterRequest(
+            email = "john@example.com",
+            password = "SecurePass123",
+            passwordConfirm = "SecurePass123",
+            firstName = "John",
+            lastName = "Doe",
+            birthDate = "1990-05-15",
+            seeking = "FRIENDSHIP"
+        )
+
+        val jsonString = json.encodeToString(request)
+        val decoded = json.decodeFromString<RegisterRequest>(jsonString)
+
+        assertEquals(request.email, decoded.email)
+        assertEquals(request.firstName, decoded.firstName)
+        assertEquals(request.seeking, decoded.seeking)
+    }
+
+    @Test
+    fun `LoginRequest serialization roundtrip`() {
+        val request = LoginRequest(
+            email = "john@example.com",
+            password = "SecurePass123"
+        )
+
+        val jsonString = json.encodeToString(request)
+        val decoded = json.decodeFromString<LoginRequest>(jsonString)
+
+        assertEquals(request.email, decoded.email)
+        assertEquals(request.password, decoded.password)
+    }
+
+    @Test
+    fun `UpdateProfileRequest handles partial updates`() {
+        val request = UpdateProfileRequest(
+            firstName = "John",
+            lastName = null, // Not updating
+            bio = "New bio",
+            location = null // Not updating
+        )
+
+        val jsonString = json.encodeToString(request)
+        val decoded = json.decodeFromString<UpdateProfileRequest>(jsonString)
+
+        assertEquals(request.firstName, decoded.firstName)
+        assertNull(decoded.lastName)
+        assertEquals(request.bio, decoded.bio)
+    }
+
+    // ============================================================================
+    // RESPONSE MODELS TESTS
+    // ============================================================================
+
+    @Test
+    fun `AuthResponse serialization roundtrip`() {
+        val response = AuthResponse(
+            token = "jwt_token_here",
+            user = User(
+                id = "user_123",
+                email = "john@example.com",
+                firstName = "John",
+                lastName = "Doe",
+                birthDate = "1990-05-15",
+                seeking = "FRIENDSHIP",
+                verificationStatus = "VERIFIED",
+                created = "2025-01-01T00:00:00Z",
+                updated = "2025-01-01T00:00:00Z"
+            )
+        )
+
+        val jsonString = json.encodeToString(response)
+        val decoded = json.decodeFromString<AuthResponse>(jsonString)
+
+        assertEquals(response.token, decoded.token)
+        assertEquals(response.user.id, decoded.user.id)
+    }
+
+    @Test
+    fun `ErrorResponse serialization roundtrip`() {
+        val response = ErrorResponse(
+            error = "validation_error",
+            message = "Invalid email format",
+            field = "email"
+        )
+
+        val jsonString = json.encodeToString(response)
+        val decoded = json.decodeFromString<ErrorResponse>(jsonString)
+
+        assertEquals(response.error, decoded.error)
+        assertEquals(response.message, decoded.message)
+        assertEquals(response.field, decoded.field)
+    }
+
+    // ============================================================================
+    // LIST RESPONSE TESTS
+    // ============================================================================
+
+    @Test
+    fun `List responses handle pagination metadata`() {
+        val users = listOf(
+            User(
+                id = "user_1",
+                email = "user1@example.com",
+                firstName = "User",
+                lastName = "One",
+                birthDate = "1990-01-01",
+                seeking = "FRIENDSHIP",
+                verificationStatus = "VERIFIED",
+                created = "2025-01-01T00:00:00Z",
+                updated = "2025-01-01T00:00:00Z"
+            )
+        )
+
+        // Verify list can be serialized
+        val jsonString = json.encodeToString(users)
+        val decoded = json.decodeFromString<List<User>>(jsonString)
+
+        assertEquals(users.size, decoded.size)
+        assertEquals(users[0].id, decoded[0].id)
+    }
+
+    // ============================================================================
+    // FIELD VALIDATION TESTS
+    // ============================================================================
+
+    @Test
+    fun `Email field validation rules`() {
+        val validEmails = listOf(
+            "user@example.com",
+            "user.name@example.com",
+            "user+tag@example.co.uk"
+        )
+
+        val invalidEmails = listOf(
+            "not-an-email",
+            "@example.com",
+            "user@",
+            "user space@example.com"
+        )
+
+        // These would be validated by RequestValidators in practice
+        validEmails.forEach { email ->
+            assertTrue(email.contains("@") && email.contains("."))
+        }
+    }
+
+    @Test
+    fun `Date field format validation`() {
+        val validDates = listOf(
+            "1990-05-15",
+            "2000-12-31",
+            "1985-01-01"
+        )
+
+        val invalidDates = listOf(
+            "15-05-1990", // Wrong format
+            "1990/05/15", // Wrong separator
+            "not-a-date"
+        )
+
+        // Validate ISO 8601 date format (YYYY-MM-DD)
+        val dateRegex = Regex("""\d{4}-\d{2}-\d{2}""")
+        validDates.forEach { date ->
+            assertTrue(dateRegex.matches(date), "Date $date should match ISO format")
+        }
+
+        invalidDates.forEach { date ->
+            assertFalse(dateRegex.matches(date), "Date $date should not match ISO format")
+        }
+    }
+}

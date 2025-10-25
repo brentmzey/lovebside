@@ -22,6 +22,7 @@ class PromptService(
         return when (val result = promptRepository.getAllPrompts()) {
             is Result.Success -> result.data.map { it.toDTO() }
             is Result.Error -> throw Exception("Failed to get prompts: ${result.exception.message}")
+            is Result.Loading -> throw Exception("Prompts lookup is still loading")
         }
     }
     
@@ -32,6 +33,7 @@ class PromptService(
         val answers = when (val result = promptRepository.getUserAnswers(userId)) {
             is Result.Success -> result.data
             is Result.Error -> throw Exception("Failed to get answers: ${result.exception.message}")
+            is Result.Loading -> throw Exception("Answers lookup is still loading")
         }
         
         return answers.mapNotNull { answer ->
@@ -39,6 +41,7 @@ class PromptService(
             when (val promptResult = promptRepository.getPromptById(answer.promptId)) {
                 is Result.Success -> answer.toDTO(promptResult.data)
                 is Result.Error -> null
+                is Result.Loading -> null
             }
         }
     }
@@ -59,12 +62,14 @@ class PromptService(
         val answer = when (val result = promptRepository.saveUserAnswer(userId, request.promptId, request.answer)) {
             is Result.Success -> result.data
             is Result.Error -> throw Exception("Failed to save answer: ${result.exception.message}")
+            is Result.Loading -> throw Exception("Answer save is still loading")
         }
         
         // Get prompt details
         val prompt = when (val result = promptRepository.getPromptById(answer.promptId)) {
             is Result.Success -> result.data
             is Result.Error -> throw Exception("Prompt not found")
+            is Result.Loading -> throw Exception("Prompt lookup is still loading")
         }
         
         return answer.toDTO(prompt)
