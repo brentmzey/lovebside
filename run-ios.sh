@@ -23,16 +23,18 @@ echo "  2. Click the Run button (▶️)"
 echo ""
 
 # Try to open the workspace
-if [ -f "iosApp/iosApp.xcworkspace" ]; then
+if [ -e "iosApp/iosApp.xcworkspace" ]; then
     open iosApp/iosApp.xcworkspace
-elif [ -f "iosApp/iosApp.xcodeproj" ]; then
+elif [ -e "iosApp/iosApp.xcodeproj" ]; then
     open iosApp/iosApp.xcodeproj
 else
     echo "⚠️  iOS project files not found. Building framework first..."
     ./gradlew :composeApp:iosSimulatorArm64MainBinaries
     
-    if [ -f "iosApp/iosApp.xcworkspace" ]; then
+    if [ -e "iosApp/iosApp.xcworkspace" ]; then
         open iosApp/iosApp.xcworkspace
+    elif [ -e "iosApp/iosApp.xcodeproj" ]; then
+        open iosApp/iosApp.xcodeproj
     else
         echo "❌ Could not find or create iOS project"
         exit 1

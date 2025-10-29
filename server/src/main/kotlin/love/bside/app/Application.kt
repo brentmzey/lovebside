@@ -5,7 +5,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import love.bside.server.config.*
 import love.bside.server.plugins.*
-import love.bside.server.plugins.configureRouting
+import love.bside.server.routes.configureRouting
 
 // Server port configuration
 const val SERVER_PORT = 8080

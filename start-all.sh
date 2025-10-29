@@ -21,7 +21,7 @@ trap './stop-all.sh' INT TERM EXIT
 # Wait for the server to be ready
 echo -n "Waiting for server to be ready on http://localhost:8080"
 for i in {1..20}; do
-    if curl --output /dev/null --silent --head --fail http://localhost:8080/health; then
+    if curl --output /dev/null --silent --fail http://localhost:8080/health; then
         echo -e "\n${GREEN}✅ Server is ready!${NC}\n"
         break
     fi
@@ -29,7 +29,7 @@ for i in {1..20}; do
     sleep 1
 done
 
-if ! curl --output /dev/null --silent --head --fail http://localhost:8080/health; then
+if ! curl --output /dev/null --silent --fail http://localhost:8080/health; then
     echo -e "\n${RED}❌ Server failed to start. Check server.log for details.${NC}"
     exit 1
 fi

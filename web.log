@@ -1,0 +1,22 @@
+Calculating task graph as no cached configuration is available for tasks: :composeApp:wasmJsBrowserDevelopmentRun
+Type-safe project accessors is an incubating feature.
+
+[Incubating] Problems report is available at: file:///Users/brentzey/bside/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Cannot locate tasks that match ':composeApp:wasmJsBrowserDevelopmentRun' as task 'wasmJsBrowserDevelopmentRun' not found in project ':composeApp'.
+
+* Try:
+> Run gradlew tasks to get a list of available tasks.
+> For more on name expansion, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:name_abbreviation in the Gradle documentation.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 990ms
+Configuration cache entry stored.
+
+Exiting continuous build as Gradle did not detect any file system inputs.

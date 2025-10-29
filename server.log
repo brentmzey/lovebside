@@ -1,36 +1,7 @@
-Calculating task graph as no cached configuration is available for tasks: :server:run --args=--port=8080
-Type-safe project accessors is an incubating feature.
-> Task :server:checkKotlinGradlePluginConfigurationErrors SKIPPED
-> Task :shared:kmpPartiallyResolvedDependenciesChecker
-> Task :shared:checkKotlinGradlePluginConfigurationErrors SKIPPED
-> Task :shared:convertXmlValueResourcesForCommonMain NO-SOURCE
-> Task :shared:copyNonXmlValueResourcesForJvmMain NO-SOURCE
-> Task :shared:copyNonXmlValueResourcesForCommonMain NO-SOURCE
-> Task :shared:convertXmlValueResourcesForJvmMain NO-SOURCE
-> Task :shared:prepareComposeResourcesTaskForJvmMain NO-SOURCE
-> Task :shared:prepareComposeResourcesTaskForCommonMain NO-SOURCE
-> Task :shared:generateResourceAccessorsForCommonMain NO-SOURCE
-> Task :shared:generateResourceAccessorsForJvmMain NO-SOURCE
-> Task :shared:generateExpectResourceCollectorsForCommonMain UP-TO-DATE
-> Task :shared:generateComposeResClass UP-TO-DATE
-> Task :shared:generateActualResourceCollectorsForJvmMain UP-TO-DATE
-> Task :shared:assembleJvmMainResources UP-TO-DATE
-> Task :server:processResources UP-TO-DATE
-> Task :shared:jvmProcessResources UP-TO-DATE
-> Task :shared:processJvmMainResources SKIPPED
-> Task :shared:compileKotlinJvm UP-TO-DATE
-> Task :shared:compileJvmMainJava NO-SOURCE
-> Task :shared:jvmMainClasses UP-TO-DATE
-> Task :shared:jvmJar UP-TO-DATE
-> Task :server:compileKotlin UP-TO-DATE
-> Task :server:compileJava NO-SOURCE
-> Task :server:classes UP-TO-DATE
-
-> Task :server:run
-2025-10-23 20:25:57.484 [main] INFO  io.ktor.server.Application - Autoreload is disabled because the development mode is off.
-2025-10-23 20:25:57.642 [main] INFO  io.ktor.server.Application - Application started in 0.247 seconds.
-2025-10-23 20:25:57.707 [DefaultDispatcher-worker-1] INFO  io.ktor.server.Application - Responding at http://0.0.0.0:8080
-2025-10-23 20:26:03.793 [eventLoopGroupProxy-4-1] TRACE io.ktor.server.routing.Routing - Trace for [health]
+2025-10-26 19:09:46.969 [main] INFO  io.ktor.server.Application - Autoreload is disabled because the development mode is off.
+2025-10-26 19:09:47.124 [main] INFO  io.ktor.server.Application - Application started in 0.235 seconds.
+2025-10-26 19:09:47.188 [DefaultDispatcher-worker-1] INFO  io.ktor.server.Application - Responding at http://0.0.0.0:8080
+2025-10-26 19:09:47.839 [eventLoopGroupProxy-4-1] TRACE io.ktor.server.routing.Routing - Trace for [health]
 /, segment:0 -> SUCCESS @ /
   /health, segment:1 -> SUCCESS @ /health
     /health/(method:GET), segment:1 -> SUCCESS @ /health/(method:GET)
@@ -39,8 +10,8 @@ Matched routes:
   "" -> "health" -> "(method:GET)"
 Routing resolve result:
   SUCCESS @ /health/(method:GET)
-2025-10-23 20:26:03.808 [eventLoopGroupProxy-4-1] TRACE i.k.s.p.statuspages.StatusPages - No handler found for status code 200 OK for call: /health
-2025-10-23 20:36:13.394 [eventLoopGroupProxy-4-2] TRACE io.ktor.server.routing.Routing - Trace for [health]
+2025-10-26 19:09:47.853 [eventLoopGroupProxy-4-1] TRACE i.k.s.p.statuspages.StatusPages - No handler found for status code 200 OK for call: /health
+2025-10-26 19:09:47.864 [eventLoopGroupProxy-4-2] TRACE io.ktor.server.routing.Routing - Trace for [health]
 /, segment:0 -> SUCCESS @ /
   /health, segment:1 -> SUCCESS @ /health
     /health/(method:GET), segment:1 -> SUCCESS @ /health/(method:GET)
@@ -49,14 +20,4 @@ Matched routes:
   "" -> "health" -> "(method:GET)"
 Routing resolve result:
   SUCCESS @ /health/(method:GET)
-2025-10-23 20:36:13.397 [eventLoopGroupProxy-4-2] TRACE i.k.s.p.statuspages.StatusPages - No handler found for status code 200 OK for call: /health
-2025-10-23 20:40:06.131 [eventLoopGroupProxy-4-3] TRACE io.ktor.server.routing.Routing - Trace for [health]
-/, segment:0 -> SUCCESS @ /
-  /health, segment:1 -> SUCCESS @ /health
-    /health/(method:GET), segment:1 -> SUCCESS @ /health/(method:GET)
-  /api, segment:0 -> FAILURE "Selector didn't match" @ /api
-Matched routes:
-  "" -> "health" -> "(method:GET)"
-Routing resolve result:
-  SUCCESS @ /health/(method:GET)
-2025-10-23 20:40:06.132 [eventLoopGroupProxy-4-3] TRACE i.k.s.p.statuspages.StatusPages - No handler found for status code 200 OK for call: /health
+2025-10-26 19:09:47.864 [eventLoopGroupProxy-4-2] TRACE i.k.s.p.statuspages.StatusPages - No handler found for status code 200 OK for call: /health
