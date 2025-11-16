@@ -3,6 +3,8 @@
 
 set -e
 
+cd "$(dirname "$0")/.." || exit
+
 echo "========================================"
 echo "B-Side Server & Database Test"
 echo "========================================"

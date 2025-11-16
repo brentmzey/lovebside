@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+cd "$(dirname "$0")/.." || exit
+
 # Colors
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -13,10 +15,10 @@ echo -e "${BLUE}🚀 B-Side Multiplatform Launcher${NC}"
 echo -e "${BLUE}========================================${NC}\n"
 
 # Ensure cleanup happens on exit
-trap './stop-all.sh' INT TERM EXIT
+trap './scripts/stop-all.sh' INT TERM EXIT
 
 # Start the server in the background
-./run-server.sh --background
+./scripts/run-server.sh --background
 
 # Wait for the server to be ready
 echo -n "Waiting for server to be ready on http://localhost:8080"
@@ -35,16 +37,16 @@ if ! curl --output /dev/null --silent --fail http://localhost:8080/health; then
 fi
 
 # Start frontend apps
-./run-desktop.sh --background
+./scripts/run-desktop.sh --background
 echo ""
-./run-web.sh --background
+./scripts/run-web.sh --background
 
 echo -e "\n${GREEN}✅ All core services started!${NC}"
 echo -e "- ${BLUE}Backend Server:${NC} http://localhost:8080"
 echo -e "- ${BLUE}Desktop App:${NC} Running in background (see desktop.log)"
 echo -e "- ${BLUE}Web App:${NC} http://localhost:8080 (see web.log)"
 
-echo -e "\nRun individual scripts for other platforms (e.g., ./run-android.sh)"
+echo -e "\nRun individual scripts for other platforms (e.g., ./scripts/run-android.sh)"
 
 echo -e "\n${YELLOW}Press Ctrl+C to stop all processes.${NC}\n"
 

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")/.." || exit
+
 echo "🍎 Starting B-Side iOS App..."
 echo ""
 

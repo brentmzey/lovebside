@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+cd "$(dirname "$0")/.." || exit
 JAR_FILE="server/build/libs/server-all.jar"
 PID_FILE=".pids/server.pid"
 

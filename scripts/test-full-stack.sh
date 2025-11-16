@@ -3,6 +3,8 @@
 
 set -e
 
+cd "$(dirname "$0")/.." || exit
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
@@ -30,7 +32,7 @@ if curl -s http://localhost:8080/health > /dev/null 2>&1; then
     echo -e "${GREEN}✅ RUNNING${NC}"
 else
     echo -e "${RED}❌ NOT RUNNING${NC}"
-    echo -e "${YELLOW}  Run: ./start-all.sh${NC}"
+    echo -e "${YELLOW}  Run: ./scripts/start-all.sh${NC}"
     exit 1
 fi
 

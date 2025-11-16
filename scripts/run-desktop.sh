@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+cd "$(dirname "$0")/.." || exit
 PID_FILE=".pids/desktop.pid"
 
 echo "🚀 Starting B-Side Desktop App..."
