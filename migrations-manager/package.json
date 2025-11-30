@@ -1,0 +1,53 @@
+{
+  "name": "@bside/migrations-manager",
+  "version": "1.0.0",
+  "description": "PocketBase migration management tooling for B-Side",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "migrate": "tsx src/cli.ts migrate",
+    "migrate:up": "tsx src/cli.ts migrate:up",
+    "migrate:down": "tsx src/cli.ts migrate:down",
+    "migrate:status": "tsx src/cli.ts migrate:status",
+    "migrate:create": "tsx src/cli.ts migrate:create",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "vitest"
+  },
+  "keywords": [
+    "pocketbase",
+    "migrations",
+    "database",
+    "typescript"
+  ],
+  "author": "B-Side Team",
+  "license": "MIT",
+  "dependencies": {
+    "pocketbase": "^0.21.5",
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.5",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1",
+    "inquirer": "^9.2.15",
+    "zod": "^3.23.8",
+    "aws-sdk": "^2.1691.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "@types/inquirer": "^9.0.7",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.3.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

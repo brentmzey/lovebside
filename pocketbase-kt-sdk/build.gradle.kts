@@ -1,3 +1,6 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmVendorSpec
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlin.serialization)
@@ -10,23 +13,24 @@ group = project.findProperty("GROUP") as String? ?: "io.pocketbase"
 version = project.findProperty("VERSION_NAME") as String? ?: "0.1.0-SNAPSHOT"
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-        }
-    }
-    
+    androidTarget()
+
     jvm()
-    
+
     iosX64()
     iosArm64()
     iosSimulatorArm64()
-    
+
     js(IR) {
         browser()
         nodejs()
     }
-    
+
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+        vendor.set(JvmVendorSpec.ADOPTIUM)
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -39,30 +43,30 @@ kotlin {
                 implementation(libs.ktor.client.logging)
             }
         }
-        
+
         val commonTest by getting {
             dependencies {
                 implementation(libs.kotlin.test)
                 implementation(libs.kotlinx.coroutinesCore)
             }
         }
-        
+
         val androidMain by getting {
             dependencies {
                 implementation(libs.ktor.client.cio)
             }
         }
-        
+
         val jvmMain by getting {
             dependencies {
                 implementation(libs.ktor.client.cio)
             }
         }
-        
+
         val iosX64Main by getting
         val iosArm64Main by getting
         val iosSimulatorArm64Main by getting
-        
+
         val jsMain by getting {
             dependencies {
                 implementation(libs.ktor.client.js)
@@ -74,14 +78,15 @@ kotlin {
 android {
     namespace = "io.pocketbase.sdk"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-    
+
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
-    
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        val java21 = JavaVersion.toVersion("21")
+        sourceCompatibility = java21
+        targetCompatibility = java21
     }
 }
 

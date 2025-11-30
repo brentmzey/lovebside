@@ -1,7 +1,6 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -11,11 +10,7 @@ plugins {
 }
 
 kotlin {
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
+    androidTarget()
 
     listOf(
         iosArm64(),
@@ -24,6 +19,7 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+            export(libs.koin.core)
         }
     }
 
@@ -34,53 +30,85 @@ kotlin {
         binaries.executable()
     }
 
-    // WasmJS target disabled - Koin doesn't support WasmJS yet
-    // @OptIn(ExperimentalWasmDsl::class)
-    // wasmJs {
-    //     browser()
-    //     binaries.executable()
-    // }
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+        vendor.set(JvmVendorSpec.ADOPTIUM)
+    }
+
 
     sourceSets {
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.koin.android)
-            implementation(libs.koin.compose)
-            implementation(libs.multiplatform.settings)
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.materialIconsExtended)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
+                implementation(libs.androidx.lifecycle.viewmodelCompose)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+                implementation(libs.decompose)
+                implementation(libs.decompose.extensions.compose)
+                implementation(libs.kotlinx.coroutinesCore)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(projects.shared)
+            }
         }
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.materialIconsExtended)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
-            implementation(libs.decompose)
-            implementation(libs.decompose.extensions.compose)
-            implementation(libs.koin.core)
-            implementation(libs.multiplatform.settings)
-            implementation(projects.shared)
+
+        val nonWasmCommonMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(projects.shared)
+                implementation(projects.pocketbaseKtSdk)
+                api(libs.koin.core)
+                implementation(libs.multiplatform.settings)
+            }
         }
+
+        val androidMain by getting {
+            dependsOn(nonWasmCommonMain)
+            dependencies {
+                implementation(compose.preview)
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.koin.android)
+                implementation(libs.koin.compose)
+                implementation(libs.multiplatform.settings)
+            }
+        }
+
+        val appleMain by creating {
+            dependsOn(nonWasmCommonMain)
+            dependencies {
+                implementation(libs.koin.core)
+                implementation(libs.multiplatform.settings)
+            }
+        }
+
+        val iosArm64Main by getting { dependsOn(appleMain) }
+        val iosSimulatorArm64Main by getting { dependsOn(appleMain) }
+
+        val jvmMain by getting {
+            dependsOn(nonWasmCommonMain)
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutinesSwing)
+                implementation(libs.koin.core)
+                implementation(libs.multiplatform.settings)
+            }
+        }
+
+        val jsMain by getting {
+            dependsOn(nonWasmCommonMain)
+            dependencies {
+                implementation(libs.koin.core)
+                implementation(libs.multiplatform.settings)
+            }
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-        }
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
-            implementation(libs.koin.core)
-            implementation(libs.multiplatform.settings)
-        }
-        iosMain.dependencies {
-            implementation(libs.koin.core)
-            implementation(libs.multiplatform.settings)
-        }
-        jsMain.dependencies {
-            implementation(libs.koin.core)
-            implementation(libs.multiplatform.settings)
         }
     }
 }
@@ -107,8 +135,9 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        val java21 = JavaVersion.toVersion("21")
+        sourceCompatibility = java21
+        targetCompatibility = java21
     }
 }
 
@@ -124,6 +153,17 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "love.bside.app"
             packageVersion = "1.0.0"
+
+            val iconDir = project.file("src/jvmMain/resources/icons")
+            macOS {
+                iconFile.set(iconDir.resolve("bside_logo.icns"))
+            }
+            windows {
+                iconFile.set(iconDir.resolve("bside_logo.ico"))
+            }
+            linux {
+                iconFile.set(iconDir.resolve("bside_logo_512.png"))
+            }
         }
     }
 }

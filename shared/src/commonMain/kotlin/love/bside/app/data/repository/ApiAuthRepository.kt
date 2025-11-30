@@ -6,6 +6,7 @@ import love.bside.app.data.api.RegisterRequest
 import love.bside.app.data.mappers.toDomain
 import love.bside.app.domain.models.AuthDetails
 import love.bside.app.domain.models.Profile
+import love.bside.app.domain.models.SignUpData
 import love.bside.app.domain.repository.AuthRepository
 
 /**
@@ -30,21 +31,15 @@ class ApiAuthRepository(
         }
     }
     
-    override suspend fun signUp(
-        email: String,
-        password: String,
-        passwordConfirm: String
-    ): Result<AuthDetails> {
-        // For signup, we need additional profile info
-        // This is a simplified version - you may want to pass more parameters
+    override suspend fun signUp(data: SignUpData): Result<AuthDetails> {
         val request = RegisterRequest(
-            email = email,
-            password = password,
-            passwordConfirm = passwordConfirm,
-            firstName = "",
-            lastName = "",
-            birthDate = "2000-01-01",
-            seeking = "BOTH"
+            email = data.email,
+            password = data.password,
+            passwordConfirm = data.passwordConfirm,
+            firstName = data.firstName,
+            lastName = data.lastName,
+            birthDate = data.birthDate.toString(),
+            seeking = data.seeking.name
         )
         
         return apiClient.register(request).map { authResponse ->

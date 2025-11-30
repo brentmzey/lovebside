@@ -1,10 +1,13 @@
 package love.bside.app.integration
 
 import love.bside.app.core.Result
+import kotlinx.datetime.LocalDate
 import love.bside.app.data.api.InternalApiClient
 import love.bside.app.data.api.RegisterRequest
 import love.bside.app.data.repository.ApiAuthRepository
 import love.bside.app.data.storage.TokenStorage
+import love.bside.app.domain.models.SeekingStatus
+import love.bside.app.domain.models.SignUpData
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -42,9 +45,15 @@ class AuthIntegrationTest {
         
         // Attempt signup
         val result = authRepository.signUp(
-            email = email,
-            password = password,
-            passwordConfirm = password
+            SignUpData(
+                email = email,
+                password = password,
+                passwordConfirm = password,
+                firstName = "Test",
+                lastName = "User",
+                birthDate = LocalDate(2000, 1, 1),
+                seeking = SeekingStatus.BOTH
+            )
         )
         
         // Verify result type

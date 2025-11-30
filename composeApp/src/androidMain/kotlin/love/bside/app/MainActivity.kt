@@ -5,22 +5,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.arkivanov.decompose.defaultComponentContext
 import love.bside.app.routing.RootComponent
-import org.koin.android.ext.android.inject
-import org.koin.core.Koin
+import org.koin.android.ext.android.getKoin
 
 class MainActivity : ComponentActivity() {
-    private val koin: Koin by inject()
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val rootComponent = RootComponent(
-            componentContext = defaultComponentContext(),
-            koin = koin
+            componentContext = defaultComponentContext()
         )
+        val appDependencies = buildAppDependencies(getKoin())
 
         setContent {
-            App(rootComponent)
+            App(rootComponent, appDependencies)
         }
     }
 }

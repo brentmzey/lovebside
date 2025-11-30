@@ -14,7 +14,7 @@ echo -e "${BLUE}========================================${NC}\n"
 
 echo -e "${YELLOW}Building all Kotlin Multiplatform targets...${NC}\n"
 
-gradle assemble -x jsBrowserProductionWebpack
+gradle build
 
 if [ $? -eq 0 ]; then
     echo -e "\n${GREEN}✅ Build successful!${NC}\n"

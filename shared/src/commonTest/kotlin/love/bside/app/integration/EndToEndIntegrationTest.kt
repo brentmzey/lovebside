@@ -3,6 +3,11 @@ package love.bside.app.integration
 import love.bside.app.core.Result
 import love.bside.app.data.api.InternalApiClient
 import love.bside.app.data.repository.*
+import love.bside.app.domain.repository.AuthRepository
+import love.bside.app.domain.repository.MatchRepository
+import love.bside.app.domain.repository.ProfileRepository
+import love.bside.app.domain.repository.QuestionnaireRepository
+import love.bside.app.domain.repository.ValuesRepository
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.assertEquals
@@ -19,11 +24,11 @@ class EndToEndIntegrationTest {
     private val mockTokenStorage = MockTokenStorage()
     private val apiClient = InternalApiClient(mockTokenStorage)
     
-    private val authRepository = ApiAuthRepository(apiClient)
-    private val profileRepository = ApiProfileRepository(apiClient)
-    private val valuesRepository = ApiValuesRepository(apiClient)
-    private val matchRepository = ApiMatchRepository(apiClient)
-    private val questionnaireRepository = ApiQuestionnaireRepository(apiClient)
+    private val authRepository: AuthRepository = ApiAuthRepository(apiClient)
+    private val profileRepository: ProfileRepository = ApiProfileRepository(apiClient)
+    private val valuesRepository: ValuesRepository = ApiValuesRepository(apiClient)
+    private val matchRepository: MatchRepository = ApiMatchRepository(apiClient)
+    private val questionnaireRepository: QuestionnaireRepository = ApiQuestionnaireRepository(apiClient)
     
     @Test
     fun testCompleteUserJourney() = runTest {

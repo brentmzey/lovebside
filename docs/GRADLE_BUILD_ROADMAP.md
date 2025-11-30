@@ -20,74 +20,51 @@ This should:
 
 ---
 
-## 📊 Current Status (as of November 16, 2024)
+## 📊 Current Status (as of November 28, 2025)
 
 ### ✅ What Works
 
-**Compilation (all targets):**
+**Full build (all targets + unit tests):**
 ```bash
-gradle assemble -x jsBrowserProductionWebpack
+gradle build
 ```
 
-Successfully builds:
-- ✅ Android (ARM, x86) - Debug & Release APKs
-- ✅ iOS (ARM64 device + simulator) - Frameworks
-- ✅ JVM Desktop - JAR files
-- ✅ JavaScript/Web - Development bundle
-- ✅ Server - Shadow JAR
+This single command now compiles Android, iOS (device + simulator), Desktop, Web (including the production `jsBrowserProductionWebpack` bundle), and the server module while executing every configured unit test suite.
 
-**Current workaround needed:**
-- `-x jsBrowserProductionWebpack` to skip problematic webpack task
+**Spot-check commands verified on 2025-11-28:**
+- `gradle :composeApp:jsBrowserProductionWebpack`
+- `gradle :shared:testReleaseUnitTest`
+- `gradle :shared:testDebugUnitTest`
+- `gradle :pocketbase-kt-sdk:iosSimulatorArm64Test`
+- `gradle :server:test`
 
-### ⚠️ Known Issues
+### ⚠️ Remaining Focus
 
-1. **JS/Web Production Webpack** (Issue #1)
-   - **Status:** Blocked
-   - **Task:** `jsBrowserProductionWebpack`
-   - **Error:** Cannot find node module "webpack/bin/webpack.js"
-   - **Root Cause:** Kotlin/JS Gradle plugin dependency resolution with Gradle 9.x
-   - **Impact:** Production web bundle not created
-   - **Workaround:** Development build works perfectly via `./scripts/run-web.sh`
-   - **Notes:** This is a known Kotlin/JS plugin issue, affects production builds only
-
-2. **Test Failures** (Issue #2)
-   - **Status:** Not investigated yet
-   - **Task:** `:shared:testReleaseUnitTest`, `:shared:testDebugUnitTest`
-   - **Command:** `gradle build` (includes tests)
-   - **Impact:** Tests fail, blocking full build
-   - **Workaround:** `gradle assemble` (skip tests) or `gradle build -x test`
+- Gradle still emits configuration-time `jsNpmAggregated` warnings; these should be cleaned up before Gradle 10.
+- Deprecation warnings continue to appear under `--warning-mode all` and need triage.
+- Capture build metrics so we can optimize configuration cache reuse and overall build time.
 
 ---
 
 ## 🗺️ Roadmap to `gradle build`
 
-### Phase 1: Fix Compilation Issues ⏳
+### Phase 1: Fix Compilation Issues ✅ *(Completed November 2025)*
 - [x] Update Gradle wrapper to match system (9.2.0)
 - [x] Verify all KMP targets compile
-- [ ] **Fix JS production webpack issue**
-  - Option A: Wait for Kotlin plugin update
-  - Option B: Configure custom webpack resolver
-  - Option C: Accept dev-only builds for now
-- [ ] Remove `-x jsBrowserProductionWebpack` exclusion
+- [x] Fix JS production webpack issue
+- [x] Remove `-x jsBrowserProductionWebpack` exclusion
 
-**Estimated Completion:** Q1 2025 (depends on Kotlin plugin)
-
-### Phase 2: Fix Test Suite 📋
-- [ ] Investigate failing Android tests
-- [ ] Review shared module tests
-- [ ] Fix or skip flaky tests
-- [ ] Ensure all tests pass
-- [ ] Remove `-x test` exclusions
-
-**Estimated Completion:** 1-2 weeks
+### Phase 2: Fix Test Suite ✅ *(Completed November 2025)*
+- [x] Investigate failing Android/shared tests
+- [x] Review shared module tests
+- [x] Fix or quarantine flaky tests
+- [x] Ensure all tests pass with `gradle build`
 
 ### Phase 3: Optimize Build Configuration 🔧
 - [ ] Review Gradle build cache settings
 - [ ] Configure incremental compilation
 - [ ] Optimize dependency resolution
 - [ ] Add build performance monitoring
-
-**Estimated Completion:** 1 week
 
 ### Phase 4: Distribution & Artifacts 📦
 - [ ] Configure Android app signing
@@ -96,15 +73,11 @@ Successfully builds:
 - [ ] Create web deployment bundle
 - [ ] Generate server Docker image
 
-**Estimated Completion:** 2-3 weeks
-
 ### Phase 5: CI/CD Integration 🔄
 - [ ] Re-enable GitHub Actions (selectively)
 - [ ] Configure automated testing
 - [ ] Set up artifact publishing
 - [ ] Add version management
-
-**Estimated Completion:** 1-2 weeks
 
 ---
 
@@ -135,35 +108,32 @@ gradle :server:shadowJar
 
 ## 📝 Incremental Progress
 
-### Milestone 1: Basic Build ✅ **COMPLETE**
-- [x] All targets compile successfully
-- [x] Artifacts generated (with exclusions)
+### Milestone 1: Basic Build ✅ *(Completed 2024-11-16)*
+- [x] All targets compile successfully (with temporary exclusions)
+- [x] Artifacts generated
 - [x] System Gradle integration
 - [x] Documentation complete
 
-**Command:** `gradle assemble -x jsBrowserProductionWebpack`
+**Command (historical):** `gradle assemble -x jsBrowserProductionWebpack`
 
-### Milestone 2: Full Compilation (Target: Q1 2025)
-- [ ] All targets compile without exclusions
-- [ ] JS production webpack working
-- [ ] No workarounds needed
+### Milestone 2: Full Compilation ✅ *(Completed 2025-11-15)*
+- [x] All targets compile without exclusions
+- [x] JS production webpack working
+- [x] No workarounds needed
 
-**Target Command:** `gradle assemble`
+**Command:** `gradle assemble`
 
-### Milestone 3: Tests Passing (Target: Q1 2025)
-- [ ] All unit tests pass
-- [ ] Integration tests stable
-- [ ] Test coverage reporting
+### Milestone 3: Tests Passing ✅ *(Completed 2025-11-28)*
+- [x] All unit tests pass inside `gradle build`
+- [x] Device/simulator tests run cleanly via `verify-targets`
+- [x] Test results captured in `build/reports/tests` for follow-up metrics
 
-**Target Command:** `gradle build`
+**Command:** `gradle build`
 
-### Milestone 4: Complete CI/CD (Target: Q2 2025)
-- [ ] Automated builds
-- [ ] Automated testing
-- [ ] Artifact publishing
-- [ ] Release automation
-
-**Target Command:** Full CI/CD pipeline with `gradle build`
+### Milestone 4: Performance & CI/CD ♻️ *(In Progress)*
+- [ ] Automate builds + publishing via GitHub Actions
+- [ ] Improve configuration-cache hit rate & telemetry
+- [ ] Wire up release automation + artifact signing
 
 ---
 
@@ -184,7 +154,7 @@ gradle :server:shadowJar
 
 **For manual builds:**
 ```bash
-gradle assemble -x jsBrowserProductionWebpack
+gradle build
 ```
 
 ---
@@ -199,20 +169,23 @@ gradle assemble -x jsBrowserProductionWebpack
 
 ## 🐛 Issue Tracking
 
-### Issue #1: JS Production Webpack
+### Issue #1: Configuration-Time npm Resolution
 **Priority:** Medium  
-**Assignee:** Waiting on Kotlin/JS plugin team  
-**Discussion:** https://youtrack.jetbrains.com/issue/KT-XXXXX (TBD)
-
-### Issue #2: Test Failures
-**Priority:** High  
 **Assignee:** Unassigned  
-**Next Steps:** 
-1. Run tests individually to isolate failures
-2. Review test logs
-3. Fix or mark as flaky
+**Next Steps:**
+1. Audit `jsNpmAggregated` usage and lazy-load where possible.
+2. Verify fixes under `--configuration-cache` and Gradle 9.3+.
+3. Close out warnings before Gradle 10.
+
+### Issue #2: Gradle 10 Readiness
+**Priority:** Medium  
+**Assignee:** Unassigned  
+**Next Steps:**
+1. Re-run `gradle build --warning-mode all` and catalogue deprecations.
+2. Patch build logic/plugins to eliminate deprecated APIs.
+3. Add regression test in CI once GitHub Actions is re-enabled.
 
 ---
 
-**Last Updated:** November 16, 2024  
-**Status:** Phase 1 - Milestone 1 Complete ✅
+**Last Updated:** November 28, 2025  
+**Status:** Phase 3 - Optimization in Progress ♻️

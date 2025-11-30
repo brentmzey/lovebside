@@ -58,6 +58,10 @@ val records = pb.collection("t_message").getList()
 
 ## Key Features
 
+### 0. Cross-Database Migration Planning
+
+Need to hydrate downstream Postgres or MongoDB stores with the same collections? Define your PocketBase collections with `CollectionSchema`/`FieldSchema`, then feed them into `MigrationController().planFor(...)` to emit Postgres DDL or Mongo validators during CI. This keeps schema drift visible in unit tests (pure Kotlin) without having to stand up external services.
+
 ### 1. Simplified API
 
 **Old Way:**

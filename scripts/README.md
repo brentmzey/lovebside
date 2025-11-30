@@ -99,6 +99,27 @@ Starts the Kotlin/JS web application with hot reload.
 
 ---
 
+### `run-wasm.sh`
+Launches the experimental Compose Multiplatform WebAssembly target described in the [Kotlin Multiplatform quickstart](https://kotlinlang.org/docs/multiplatform/quickstart.html#run-the-sample-apps).
+
+**Usage:**
+```bash
+./run-wasm.sh
+# or background mode
+./run-wasm.sh --background
+```
+
+**Notes:**
+- Uses `wasmJsBrowserDevelopmentRun --continuous` for hot reload
+- Serves on http://localhost:8080 (same as JS dev server)
+- Logs stream to `wasm.log` when running in background
+
+**Use Case:**
+- Validate Compose/Wasm builds on supported browsers
+- Compare JS vs Wasm build performance with identical UI code
+
+---
+
 ### `run-server.sh`
 Starts the Ktor backend server.
 
@@ -190,13 +211,14 @@ Full build of all Kotlin Multiplatform targets using system Gradle.
 ```
 
 **What it does:**
-- Runs `gradle assemble -x jsBrowserProductionWebpack`
+- Runs `gradle build`
 - Builds Android APKs, iOS frameworks, Desktop JARs, Web JS, Server JAR
+- Executes unit tests alongside the build
 - Shows location of all built artifacts
 
 **Use Case:**
 - Preparing release builds
-- Validating full project compilation
+- Validating full project compilation + test pass
 - Building all deployment artifacts at once
 
 ---
@@ -367,17 +389,17 @@ tail -f server.log
 You can use your system-installed `gradle` command to build the entire project:
 
 ```bash
-# Build everything (without running tests)
+# Build everything (compile only)
 gradle assemble
 
-# Build with tests (some may fail - see note below)
-gradle build -x jsBrowserProductionWebpack
+# Build + run unit tests (recommended)
+gradle build
 
-# Clean and rebuild
-gradle clean build -x jsBrowserProductionWebpack
+# Clean and rebuild with tests
+gradle clean build
 ```
 
-**Note on JS/Web builds:** The development web build works perfectly (`./scripts/run-web.sh`), but the production webpack task has a known dependency resolution issue with Gradle 9.x. This doesn't affect development workflows since the development server is what you'll use 99% of the time.
+**Note on JS/Web builds:** `gradle build` now runs the production `jsBrowserProductionWebpack` task successfully. If a workstation is missing the local Node toolchain, run `./gradlew kotlinNodeJsSetup` once to hydrate the cache.
 
 **All Kotlin compiler backends work:**
 - ✅ Android (ARM, x86)

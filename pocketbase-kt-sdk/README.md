@@ -15,6 +15,7 @@ A pure Kotlin implementation of the PocketBase client that works across **all pl
 ✅ **Type-Safe** - Leverage Kotlin's type system  
 ✅ **Coroutines First** - Built with Kotlin Coroutines for async operations  
 ✅ **Standalone** - Can be extracted as an independent library  
+✅ **Migration Planning** - Emit Postgres SQL and MongoDB validator statements from PocketBase schemas  
 
 ## Installation
 
@@ -240,6 +241,40 @@ val message = pb.collection("t_message").getFirstListItem(
     filter = "id = 'specific_id'"
 )
 ```
+
+## Migration Control (Postgres & Mongo)
+
+For teams that mirror PocketBase collections in analytics stores, the SDK now ships a pure Kotlin migration planner:
+
+```kotlin
+import io.pocketbase.migrations.*
+
+val schemas = listOf(
+    CollectionSchema(
+        name = "s_prompts",
+        fields = listOf(
+            FieldSchema("id", FieldType.TEXT, required = true),
+            FieldSchema("text", FieldType.TEXT, required = true, constraints = FieldConstraints(maxLength = 200)),
+            FieldSchema(
+                name = "category",
+                type = FieldType.SELECT,
+                constraints = FieldConstraints(enumValues = listOf("ICEBREAKER", "DEEP", "FUN"))
+            )
+        ),
+        indexes = listOf("CREATE INDEX idx_prompts_category ON s_prompts (category)")
+    )
+)
+
+val controller = MigrationController()
+val postgresPlan = controller.planFor(DatabaseTarget.Postgres, schemas)
+val mongoPlan = controller.planFor(DatabaseTarget.Mongo, schemas)
+
+println(postgresPlan.statements.joinToString("\n"))
+println(mongoPlan.statements.joinToString("\n"))
+println(postgresPlan.warnings)
+```
+
+The planner keeps everything in `commonMain`, so the same definitions power server-side CI, Android tooling, or an iOS runner.
 
 ## Architecture
 

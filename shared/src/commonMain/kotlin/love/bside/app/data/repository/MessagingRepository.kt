@@ -5,6 +5,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import love.bside.app.core.Result
 import love.bside.app.data.api.MessagingApiClient
 import love.bside.app.data.models.messaging.*
@@ -25,6 +27,7 @@ class MessagingRepository(
     
     // Active real-time subscriptions
     private val activeSubscriptions = mutableMapOf<String, Flow<MessageEvent>>()
+    private val subscriptionScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     
     // ===== Conversations =====
     
@@ -184,7 +187,7 @@ class MessagingRepository(
                     }
                 }
                 .shareIn(
-                    scope = kotlinx.coroutines.GlobalScope,
+                    scope = subscriptionScope,
                     started = SharingStarted.WhileSubscribed(5000),
                     replay = 0
                 )

@@ -6,28 +6,34 @@
 
 ## 🎨 Current Color Palette
 
-### Primary Colors (Warm & Inviting)
+### Primary Colors (Deep Purple/Magenta - from Figma)
 ```kotlin
-Primary: #E91E63 (Material Pink 500)
-  - Use: Main actions, branding, highlights
-  - Container: #F48FB1 (lighter)
-  - Dark: #C2185B (pressed states)
+Primary: #4B164C (Deep Purple) - Main brand color, sophisticated & romantic
+  - Use: Main actions, branding, highlights, headers
+  - Container: #8D4E88 (mid-tone purple)
+  - Dark: #2A0D2B (very dark purple)
 ```
 
-### Secondary Colors (Sophisticated Depth)
+### Secondary Colors (Lavender/Purple Tints)
 ```kotlin
-Secondary: #6200EA (Deep Purple A700)
-  - Use: Proust questionnaire, intellectual vibe
-  - Container: #B388FF (lighter)
-  - Dark: #4A00B8 (depth)
+Secondary: #523F67 (Purple-gray) - Secondary elements
+  - Use: Text, icons, secondary actions
+  - Container: #FAECF8 (light pink-lavender) - backgrounds, surfaces
+  - Dark: #4A154B (dark variant)
 ```
 
-### Tertiary Colors (Warm Accents)
+### Logo Accent (Mint Tile)
 ```kotlin
-Tertiary: #FF7043 (Deep Orange 400)
-  - Use: Call-to-action accents, energy
-  - Container: #FFCCBC (light coral)
-  - Dark: #BF360C (strong)
+Accent: #A7D8D1 (Mint teal from the bside_logo.png background)
+  - Use: Light-mode background, highlight badges, onboarding hero blocks
+  - Dark Variant: #5F8680 (muted teal for dark surfaces)
+  - Keeps the UI aligned with the app icon on Android/iOS/desktop installers
+```
+
+### Tertiary Colors (Soft Accents)
+```kotlin
+Tertiary: #F8E6F6 (Pink tint) - Highlights and accents
+  - Container: #EFEDF1 (neutral lavender) - surface variants
 ```
 
 ### Semantic Colors
@@ -37,20 +43,20 @@ Warning: #FF9800 (Orange) - cautions
 Error: #F44336 (Red) - errors, destructive actions
 ```
 
-### Neutrals
+### Neutrals (From Figma)
 ```kotlin
-Gray 50: #FAFAFA (background light)
-Gray 100: #F5F5F5 (surface variant)
-Gray 200: #EEEEEE (outlines)
-Gray 700: #616161 (secondary text)
-Gray 900: #212121 (primary text)
+Gray 50: #FFFBF0 (warm off-white)
+Gray 100: #EFEEEE (light gray)
+Gray 200: #E8E1E8 (purple-tinted gray)
+Gray 700: #C0BDC4 (mid gray)
+Gray 900: #555072 (dark purple-gray)
 ```
 
 ### Dark Mode
 ```kotlin
-Background: #121212 (OLED black)
-Surface: #1E1E1E (elevated)
-Surface Variant: #2C2C2C (cards)
+Background: #1A0D1B (deep purple-black)
+Surface: #2A0D2B (dark purple surface)
+Surface Variant: #4B164C (brand primary)
 ```
 
 ---
@@ -187,11 +193,13 @@ Based on PDF analysis, these colors appear in the design:
 
 ## 📊 Current vs Figma Comparison
 
-### ✅ Matches Well
-- Material 3 design system
-- Modern rounded corners (16-20dp)
-- Clean spacing (16dp base unit)
-- Button heights (56dp touch targets)
+### ✅ Implemented from Figma
+- Deep purple/magenta primary color (#4B164C)
+- Lavender background tint (#FAECF8)
+- Purple-gray neutrals
+- Larger corner radius (24-32dp for extraLarge)
+- Modern card elevation (2-8dp)
+- Refined spacing (12dp grid base)
 
 ### ⚠️ To Verify
 - Exact primary color (#E91E63 vs Figma spec)
@@ -229,11 +237,13 @@ Based on PDF analysis, these colors appear in the design:
 ## 🚀 Design System Status
 
 ### Implemented ✅
-- Complete color system (light + dark)
+- **Figma color palette** (deep purple #4B164C + lavender tints)
+- Complete color system (light + dark mode)
 - Typography scale (Material 3)
 - Spacing system (4dp grid)
 - Component styles (buttons, cards, inputs)
-- Shapes (corner radius system)
+- Rounded shapes (8-32dp corner radius)
+- Card elevation system (2-8dp)
 
 ### In Progress 🔄
 - Extracting exact Figma colors
@@ -242,11 +252,11 @@ Based on PDF analysis, these colors appear in the design:
 - Animations and transitions
 
 ### TODO 📋
-- [ ] Verify all colors match Figma exactly
-- [ ] Add custom fonts if specified
+- [ ] Add custom fonts if specified in Figma
 - [ ] Document animation timings
 - [ ] Create style guide for illustrations
 - [ ] Define photo aspect ratios and crops
+- [ ] Extract icon styles from Figma screens
 
 ---
 
@@ -265,6 +275,73 @@ Based on PDF analysis, these colors appear in the design:
 - **Trust & Safety**: Professional, polished, secure feeling
 - **Platform Native**: Respects iOS, Android, Desktop conventions
 - **Fast & Smooth**: 60fps animations, <200ms response times
+
+---
+
+---
+
+## 🎨 Design Import Options
+
+### Screenshots (Quickest)
+
+Take screenshots of:
+
+- Color Styles Panel - All your colors with hex codes
+- Text Styles Panel - Typography with font specs
+- Key Screens/Frames - Main app screens
+- Component Examples - Buttons, cards, inputs, etc.
+- Spacing/Layout Grid - If you have defined spacing tokens
+
+### Manual Spec Sheet
+
+Create a quick spec document with:
+
+```
+Colors:
+- Primary: #XXXXXX
+- Secondary: #XXXXXX
+- Background: #XXXXXX
+...
+
+Typography:
+- Heading 1: Font, Size, Weight
+- Body: Font, Size, Weight
+...
+
+Screens:
+- Home
+- Profile
+- Settings
+...
+```
+
+### Alternative: Export & Share
+
+You can:
+
+- Export frames as images (File → Export)
+- Screenshot the design system (colors, typography)
+- Share component examples
+
+Then recreate everything pixel-perfect in Compose Multiplatform!
+
+---
+
+## 🏗️ Architecture
+
+```
+UI Layer (Compose)
+    ↓
+ViewModel (shared/)
+    ↓
+Repository (shared/data/)
+    ↓
+Ktor Internal API (server/)
+    ↓
+PocketBase
+```
+
+Your UI will only talk to ViewModels, which talk to the internal API. Clean separation! ✅
 
 ---
 

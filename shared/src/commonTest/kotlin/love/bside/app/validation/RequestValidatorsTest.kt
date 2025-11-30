@@ -358,4 +358,40 @@ class RequestValidatorsTest {
         
         assertTrue(result is ValidationResult.Invalid)
     }
+
+    @Test
+    fun `pagination with invalid perPage fails`() {
+        val result = RequestValidators.validatePagination(page = 1, perPage = 500)
+        assertTrue(result is ValidationResult.Invalid)
+    }
+
+    @Test
+    fun `file upload rejects unsupported mime type`() {
+        val result = RequestValidators.validateFileUpload(
+            fileName = "avatar.svg",
+            fileSize = 1024,
+            mimeType = "image/svg+xml"
+        )
+        assertTrue(result is ValidationResult.Invalid)
+    }
+
+    @Test
+    fun `file upload rejects oversize file`() {
+        val result = RequestValidators.validateFileUpload(
+            fileName = "avatar.png",
+            fileSize = 10_000_000,
+            mimeType = "image/png"
+        )
+        assertTrue(result is ValidationResult.Invalid)
+    }
+
+    @Test
+    fun `file upload accepts valid png`() {
+        val result = RequestValidators.validateFileUpload(
+            fileName = "avatar.png",
+            fileSize = 250_000,
+            mimeType = "image/png"
+        )
+        assertTrue(result is ValidationResult.Valid)
+    }
 }

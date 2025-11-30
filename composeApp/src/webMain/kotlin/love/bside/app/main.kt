@@ -20,11 +20,11 @@ fun main() {
     
     val lifecycle = LifecycleRegistry()
     val rootComponent = RootComponent(
-        componentContext = DefaultComponentContext(lifecycle),
-        koin = koin
+        componentContext = DefaultComponentContext(lifecycle)
     )
+    val appDependencies = buildAppDependencies(koin)
     
     ComposeViewport(document.getElementById("root")!!) {
-        App(rootComponent)
+        App(rootComponent, appDependencies)
     }
 }

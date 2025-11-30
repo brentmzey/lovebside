@@ -1,3 +1,5 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -13,11 +15,7 @@ kotlin {
     // Apply default hierarchy template for proper source set configuration
     applyDefaultHierarchyTemplate()
     
-    androidTarget {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
-        }
-    }
+    androidTarget()
 
     // iOS targets
     iosArm64()
@@ -30,6 +28,19 @@ kotlin {
     // JS target for web
     js {
         browser()
+    }
+
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+        vendor.set(JvmVendorSpec.ADOPTIUM)
+    }
+
+    targets.all {
+        compilations.all {
+            compilerOptions.configure {
+                freeCompilerArgs.add("-Xexpect-actual-classes")
+            }
+        }
     }
 
     // WasmJS target (experimental) - Disabled temporarily due to Koin compatibility
@@ -117,8 +128,9 @@ android {
     namespace = "love.bside.app.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        val java21 = JavaVersion.toVersion("21")
+        sourceCompatibility = java21
+        targetCompatibility = java21
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()

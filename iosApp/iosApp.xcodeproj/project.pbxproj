@@ -152,7 +152,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :composeApp:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "CONFIGURATION_NAME=${CONFIGURATION:-Debug}\nSDK_NAME_VALUE=${SDK_NAME:-iphonesimulator}\nSDK_VERSION_VALUE=${SDK_VERSION:-}\nif [ -n \"$SDK_VERSION_VALUE\" ]; then\n  SDK_FOLDER=\"$SDK_NAME_VALUE$SDK_VERSION_VALUE\"\nelse\n  SDK_FOLDER=\"$SDK_NAME_VALUE\"\nfi\nFRAMEWORK_PATH=\"$SRCROOT/../composeApp/build/xcode-frameworks/$CONFIGURATION_NAME/$SDK_FOLDER/ComposeApp.framework\"\nif [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ] && [ -d \"$FRAMEWORK_PATH\" ]; then\n  echo \"Skipping Gradle build task invocation; cached Kotlin framework found at $FRAMEWORK_PATH\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :composeApp:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

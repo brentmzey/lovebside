@@ -4,6 +4,8 @@ A modern multiplatform application built with Kotlin Multiplatform, Compose Mult
 
 ## 🚀 Quick Start
 
+This project now mirrors the end-to-end target coverage recommended in the [Kotlin Multiplatform quickstart](https://kotlinlang.org/docs/multiplatform/quickstart.html#run-the-sample-apps), so every sample app (Android, iOS, Desktop, JVM Server, Kotlin/JS Web, and experimental Wasm) can be launched from either the provided scripts or Android Studio run configurations.
+
 ### Development Scripts
 
 All development scripts are located in `./scripts/` and are executable. See [scripts/README.md](./scripts/README.md) for comprehensive documentation.
@@ -13,10 +15,11 @@ All development scripts are located in `./scripts/` and are executable. See [scr
 **Run individual platforms:**
 ```bash
 ./scripts/run-desktop.sh    # Fastest iteration - JVM Desktop
-./scripts/run-web.sh         # Browser-based web app with hot-reload
-./scripts/run-android.sh     # Android device/emulator
-./scripts/run-ios.sh         # iOS Simulator/device (macOS only)
-./scripts/run-server.sh      # Ktor backend server
+./scripts/run-web.sh        # Browser-based web app with hot-reload (Kotlin/JS)
+./scripts/run-wasm.sh       # Experimental WebAssembly build from Compose
+./scripts/run-android.sh    # Android device/emulator
+./scripts/run-ios.sh        # iOS Simulator/device (macOS only)
+./scripts/run-server.sh     # Ktor backend server
 ```
 
 **Build all targets:**
@@ -139,15 +142,23 @@ bside/
 - ✅ iOS (iPhone, iPad)
 - ✅ Desktop (macOS, Windows, Linux via JVM)
 - ✅ Web (Kotlin/JS in browser)
+- ✅ WebAssembly (experimental Compose/Wasm target)
 - ✅ Backend (Ktor server)
 
 ## 🛠️ Requirements
 
-- **JDK 17+** - Kotlin compilation
+- **Temurin JDK 17 LTS (Adoptium)** - Kotlin compilation + Compose multiplatform tooling (JDK 21 works too)
 - **Gradle** - Build tool (wrapper included)
 - **Android SDK** - For Android builds
 - **Xcode** - For iOS builds (macOS only)
 - **Node.js** - For web target (Kotlin/JS)
+
+## ❤️ Proust Questionnaire Experience
+
+- New **Proust** tab inside `composeApp` streams prompts directly from PocketBase using the shared `pocketbase-kt-sdk` client.
+- The SDK now defaults to Temurin Java 17 LTS toolchains and automatically falls back to **smart client polling** whenever SSE is blocked, so desktop/mobile/web targets stay in sync.
+- Answers are drafted locally and can be reviewed before submission; realtime status (SSE vs polling) is surfaced via Compose chips for quick diagnostics.
+- To try it: `./scripts/run-desktop.sh` → switch to the **Proust** tab → begin answering questions; updates propagate live when prompts change in PocketBase.
 
 ## 📖 Common Workflows
 
@@ -232,17 +243,17 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 \
 The project is configured to work with your system-installed Gradle (9.2.0+):
 
 ```bash
-# Build all targets
-gradle assemble -x jsBrowserProductionWebpack
+# Full build (all targets + tests)
+gradle build
 
-# Build and test (excluding problematic tasks)
-gradle build -x jsBrowserProductionWebpack -x test
+# Fast compile-only build
+gradle assemble
 
-# Clean rebuild
-gradle clean assemble -x jsBrowserProductionWebpack
+# Clean rebuild with tests
+gradle clean build
 ```
 
-**Note:** We're working toward a simple `gradle build` command. See [docs/GRADLE_BUILD_ROADMAP.md](./docs/GRADLE_BUILD_ROADMAP.md) for our progress and roadmap.
+**Note:** A plain `gradle build` now covers every Kotlin Multiplatform target, including the production web webpack bundle. See [docs/GRADLE_BUILD_ROADMAP.md](./docs/GRADLE_BUILD_ROADMAP.md) for continuing optimizations.
 
 **All Kotlin Multiplatform compiler backends are supported:**
 - ✅ **Android** - ARM & x86 (debug & release APKs)

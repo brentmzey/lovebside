@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.cli.ExperimentalCli::class)
+
 package love.bside.server.migrations
 
 import kotlinx.cli.*

@@ -190,6 +190,27 @@ Calculated matches between users based on compatibility.
 
 ## Setup Instructions
 
+### Quick Diagnostics on PocketHost
+
+Run the bundled Kotlin diagnostics to verify that the hosted PocketBase instance exposes the public collections before running the mobile/web client:
+
+```bash
+./gradlew :pocketbase-kt-sdk:jvmTest --tests io.pocketbase.PocketBaseNetworkTest
+```
+
+Key expectations:
+- ✅ `healthEndpointReturnsOk` – `/api/health` is reachable and returns HTTP 200.
+- ✅ `systemUsersCollectionIsReachable` – `_pb_users_auth_` can be listed anonymously, proving the API gateway is healthy.
+- ⚠️ `publicCollectionsReportDiagnosedStatus` – prints remediation guidance and marks the test as *skipped* whenever collections such as `s_prompts` or `s_key_values` are missing or not publicly readable. The skip message references this document for fixes.
+
+Manual curl checks are also helpful:
+
+```bash
+curl -s https://bside.pockethost.io/api/collections/s_prompts/records | jq
+```
+
+If the response contains `{ "message": "Missing collection context." }`, the collection does not exist in the hosted instance—apply the migrations in `pocketbase/migrations/` or recreate it through the PocketBase Admin UI. If you receive `403 Forbidden`, update the List/View rules so that the onboarding experience can fetch the public catalog, or adjust the client to authenticate before reading.
+
 ### 1. Create Collections in PocketBase Admin
 
 1. Log in to https://bside.pockethost.io/_/

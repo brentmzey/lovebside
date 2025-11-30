@@ -8,6 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.pocketbase.config.RealtimeConfig
 import io.pocketbase.models.ClientResponseException
 import io.pocketbase.models.ErrorResponse
 import io.pocketbase.services.RealtimeService
@@ -48,12 +49,17 @@ class PocketBase(
      * The base URL of your PocketBase instance.
      */
     var baseURL: String,
-    
+
     /**
      * Authentication store for managing auth tokens and user data.
      * Defaults to an in-memory store. Provide a custom implementation for persistence.
      */
-    val authStore: AuthStore = MemoryAuthStore()
+    val authStore: AuthStore = MemoryAuthStore(),
+
+    /**
+     * Configuration for realtime transports (SSE vs smart polling).
+     */
+    val realtimeConfig: RealtimeConfig = RealtimeConfig()
 ) {
     @PublishedApi
     internal val httpClient: HttpClient

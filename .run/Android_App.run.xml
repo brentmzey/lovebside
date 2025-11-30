@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Android App" type="ShConfigurationType" factoryName="Shell Script">
+    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/scripts/run-android.sh" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="INTERPRETER_PATH" value="/bin/bash" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="SCRIPT_OPTIONS" value="" />
+    <option name="IS_MODULE_SDK" value="false" />
+    <option name="ADD_CONTENT_ROOTS" value="true" />
+    <option name="ADD_SOURCE_ROOTS" value="true" />
+    <option name="EMULATE_TERMINAL" value="false" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>

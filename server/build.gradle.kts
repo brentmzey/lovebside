@@ -1,3 +1,10 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmVendorSpec
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+import org.gradle.api.tasks.Sync
+import org.gradle.api.tasks.compile.JavaCompile
+
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
@@ -14,6 +21,30 @@ application {
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
+kotlin {
+    jvmToolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+        vendor.set(JvmVendorSpec.ADOPTIUM)
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+        vendor.set(JvmVendorSpec.ADOPTIUM)
+    }
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.release.set(21)
+}
+
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
+}
+
 // Handle duplicate dependencies in distribution
 tasks.withType<Tar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -21,6 +52,13 @@ tasks.withType<Tar> {
 
 tasks.withType<Zip> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named<Sync>("installDist") {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    doFirst {
+        destinationDir.deleteRecursively()
+    }
 }
 
 dependencies {

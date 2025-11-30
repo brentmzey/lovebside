@@ -118,7 +118,13 @@ class MigrationManager(
      */
     fun generateMigration(name: String): String {
         val nextVersion = (migrations.maxOfOrNull { it.version } ?: 0) + 1
-        val className = name.split("_").joinToString("") { it.capitalize() }
+        val className = name.split("_")
+            .filter { it.isNotBlank() }
+            .joinToString("") { part ->
+                part.replaceFirstChar { ch ->
+                    if (ch.isLowerCase()) ch.titlecaseChar().toString() else ch.toString()
+                }
+            }
         
         return """
 package love.bside.server.migrations.versions

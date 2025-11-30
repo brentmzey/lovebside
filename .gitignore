@@ -23,3 +23,8 @@ node_modules/
 
 # Process ID files
 .pids/
+
+# Migrations Manager
+migrations-manager/.env
+migrations-manager/dist/
+migrations-manager/coverage/

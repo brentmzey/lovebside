@@ -20,9 +20,9 @@ fun main() = application {
     
     val lifecycle = LifecycleRegistry()
     val rootComponent = RootComponent(
-        componentContext = DefaultComponentContext(lifecycle),
-        koin = koin
+        componentContext = DefaultComponentContext(lifecycle)
     )
+    val appDependencies = buildAppDependencies(koin)
     
     val windowState = rememberWindowState(
         width = 375.dp,
@@ -34,6 +34,6 @@ fun main() = application {
         state = windowState,
         title = "B-Side Dating App"
     ) {
-        App(rootComponent)
+        App(rootComponent, appDependencies)
     }
 }
