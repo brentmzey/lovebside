@@ -33,7 +33,7 @@ Complete guide to building and testing all Kotlin Multiplatform targets.
 
 # Or specific modules
 ./gradlew :shared:testDebugUnitTest --tests "*.validation.*"
-./gradlew :pocketbase-kt-sdk:testDebugUnitTest
+(cd pocketbase-kt-sdk && ./gradlew test)  # optional when hacking on the SDK locally via the composite build
 ./gradlew :server:test
 ```
 

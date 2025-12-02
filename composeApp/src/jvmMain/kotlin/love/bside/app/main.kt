@@ -9,13 +9,24 @@ import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import com.russhwolf.settings.PreferencesSettings
 import love.bside.app.di.appModule
 import love.bside.app.routing.RootComponent
+import love.bside.app.security.SecureCredentialStoreFactory
+import love.bside.app.security.UnsupportedBiometricPromptBridge
+import love.bside.app.security.UnsupportedPasskeyBridge
+import love.bside.app.security.di.secureAuthModule
 import org.koin.core.context.startKoin
 import java.util.prefs.Preferences
 
 fun main() = application {
     val settings = PreferencesSettings(Preferences.userRoot())
     val koin = startKoin {
-        modules(appModule(settings))
+        modules(
+            appModule(settings),
+            secureAuthModule(
+                credentialStore = SecureCredentialStoreFactory().create(),
+                biometricPromptBridge = UnsupportedBiometricPromptBridge(),
+                passkeyBridge = UnsupportedPasskeyBridge()
+            )
+        )
     }.koin
     
     val lifecycle = LifecycleRegistry()

@@ -35,4 +35,8 @@ plugins {
 include(":composeApp")
 include(":server")
 include(":shared")
-include(":pocketbase-kt-sdk")
+
+val purePocketbaseSdkDir = file("pocketbase-kt-sdk")
+if (purePocketbaseSdkDir.exists()) {
+    includeBuild("pocketbase-kt-sdk")
+}

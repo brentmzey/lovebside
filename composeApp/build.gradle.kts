@@ -61,7 +61,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation(projects.shared)
-                implementation(projects.pocketbaseKtSdk)
+                implementation(libs.pocketbase.sdk)
                 api(libs.koin.core)
                 implementation(libs.multiplatform.settings)
             }
@@ -75,6 +75,7 @@ kotlin {
                 implementation(libs.koin.android)
                 implementation(libs.koin.compose)
                 implementation(libs.multiplatform.settings)
+                implementation(libs.androidx.biometric)
             }
         }
 
@@ -142,6 +143,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
     debugImplementation(compose.uiTooling)
 }
 

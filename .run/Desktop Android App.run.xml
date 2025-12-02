@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Android App" type="AndroidRunConfigurationType" factoryName="Android App">
+  <configuration default="false" name="Desktop Android App" type="AndroidRunConfigurationType" factoryName="Android App">
     <module name="app.composeApp" />
     <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" />
     <option name="DEPLOY" value="true" />

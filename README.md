@@ -100,9 +100,23 @@ verify-targets.sh   # Instead of ./scripts/verify-targets.sh
 - **[docs/GRADLE_BUILD_ROADMAP.md](./docs/GRADLE_BUILD_ROADMAP.md)** - Roadmap to `gradle build` success
 - **[docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)** - UI/UX design guidelines
 - **[docs/SHARED_TYPES_GUIDE.md](./docs/SHARED_TYPES_GUIDE.md)** - Cross-platform type safety
-- **[docs/POCKETBASE_SCHEMA.md](./docs/POCKETBASE_SCHEMA.md)** - Database schema
+- **[docs/POCKETBASE_SCHEMA.md](./docs/POCKETBASE_SCHEMA.md)** - Database schema + migration instructions
 - **[docs/BUILD_STATUS.md](./docs/BUILD_STATUS.md)** - CI/CD configuration (archived)
 - **[docs/disabled-github-actions/](./docs/disabled-github-actions/)** - Archived CI workflows
+
+### PocketBase migrations (quick start)
+```bash
+cd pocketbase
+./pocketbase migrate up --dir migrations   # apply latest schema locally or on the server shell
+./pocketbase migrate status                # confirm versions
+```
+See [docs/POCKETBASE_SCHEMA.md](./docs/POCKETBASE_SCHEMA.md) for Docker and production instructions.
+
+### Web (Compose/Wasm) dev server
+```bash
+./scripts/run-web.sh          # starts :composeApp:wasmJsBrowserDevelopmentRun on http://localhost:8080
+```
+The script uses the newer Compose WebAssembly target (Skiko canvas) and streams logs to your terminal; press `Ctrl+C` to stop. Use `./scripts/run-web.sh --background` to daemonize (logs go to `web.log`).
 
 ## 🏗️ Project Structure
 
@@ -136,6 +150,18 @@ bside/
 └── build.gradle.kts     # Root Gradle configuration
 ```
 
+## 🔗 Pure PocketBase SDK (external dependency)
+
+- The `io.pocketbase:pocketbase-kt-sdk` client now ships as an independent **pure Kotlin/Kotlinx** repository that emits Android/JVM artifacts, Swift/Objective‑C XCFrameworks, JS bundles with generated `.d.ts`, and Kotlin/Wasm targets from a single codebase.
+- `gradle/libs.versions.toml` pins the version via `libs.pocketbase.sdk`; override it as needed or keep a checkout in `./pocketbase-kt-sdk` and Gradle will automatically wire it in through a composite build for local development.
+- Run `./pocketbase-kt-sdk/extract-sdk.sh ~/projects/pocketbase-kt-sdk` to scaffold the standalone repo, publish to Maven (or any registry), and extend it with additional backends (Firebase, TrailBase, SurrealDB, etc.) while staying 100% multiplatform.
+
+## 🔐 Secure mobile login (Biometrics + Passkeys scaffolding)
+
+- A new `SecureAuthManager` in the shared module coordinates biometric enrollment, encrypted credential storage, and PocketHost session restoration across Android, iOS, Desktop, and Web from one Kotlin code path.
+- Platform stores are pluggable via `SecureCredentialStoreFactory` (Android uses `EncryptedSharedPreferences`, iOS uses Keychain, all other targets fall back to an in-memory sealed store); `secureAuthModule(...)` wires these along with platform bridges for biometrics/passkeys.
+- Compose’s `AuthScreen` now surfaces "Quick unlock" and Face ID/Touch ID opt-in flows, so password logins can seed secure storage while biometric unlock restores a session (passkey hooks are stubbed but ready for Credential Manager / ASAuthorization adoption).
+
 ## 🎯 Supported Platforms
 
 - ✅ Android (Phone, Tablet)
@@ -155,7 +181,7 @@ bside/
 
 ## ❤️ Proust Questionnaire Experience
 
-- New **Proust** tab inside `composeApp` streams prompts directly from PocketBase using the shared `pocketbase-kt-sdk` client.
+- New **Proust** tab inside `composeApp` streams prompts directly from PocketBase using the standalone `io.pocketbase:pocketbase-kt-sdk` client.
 - The SDK now defaults to Temurin Java 17 LTS toolchains and automatically falls back to **smart client polling** whenever SSE is blocked, so desktop/mobile/web targets stay in sync.
 - Answers are drafted locally and can be reviewed before submission; realtime status (SSE vs polling) is surfaced via Compose chips for quick diagnostics.
 - To try it: `./scripts/run-desktop.sh` → switch to the **Proust** tab → begin answering questions; updates propagate live when prompts change in PocketBase.

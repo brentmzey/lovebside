@@ -71,10 +71,12 @@ data class ServerConfig(
                         ?: 2592000000
                 ),
                 pocketbase = PocketBaseConfig(
-                    baseUrl = config.propertyOrNull("pocketbase.url")?.getString() 
-                        ?: System.getenv("POCKETBASE_URL") 
-                        ?: "https://bside.pockethost.io",
-                    timeout = config.propertyOrNull("pocketbase.timeout")?.getString()?.toLong() 
+                    baseUrl = normalizePocketBaseUrl(
+                        config.propertyOrNull("pocketbase.url")?.getString()
+                            ?: System.getenv("POCKETBASE_URL")
+                            ?: "https://bside.pockethost.io"
+                    ),
+                    timeout = config.propertyOrNull("pocketbase.timeout")?.getString()?.toLong()
                         ?: 30000
                 ),
                 server = HttpServerConfig(
@@ -87,6 +89,17 @@ data class ServerConfig(
                         ?: listOf("http://localhost:8080", "http://localhost:3000", "https://www.bside.love")
                 )
             )
+        }
+
+        private fun normalizePocketBaseUrl(raw: String): String {
+            val trimmed = raw.trim().trimEnd('/')
+            val apiIndex = trimmed.indexOf("/api")
+            val base = if (apiIndex >= 0) {
+                trimmed.substring(0, apiIndex + 4)
+            } else {
+                "$trimmed/api"
+            }
+            return if (base.endsWith("/")) base else "$base/"
         }
     }
 }

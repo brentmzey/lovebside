@@ -37,7 +37,13 @@ test_target "Desktop JVM JAR      " "./gradlew :composeApp:jvmJar --quiet"
 test_target "JavaScript (Web)     " "./gradlew :composeApp:compileKotlinJs --quiet"
 test_target "iOS Simulator Arm64  " "./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64 --quiet"
 test_target "iOS Device Arm64     " "./gradlew :composeApp:linkDebugFrameworkIosArm64 --quiet"
-test_target "PocketBase SDK       " "./gradlew :pocketbase-kt-sdk:assemble --quiet"
+
+if [ -d "pocketbase-kt-sdk" ]; then
+    test_target "PocketBase SDK       " "./gradlew :pocketbase-kt-sdk:assemble --quiet"
+else
+    echo "Testing PocketBase SDK... skipped (external dependency)"
+fi
+
 test_target "Server (Ktor API)    " "./gradlew :server:installDist --quiet"
 
 echo ""

@@ -1,8 +1,16 @@
 package love.bside.app.ui.theme
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
@@ -13,19 +21,19 @@ private val LightColorScheme = lightColorScheme(
 
     secondary = BsideBrand.PlumHeart,
     onSecondary = Color.White,
-    secondaryContainer = BsideBrand.MintTile,
-    onSecondaryContainer = BsideBrand.DeepEggplant,
+    secondaryContainer = BsideBrand.TealTile,
+    onSecondaryContainer = BsideBrand.PlumHeartDark,
 
-    tertiary = BsideBrand.LavenderMist,
-    onTertiary = BsideBrand.PlumHeartDark,
-    tertiaryContainer = BsideBrand.OffWhite,
+    tertiary = BsideBrand.TealTileDark,
+    onTertiary = Color.White,
+    tertiaryContainer = BsideBrand.TealTileLight,
     onTertiaryContainer = BsideBrand.PlumHeartDark,
 
-    background = BsideBrand.MintTile,
-    onBackground = BsideBrand.DeepEggplant,
-    surface = BsideBrand.OffWhite,
-    onSurface = BsideBrand.PlumHeartDark,
-    surfaceVariant = BsideBrand.LavenderMist,
+    background = BsideBrand.TealTileLight,
+    onBackground = BsideBrand.PlumHeartDark,
+    surface = BsideBrand.Linen,
+    onSurface = BsideBrand.PlumHeart,
+    surfaceVariant = BsideBrand.MistyTeal,
     onSurfaceVariant = BsideBrand.PlumHeart,
 
     error = BsideBrand.Error,
@@ -33,42 +41,42 @@ private val LightColorScheme = lightColorScheme(
     errorContainer = Color(0xFFFFD5DD),
     onErrorContainer = BsideBrand.Error,
 
-    outline = BsideBrand.OutlineLavender,
-    outlineVariant = BsideBrand.LavenderMist,
-    inversePrimary = BsideBrand.MintTileDark
+    outline = BsideBrand.OutlineMint,
+    outlineVariant = BsideBrand.MistyTeal,
+    inversePrimary = BsideBrand.TealTileDark
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = BsideBrand.PlumHeartLight,
-    onPrimary = Color.White,
-    primaryContainer = BsideBrand.PlumHeartDark,
-    onPrimaryContainer = BsideBrand.MintTile,
+    primary = BsideBrand.TealTile,
+    onPrimary = BsideBrand.PlumHeartDark,
+    primaryContainer = BsideBrand.TealTileDark,
+    onPrimaryContainer = Color.White,
 
-    secondary = BsideBrand.PlumHeart,
+    secondary = BsideBrand.PlumHeartLight,
     onSecondary = Color.White,
     secondaryContainer = BsideBrand.PlumHeartDark,
-    onSecondaryContainer = BsideBrand.MintTile,
+    onSecondaryContainer = BsideBrand.TealTileLight,
 
-    tertiary = BsideBrand.MintTile,
-    onTertiary = BsideBrand.PlumHeartDark,
-    tertiaryContainer = BsideBrand.MintTileDark,
-    onTertiaryContainer = Color.White,
+    tertiary = BsideBrand.CoralGlow,
+    onTertiary = Color.White,
+    tertiaryContainer = BsideBrand.PlumHeartDark,
+    onTertiaryContainer = BsideBrand.TealTileLight,
 
-    background = Color(0xFF120713),
-    onBackground = Color(0xFFF8F4F8),
+    background = BsideBrand.Charcoal,
+    onBackground = Color(0xFFE8E1F0),
     surface = BsideBrand.PlumHeartDark,
-    onSurface = Color(0xFFF4EAF4),
-    surfaceVariant = Color(0xFF2F1A32),
-    onSurfaceVariant = BsideBrand.MintTile,
+    onSurface = Color(0xFFF5EAF4),
+    surfaceVariant = Color(0xFF26122B),
+    onSurfaceVariant = BsideBrand.TealTileLight,
 
     error = BsideBrand.Error,
     onError = Color.White,
     errorContainer = Color(0xFF7A1D2E),
     onErrorContainer = Color(0xFFFFEDEF),
 
-    outline = Color(0xFF4B2B4E),
-    outlineVariant = Color(0xFF3A1C3A),
-    inversePrimary = BsideBrand.MintTile
+    outline = Color(0xFF56445D),
+    outlineVariant = Color(0xFF39253E),
+    inversePrimary = BsideBrand.TealTileLight
 )
 
 @Composable
@@ -77,11 +85,45 @@ fun BsideTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
-    
+
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
         shapes = Shapes,
         content = content
     )
+}
+
+@Composable
+fun BsideBackground(
+    modifier: Modifier = Modifier,
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val backdrop = remember(darkTheme) {
+        if (darkTheme) {
+            Brush.linearGradient(
+                colors = listOf(
+                    BsideBrand.Charcoal,
+                    BsideBrand.PlumHeartDark
+                )
+            )
+        } else {
+            Brush.linearGradient(
+                colors = listOf(
+                    BsideBrand.TealTileDark,
+                    BsideBrand.TealTile,
+                    BsideBrand.TealTileLight
+                )
+            )
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(backdrop)
+    ) {
+        content()
+    }
 }
