@@ -3,6 +3,7 @@ package love.bside.app
 import com.russhwolf.settings.NSUserDefaultsSettings
 import com.russhwolf.settings.Settings
 import love.bside.app.di.appModule
+import love.bside.app.di.uiModule
 import love.bside.app.security.ApplePasskeyBridge
 import love.bside.app.security.IosBiometricPromptBridge
 import love.bside.app.security.SecureCredentialStoreFactory
@@ -19,7 +20,10 @@ fun initKoin(): KoinApplication {
 
     return startKoin {
         modules(
+// cleaned up
+
             appModule(settings),
+            uiModule,
             secureAuthModule(secureStore, biometricBridge, passkeyBridge)
         )
     }

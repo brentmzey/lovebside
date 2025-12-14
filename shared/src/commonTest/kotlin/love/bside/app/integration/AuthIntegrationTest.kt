@@ -19,8 +19,11 @@ import kotlin.test.assertTrue
 class AuthIntegrationTest {
     
     private val mockTokenStorage = MockTokenStorage()
+    // Simple client for testing
+    private val httpClient = io.ktor.client.HttpClient() 
+    private val pbClient = love.bside.app.data.api.PocketBaseClient(httpClient)
     private val apiClient = InternalApiClient(mockTokenStorage)
-    private val authRepository = ApiAuthRepository(apiClient)
+    private val authRepository = ApiAuthRepository(apiClient, pbClient, mockTokenStorage)
     
     @Test
     fun testLoginFlow() = runTest {

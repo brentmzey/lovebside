@@ -2,7 +2,7 @@
 # This file is used by SDKMAN to automatically set up the development environment
 
 # Java version
-java=17.0.9-tem
+java=21.0.2-tem
 
 # Gradle (if using SDKMAN for Gradle, though gradlew is preferred)
 # gradle=8.5

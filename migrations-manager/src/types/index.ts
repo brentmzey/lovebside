@@ -8,7 +8,11 @@ export const ConfigSchema = z.object({
   }),
   migrations: z.object({
     dir: z.string(),
-    table: z.string().default('_migrations'),
+    table: z.string()
+      .default('pb_migrations')
+      .refine((value) => !value.startsWith('_'), {
+        message: 'MIGRATION_TABLE cannot start with an underscore; PocketBase reserves names like _migrations. Use pb_migrations or another custom name.',
+      }),
   }),
   secrets: z.object({
     provider: z.enum(['env', 'aws', 'microconfig']).default('env'),

@@ -25,7 +25,8 @@ fun main() = application {
                 credentialStore = SecureCredentialStoreFactory().create(),
                 biometricPromptBridge = UnsupportedBiometricPromptBridge(),
                 passkeyBridge = UnsupportedPasskeyBridge()
-            )
+            ),
+            love.bside.app.di.uiModule
         )
     }.koin
     

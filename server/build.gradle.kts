@@ -98,6 +98,8 @@ dependencies {
     // Testing
     testImplementation(libs.ktor.serverTestHost)
     testImplementation(libs.kotlin.testJunit)
+    testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.kotlinx.coroutinesCore)
 }
 
 // Task to run migrations

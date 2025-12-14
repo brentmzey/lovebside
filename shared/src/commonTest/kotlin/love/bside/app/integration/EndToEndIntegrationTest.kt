@@ -22,9 +22,11 @@ import kotlin.test.assertEquals
 class EndToEndIntegrationTest {
     
     private val mockTokenStorage = MockTokenStorage()
+    private val httpClient = io.ktor.client.HttpClient()
+    private val pbClient = love.bside.app.data.api.PocketBaseClient(httpClient)
     private val apiClient = InternalApiClient(mockTokenStorage)
     
-    private val authRepository: AuthRepository = ApiAuthRepository(apiClient)
+    private val authRepository: AuthRepository = ApiAuthRepository(apiClient, pbClient, mockTokenStorage)
     private val profileRepository: ProfileRepository = ApiProfileRepository(apiClient)
     private val valuesRepository: ValuesRepository = ApiValuesRepository(apiClient)
     private val matchRepository: MatchRepository = ApiMatchRepository(apiClient)

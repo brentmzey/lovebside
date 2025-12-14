@@ -54,6 +54,8 @@ kotlin {
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(projects.shared)
+                implementation(libs.koin.compose.multiplatform)
+                implementation(libs.koin.compose.viewmodel)
             }
         }
 

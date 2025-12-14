@@ -1,0 +1,25 @@
+{
+  "name": "daily-standup",
+  "description": "Generate standup report for assigned tasks",
+  "steps": [
+    {
+      "id": "fetch-graph",
+      "type": "source",
+      "source": {
+        "kind": "file",
+        "url": ".code-hq/graph.jsonld"
+      },
+      "out": "graph.json"
+    },
+    {
+      "id": "my-tasks",
+      "type": "query",
+      "from": "fetch-graph",
+      "needs": [
+        "fetch-graph"
+      ],
+      "query": "FIND task AS ?t WHERE ?t.assignee = \"@me\" AND ?t.updatedAt > \"{{yesterday}}\" RETURN ?t",
+      "out": "my-tasks.json"
+    }
+  ]
+}

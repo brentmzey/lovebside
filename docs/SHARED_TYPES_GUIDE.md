@@ -190,6 +190,36 @@ data class UserRecord(
 
 ---
 
+### Emotion Graph Models
+Captures the graph-based emotion schema introduced in `pocketbase/migrations/20251130000000_add_emotion_graph.js`.
+
+```
+@Serializable
+data class EmotionTerm(...)
+
+@Serializable
+data class ExpressionModifier(...)
+
+@Serializable
+data class GraphItem(...)
+
+@Serializable
+data class EmotionEdge(...)
+
+@Serializable
+data class EdgeModifier(...)
+```
+
+**Data DTOs**: `shared/src/commonMain/kotlin/love/bside/app/data/models/EmotionGraphModels.kt`
+
+**Domain models**: `shared/src/commonMain/kotlin/love/bside/app/domain/models/EmotionGraph.kt`
+
+**Mappers**: `shared/src/commonMain/kotlin/love/bside/app/data/models/EmotionGraphMapper.kt`
+
+These keep Android/iOS/Desktop/JS compiler targets in sync with the PocketBase schema for emotion terms, modifiers, graph items, edges, and edge modifiers.
+
+---
+
 ## 🔄 Data Flow
 
 ```

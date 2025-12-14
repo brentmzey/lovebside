@@ -1,12 +1,14 @@
 package love.bside.app.core
 
+import love.bside.app.AppConstants
+
 /**
  * Configuration management for the application.
  * Allows environment-specific settings and feature flags.
  */
 data class AppConfig(
-    val apiBaseUrl: String = "https://bside.pockethost.io/api/",
-    val pocketBaseUrl: String = "https://bside.pockethost.io/api/",
+    val apiBaseUrl: String = "https://www.bside.love/api/v1",
+    val pocketBaseUrl: String = "https://bside.pockethost.io",
     val apiTimeout: Long = 30_000L,
     val maxRetryAttempts: Int = 3,
     val retryDelayMs: Long = 1000L,
@@ -36,8 +38,17 @@ data class FeatureFlags(
 /**
  * Global configuration instance
  */
-expect object ConfigProvider {
-    fun getConfig(): AppConfig
+/**
+ * Global configuration instance
+ */
+object ConfigProvider {
+    fun getConfig(): AppConfig = AppConfig(
+        pocketBaseUrl = AppConstants.POCKETBASE_URL,
+        apiBaseUrl = "${AppConstants.POCKETBASE_URL}/api/v1",
+        environment = if (AppConstants.USE_PRODUCTION) Environment.PRODUCTION else Environment.DEVELOPMENT,
+        // Always enable debug logging for easy inspection as requested
+        enableLogging = true 
+    )
 }
 
 /**

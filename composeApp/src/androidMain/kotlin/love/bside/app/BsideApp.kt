@@ -31,7 +31,8 @@ class BsideApp : Application() {
             androidContext(this@BsideApp)
             modules(
                 appModule(settings),
-                secureAuthModule(secureStore, biometricBridge, passkeyBridge)
+                secureAuthModule(secureStore, biometricBridge, passkeyBridge),
+                love.bside.app.di.uiModule
             )
         }
     }

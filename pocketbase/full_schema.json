@@ -1,0 +1,240 @@
+[
+    {
+        "id": "pb_conversations01",
+        "name": "m_conversations",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "",
+                "name": "participant1Id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": [
+                        "username"
+                    ]
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "participant2Id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": [
+                        "username"
+                    ]
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "lastMessageText",
+                "type": "text",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "lastMessageAt",
+                "type": "date",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": "",
+                    "max": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "participant1UnreadCount",
+                "type": "number",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": 0,
+                    "max": null,
+                    "noDecimal": true
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "participant2UnreadCount",
+                "type": "number",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": 0,
+                    "max": null,
+                    "noDecimal": true
+                }
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX `idx_m_conv_parts` ON `m_conversations` (`participant1Id`, `participant2Id`)",
+            "CREATE INDEX `idx_m_conv_last` ON `m_conversations` (`lastMessageAt`)"
+        ],
+        "listRule": "@request.auth.id != '' && (@request.auth.id = participant1Id || @request.auth.id = participant2Id)",
+        "viewRule": "@request.auth.id != '' && (@request.auth.id = participant1Id || @request.auth.id = participant2Id)",
+        "createRule": "@request.auth.id != ''",
+        "updateRule": "@request.auth.id != '' && (@request.auth.id = participant1Id || @request.auth.id = participant2Id)",
+        "deleteRule": null,
+        "options": {}
+    },
+    {
+        "id": "pb_messages0000001",
+        "name": "m_messages",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "",
+                "name": "conversationId",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "pb_conversations01",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": null
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "senderId",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": null
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "receiverId",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": null
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "content",
+                "type": "text",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": 5000,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "messageType",
+                "type": "select",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 1,
+                    "values": [
+                        "text",
+                        "image",
+                        "system"
+                    ]
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "status",
+                "type": "select",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 1,
+                    "values": [
+                        "sending",
+                        "sent",
+                        "delivered",
+                        "read",
+                        "failed"
+                    ]
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "sentAt",
+                "type": "date",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": "",
+                    "max": ""
+                }
+            }
+        ],
+        "indexes": [
+            "CREATE INDEX `idx_m_msg_conv` ON `m_messages` (`conversationId`, `sentAt`)",
+            "CREATE INDEX `idx_m_msg_unread` ON `m_messages` (`receiverId`, `status`) WHERE `status` != 'read'"
+        ],
+        "listRule": "@request.auth.id != '' && (@request.auth.id = senderId || @request.auth.id = receiverId)",
+        "viewRule": "@request.auth.id != '' && (@request.auth.id = senderId || @request.auth.id = receiverId)",
+        "createRule": "@request.auth.id != '' && @request.auth.id = senderId",
+        "updateRule": "@request.auth.id != '' && (@request.auth.id = senderId || @request.auth.id = receiverId)",
+        "deleteRule": "@request.auth.id != '' && @request.auth.id = senderId",
+        "options": {}
+    }
+]

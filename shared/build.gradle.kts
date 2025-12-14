@@ -66,6 +66,8 @@ kotlin {
             implementation(libs.essenty.lifecycle)
             implementation(libs.essenty.lifecycle.coroutines)
             implementation(libs.koin.core)
+            implementation(libs.pocketbase.sdk)
+            implementation(libs.arrow.core)
             
             // Compose dependencies for UI components
             implementation(compose.runtime)
@@ -79,6 +81,8 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutinesCore)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
         }
 
         // Android source set

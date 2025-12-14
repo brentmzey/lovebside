@@ -4,7 +4,8 @@ package love.bside.app
  * Application-wide constants
  */
 object AppConstants {
-    const val SERVER_PORT = 8080
+    // const val SERVER_PORT = 8090
+    const val SERVER_PORT = 443
     
     // API Configuration
     const val API_VERSION = "v1"
@@ -32,6 +33,12 @@ object AppConstants {
     // Feature Flags Default
     const val DEFAULT_ENABLE_ANALYTICS = true
     const val DEFAULT_ENABLE_CRASH_REPORTING = true
+
+    // Environment Control
+    // Set this to true to switch to PRODUCTION (live data)
+    const val USE_PRODUCTION = true 
+
+    val POCKETBASE_URL = if (USE_PRODUCTION) "https://bside.pockethost.io" else "http://127.0.0.1:$SERVER_PORT"
 }
 
 // Legacy support

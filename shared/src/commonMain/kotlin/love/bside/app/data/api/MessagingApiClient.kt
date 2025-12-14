@@ -22,7 +22,7 @@ class MessagingApiClient(
 ) {
     private val config = appConfig()
     private val baseUrl = when (config.environment) {
-        love.bside.app.core.Environment.DEVELOPMENT -> "http://localhost:8080/api/v1"
+        love.bside.app.core.Environment.DEVELOPMENT -> "http://localhost:8090/api/v1"
         love.bside.app.core.Environment.STAGING -> "https://staging.bside.love/api/v1"
         love.bside.app.core.Environment.PRODUCTION -> "https://www.bside.love/api/v1"
     }

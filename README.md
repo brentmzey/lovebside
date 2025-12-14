@@ -110,7 +110,15 @@ cd pocketbase
 ./pocketbase migrate up --dir migrations   # apply latest schema locally or on the server shell
 ./pocketbase migrate status                # confirm versions
 ```
-See [docs/POCKETBASE_SCHEMA.md](./docs/POCKETBASE_SCHEMA.md) for Docker and production instructions.
+Once the core CLI has applied the schema, keep PocketBase, the Ktor API, and the shared Kotlin models aligned:
+1. `cd migrations-manager && npm install && npm run migrate:status` – double-check that every scripted migration has been recorded.
+2. `npm run migrate` (still inside `migrations-manager`) – applies any pending files to the same PocketBase instance used by the server.
+3. `./scripts/test-server-db.sh` – rebuilds the server and exercises the repository layer against PocketBase collections.
+4. `./scripts/test-full-stack.sh` – runs the shared integration suite so Android/iOS/Desktop/Web all hit the reverse-proxy API the same way.
+
+> **Important:** All auth flows operate against the dedicated `t_user` PocketBase collection (fronted by the backend API). Make sure that collection exists before running the apps.
+
+See [docs/POCKETBASE_SCHEMA.md](./docs/POCKETBASE_SCHEMA.md) for Docker and production instructions, plus collection-by-collection expectations.
 
 ### Web (Compose/Wasm) dev server
 ```bash

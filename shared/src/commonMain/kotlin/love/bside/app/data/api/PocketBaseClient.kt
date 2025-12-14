@@ -283,7 +283,7 @@ class PocketBaseClient(
      * Refresh authentication token
      */
     suspend inline fun <reified T> authRefresh(
-        collection: String = "users"
+        collection: String = "t_user"
     ): Result<AuthResponse<T>> {
         logDebug("PocketBase authRefresh: collection=$collection")
         

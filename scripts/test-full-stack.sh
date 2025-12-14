@@ -27,8 +27,8 @@ else
     exit 1
 fi
 
-echo -n "  Internal API (8080)... "
-if curl -s http://localhost:8080/health > /dev/null 2>&1; then
+echo -n "  Internal API (8090)... "
+if curl -s http://localhost:8090/health > /dev/null 2>&1; then
     echo -e "${GREEN}✅ RUNNING${NC}"
 else
     echo -e "${RED}❌ NOT RUNNING${NC}"
@@ -63,7 +63,7 @@ echo -e "${BLUE}Test 4: API Endpoints${NC}"
 
 # Test signup
 echo -n "  Sign up endpoint... "
-SIGNUP_RESULT=$(curl -s -X POST http://localhost:8080/api/auth/signup \
+SIGNUP_RESULT=$(curl -s -X POST http://localhost:8090/api/auth/signup \
   -H "Content-Type: application/json" \
   -d "{
     \"email\": \"test-$(date +%s)@example.com\",
@@ -83,7 +83,7 @@ fi
 # Test authenticated endpoint (if we got a token)
 if [ ! -z "$TOKEN" ]; then
     echo -n "  Authenticated request... "
-    AUTH_RESULT=$(curl -s http://localhost:8080/api/v1/profile \
+    AUTH_RESULT=$(curl -s http://localhost:8090/api/v1/profile \
       -H "Authorization: Bearer $TOKEN" 2>&1)
     
     if echo "$AUTH_RESULT" | grep -q "email\|user\|success"; then
@@ -112,5 +112,5 @@ echo "  3. View logs: adb logcat | grep BsideApp"
 echo ""
 echo -e "${YELLOW}Backends:${NC}"
 echo "  PocketBase Admin: http://127.0.0.1:8090/_/"
-echo "  API Server: http://localhost:8080"
+echo "  API Server: http://localhost:8090"
 echo ""

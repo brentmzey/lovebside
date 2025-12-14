@@ -8,6 +8,7 @@ import com.russhwolf.settings.StorageSettings
 import kotlinx.browser.document
 import kotlinx.browser.localStorage
 import love.bside.app.di.appModule
+import love.bside.app.di.uiModule
 import love.bside.app.routing.RootComponent
 import love.bside.app.security.SecureCredentialStoreFactory
 import love.bside.app.security.UnsupportedBiometricPromptBridge
@@ -18,9 +19,12 @@ import org.koin.core.context.startKoin
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     val settings = StorageSettings(localStorage)
+// cleaned up
+
     val koin = startKoin {
         modules(
             appModule(settings),
+            uiModule,
             secureAuthModule(
                 credentialStore = SecureCredentialStoreFactory().create(),
                 biometricPromptBridge = UnsupportedBiometricPromptBridge(),

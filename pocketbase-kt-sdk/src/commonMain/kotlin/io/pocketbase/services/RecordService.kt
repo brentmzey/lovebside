@@ -160,7 +160,7 @@ class RecordService(
         options: QueryOptions? = null
     ): AuthResponse {
         val response = client.send<JsonObject>(
-            path = "$basePath/auth-with-password",
+            path = "/api/collections/${collectionIdOrName}/auth-with-password",
             method = "POST",
             body = mapOf(
                 "identity" to usernameOrEmail,
@@ -182,7 +182,7 @@ class RecordService(
      */
     suspend fun authRefresh(options: QueryOptions? = null): AuthResponse {
         val response = client.send<JsonObject>(
-            path = "$basePath/auth-refresh",
+            path = "/api/collections/${collectionIdOrName}/auth-refresh",
             method = "POST",
             query = options?.toQueryMap()
         )
@@ -201,7 +201,7 @@ class RecordService(
     suspend fun requestPasswordReset(email: String): Boolean {
         return try {
             client.send<JsonObject>(
-                path = "$basePath/request-password-reset",
+                path = "/api/collections/${collectionIdOrName}/request-password-reset",
                 method = "POST",
                 body = mapOf("email" to email)
             )
@@ -221,7 +221,7 @@ class RecordService(
     ): Boolean {
         return try {
             client.send<JsonObject>(
-                path = "$basePath/confirm-password-reset",
+                path = "/api/collections/${collectionIdOrName}/confirm-password-reset",
                 method = "POST",
                 body = mapOf(
                     "token" to token,
@@ -241,7 +241,7 @@ class RecordService(
     suspend fun requestVerification(email: String): Boolean {
         return try {
             client.send<JsonObject>(
-                path = "$basePath/request-verification",
+                path = "/api/collections/${collectionIdOrName}/request-verification",
                 method = "POST",
                 body = mapOf("email" to email)
             )
@@ -257,7 +257,7 @@ class RecordService(
     suspend fun confirmVerification(token: String): Boolean {
         return try {
             client.send<JsonObject>(
-                path = "$basePath/confirm-verification",
+                path = "/api/collections/${collectionIdOrName}/confirm-verification",
                 method = "POST",
                 body = mapOf("token" to token)
             )

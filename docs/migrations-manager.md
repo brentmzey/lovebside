@@ -104,7 +104,10 @@ POCKETBASE_URL=http://localhost:8090
 POCKETBASE_ADMIN_EMAIL=admin@bside.love
 POCKETBASE_ADMIN_PASSWORD=changeme
 MIGRATIONS_DIR=../pocketbase/migrations
+MIGRATION_TABLE=pb_migrations
 ```
+
+> ⚠️ **Important:** PocketBase reserves collection names that start with `_` (for example `_migrations`). Use `pb_migrations` (the default above) or another non-reserved name for `MIGRATION_TABLE` so the CLI can create/read the tracking collection.
 
 ### Production (AWS Secrets Manager)
 

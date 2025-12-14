@@ -1,0 +1,221 @@
+[
+    {
+        "name": "s_profiles",
+        "type": "base",
+        "system": false,
+        "fields": [
+            {
+                "cascadeDelete": true,
+                "collectionId": "_pb_users_auth_",
+                "hidden": false,
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "userId",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "autogeneratePattern": "",
+                "hidden": false,
+                "max": 0,
+                "min": 0,
+                "name": "firstName",
+                "pattern": "",
+                "presentable": false,
+                "primaryKey": false,
+                "required": true,
+                "system": false,
+                "type": "text"
+            },
+            {
+                "autogeneratePattern": "",
+                "hidden": false,
+                "max": 0,
+                "min": 0,
+                "name": "lastName",
+                "pattern": "",
+                "presentable": false,
+                "primaryKey": false,
+                "required": true,
+                "system": false,
+                "type": "text"
+            },
+            {
+                "hidden": false,
+                "max": "",
+                "min": "",
+                "name": "birthDate",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "date"
+            },
+            {
+                "convertURLs": false,
+                "hidden": false,
+                "maxSize": 0,
+                "name": "bio",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "editor"
+            },
+            {
+                "autogeneratePattern": "",
+                "hidden": false,
+                "max": 0,
+                "min": 0,
+                "name": "location",
+                "pattern": "",
+                "presentable": false,
+                "primaryKey": false,
+                "required": false,
+                "system": false,
+                "type": "text"
+            },
+            {
+                "hidden": false,
+                "maxSelect": 1,
+                "name": "seeking",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "select",
+                "values": [
+                    "Friendship",
+                    "Relationship",
+                    "Both"
+                ]
+            },
+            {
+                "hidden": false,
+                "maxSelect": 1,
+                "maxSize": 5242880,
+                "mimeTypes": [
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp",
+                    "image/gif"
+                ],
+                "name": "profilePicture",
+                "presentable": false,
+                "protected": false,
+                "required": false,
+                "system": false,
+                "thumbs": [
+                    "100x100",
+                    "512x512"
+                ],
+                "type": "file"
+            },
+            {
+                "hidden": false,
+                "maxSelect": 10,
+                "maxSize": 10485760,
+                "mimeTypes": [
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp"
+                ],
+                "name": "photos",
+                "presentable": false,
+                "protected": false,
+                "required": false,
+                "system": false,
+                "thumbs": [
+                    "200x200",
+                    "800x800"
+                ],
+                "type": "file"
+            },
+            {
+                "convertURLs": false,
+                "hidden": false,
+                "maxSize": 0,
+                "name": "aboutMe",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "editor"
+            },
+            {
+                "hidden": false,
+                "max": 250,
+                "min": 120,
+                "name": "height",
+                "onlyInt": false,
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "number"
+            },
+            {
+                "autogeneratePattern": "",
+                "hidden": false,
+                "max": 100,
+                "min": 0,
+                "name": "occupation",
+                "pattern": "",
+                "presentable": false,
+                "primaryKey": false,
+                "required": false,
+                "system": false,
+                "type": "text"
+            },
+            {
+                "autogeneratePattern": "",
+                "hidden": false,
+                "max": 200,
+                "min": 0,
+                "name": "education",
+                "pattern": "",
+                "presentable": false,
+                "primaryKey": false,
+                "required": false,
+                "system": false,
+                "type": "text"
+            },
+            {
+                "hidden": false,
+                "maxSelect": 10,
+                "name": "interests",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "select",
+                "values": [
+                    "Art",
+                    "Music",
+                    "Sports",
+                    "Travel",
+                    "Cooking",
+                    "Reading",
+                    "Photography",
+                    "Gaming",
+                    "Fitness",
+                    "Technology",
+                    "Nature",
+                    "Movies",
+                    "Theater",
+                    "Dancing",
+                    "Writing",
+                    "Volunteering",
+                    "Pets",
+                    "Fashion",
+                    "Food",
+                    "Science"
+                ]
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX `idx_unique_userId` ON `s_profiles` (`userId`)"
+        ],
+        "listRule": "@request.auth.id != '' && @request.auth.id = userId",
+        "viewRule": "@request.auth.id != ''",
+        "createRule": "@request.auth.id != '' && @request.auth.id = userId",
+        "updateRule": "@request.auth.id = userId",
+        "deleteRule": "@request.auth.id = userId"
+    }
+]

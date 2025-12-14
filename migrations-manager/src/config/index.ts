@@ -40,7 +40,7 @@ export async function loadConfig(): Promise<Config> {
     pocketbase: pocketbaseConfig,
     migrations: {
       dir: process.env.MIGRATIONS_DIR || '../pocketbase/migrations',
-      table: process.env.MIGRATION_TABLE || '_migrations',
+      table: process.env.MIGRATION_TABLE || 'pb_migrations',
     },
     secrets: {
       provider: secretsProvider as 'env' | 'aws' | 'microconfig',

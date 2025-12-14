@@ -29,7 +29,10 @@ POCKETBASE_URL=https://your-instance.pockethost.io
 POCKETBASE_ADMIN_EMAIL=admin@example.com
 POCKETBASE_ADMIN_PASSWORD=your-secure-password
 MIGRATIONS_DIR=../pocketbase/migrations
+MIGRATION_TABLE=pb_migrations
 ```
+
+> ℹ️ **Note:** Keep the migration tracking collection name free of leading underscores. PocketBase reserves names like `_migrations`, so use the default `pb_migrations` (or another custom name) unless you have a strong reason to change it.
 
 ### Using AWS Secrets Manager
 

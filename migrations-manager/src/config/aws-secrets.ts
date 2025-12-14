@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import { SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 
 interface AWSSecrets {
   POCKETBASE_URL?: string;
@@ -11,15 +11,16 @@ export async function getAWSSecrets(
   secretName: string,
   region: string = 'us-east-1'
 ): Promise<AWSSecrets> {
-  const client = new AWS.SecretsManager({ region });
+  const client = new SecretsManagerClient({ region });
 
   try {
-    const data = await client.getSecretValue({ SecretId: secretName }).promise();
-    
+    const command = new GetSecretValueCommand({ SecretId: secretName });
+    const data = await client.send(command);
+
     if (data.SecretString) {
       return JSON.parse(data.SecretString);
     }
-    
+
     throw new Error('Secret string not found in AWS Secrets Manager response');
   } catch (error) {
     console.error('Error retrieving secrets from AWS:', error);

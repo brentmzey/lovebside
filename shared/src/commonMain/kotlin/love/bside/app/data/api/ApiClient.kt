@@ -10,7 +10,6 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import love.bside.app.core.appConfig
@@ -66,7 +65,17 @@ fun createHttpClient(tokenStorage: TokenStorage) = HttpClient {
         }
     }
 
+    val resolvedBaseUrl = config.apiBaseUrl
+        .ifBlank {
+            when (config.environment) {
+                love.bside.app.core.Environment.DEVELOPMENT -> "http://localhost:8090/api/v1"
+                love.bside.app.core.Environment.STAGING -> "https://staging.bside.love/api/v1"
+                love.bside.app.core.Environment.PRODUCTION -> "https://www.bside.love/api/v1"
+            }
+        }
+        .trimEnd('/')
+
     defaultRequest {
-        url("https://bside.pockethost.io/api/")
+        url(resolvedBaseUrl)
     }
 }

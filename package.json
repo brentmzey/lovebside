@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "code-hq": "^1.6.1"
+  },
+  "devDependencies": {
+    "basic-ftp": "^5.0.5"
+  }
+}

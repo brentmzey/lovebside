@@ -5,7 +5,7 @@ import love.bside.app.security.SecureAuthFactor
 import love.bside.app.security.SecureAuthManager
 import love.bside.app.security.SecureEnrollmentResult
 
-class EnableBiometricLoginUseCase(
+data class EnableBiometricLoginUseCase(
     private val secureAuthManager: SecureAuthManager
 ) {
     suspend operator fun invoke(

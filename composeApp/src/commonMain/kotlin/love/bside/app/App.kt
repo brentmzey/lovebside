@@ -28,6 +28,7 @@ import love.bside.app.domain.usecase.SignUpUseCase
 import love.bside.app.routing.RootComponent
 import love.bside.app.ui.screens.auth.AuthScreen
 import love.bside.app.ui.screens.home.DashboardScreen
+import love.bside.app.ui.screens.AuthorizedContent
 import love.bside.app.ui.theme.BsideBackground
 import love.bside.app.ui.theme.BsideTheme
 
@@ -76,8 +77,8 @@ fun App(
                                 }
                             )
                         } else {
-                            DashboardScreen(
-                                details = current,
+                            AuthorizedContent(
+                                authDetails = current,
                                 onLogout = {
                                     scope.launch {
                                         runCatching { logoutUseCase() }

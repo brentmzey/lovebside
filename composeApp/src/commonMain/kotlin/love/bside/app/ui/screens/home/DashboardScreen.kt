@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -39,7 +38,8 @@ import love.bside.app.domain.models.Profile
 @Composable
 fun DashboardScreen(
     details: AuthDetails,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onOpenMessaging: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val gradient = remember(colorScheme) {
@@ -59,6 +59,20 @@ fun DashboardScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             HeroCard(details.profile)
+            
+            // Messaging Entry Point
+            Button(
+                onClick = onOpenMessaging,
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary
+                )
+            ) {
+                Text("Open Messages", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            }
+
             InsightRow(details.profile)
             ValuesSection()
             Button(

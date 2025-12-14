@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     `maven-publish`
     signing
+    alias(libs.plugins.kover)
 }
 
 group = project.findProperty("GROUP") as String? ?: "io.pocketbase"
@@ -41,6 +42,7 @@ kotlin {
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.ktor.client.logging)
+                implementation(libs.arrow.core)
             }
         }
 
@@ -48,6 +50,7 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.test)
                 implementation(libs.kotlinx.coroutinesCore)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 

@@ -1,0 +1,144 @@
+[
+    {
+        "name": "s_profiles",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "",
+                "name": "profilePicture",
+                "type": "file",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 1,
+                    "maxSize": 5242880,
+                    "mimeTypes": [
+                        "image/jpeg",
+                        "image/png",
+                        "image/webp",
+                        "image/gif"
+                    ],
+                    "thumbs": [
+                        "100x100",
+                        "512x512"
+                    ],
+                    "protected": false
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "photos",
+                "type": "file",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 10,
+                    "maxSize": 10485760,
+                    "mimeTypes": [
+                        "image/jpeg",
+                        "image/png",
+                        "image/webp"
+                    ],
+                    "thumbs": [
+                        "200x200",
+                        "800x800"
+                    ],
+                    "protected": false
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "aboutMe",
+                "type": "editor",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "convertUrls": false
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "height",
+                "type": "number",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": 120,
+                    "max": 250,
+                    "noDecimal": false
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "occupation",
+                "type": "text",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": 100,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "education",
+                "type": "text",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": 200,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "",
+                "name": "interests",
+                "type": "select",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 10,
+                    "values": [
+                        "Art",
+                        "Music",
+                        "Sports",
+                        "Travel",
+                        "Cooking",
+                        "Reading",
+                        "Photography",
+                        "Gaming",
+                        "Fitness",
+                        "Technology",
+                        "Nature",
+                        "Movies",
+                        "Theater",
+                        "Dancing",
+                        "Writing",
+                        "Volunteering",
+                        "Pets",
+                        "Fashion",
+                        "Food",
+                        "Science"
+                    ]
+                }
+            }
+        ]
+    }
+]

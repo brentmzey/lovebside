@@ -17,7 +17,7 @@ describe('MigrationManager', () => {
       },
       migrations: {
         dir: './test-migrations',
-        table: '_migrations',
+        table: 'pb_migrations',
       },
     };
 

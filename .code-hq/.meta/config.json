@@ -1,0 +1,20 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "",
+    "repository": ""
+  },
+  "defaults": {
+    "taskStatus": "todo",
+    "taskPriority": "medium",
+    "assignee": null
+  },
+  "views": {
+    "default": "datatable",
+    "taskView": "kanban"
+  },
+  "integrations": {},
+  "workflows": {
+    "autorun": []
+  }
+}

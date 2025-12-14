@@ -40,7 +40,7 @@ class ProfileIntegrationTest {
             lastName = "UpdatedLast",
             bio = "Updated bio",
             location = "New Location",
-            seeking = love.bside.app.data.models.SeekingStatus.BOTH
+            seeking = love.bside.app.domain.models.SeekingStatus.BOTH
         )
         
         val result = profileRepository.updateProfile("test-user-id", updateRequest)

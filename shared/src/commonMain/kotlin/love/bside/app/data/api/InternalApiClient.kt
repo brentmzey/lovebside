@@ -2,7 +2,9 @@ package love.bside.app.data.api
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.*
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
@@ -22,18 +24,34 @@ import love.bside.app.data.storage.TokenStorage
  * clients should never talk directly to PocketBase
  */
 class InternalApiClient(
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
+    engine: HttpClientEngine? = null,
+    private val baseUrlOverride: String? = null
 ) {
     private val config = appConfig()
     
     // Base URL for the internal API - configurable per environment
-    private val baseUrl = when (config.environment) {
-        love.bside.app.core.Environment.DEVELOPMENT -> "http://localhost:8080/api/v1"
-        love.bside.app.core.Environment.STAGING -> "https://staging.bside.love/api/v1"
-        love.bside.app.core.Environment.PRODUCTION -> "https://www.bside.love/api/v1"
+    private val computedBaseUrl = config.apiBaseUrl
+        .ifBlank {
+            when (config.environment) {
+                love.bside.app.core.Environment.DEVELOPMENT -> "http://localhost:8090/api/v1"
+                love.bside.app.core.Environment.STAGING -> "https://staging.bside.love/api/v1"
+                love.bside.app.core.Environment.PRODUCTION -> "https://www.bside.love/api/v1"
+            }
+        }
+    private val resolvedBaseUrl = (baseUrlOverride ?: computedBaseUrl).trimEnd('/')
+    private val apiBaseUrl = Url(resolvedBaseUrl)
+    private val apiBasePathSegments = apiBaseUrl.encodedPath
+        .split('/')
+        .filter { it.isNotBlank() }
+    
+    private val client = if (engine != null) {
+        HttpClient(engine) { configureClient() }
+    } else {
+        HttpClient { configureClient() }
     }
     
-    private val client = HttpClient {
+    private fun HttpClientConfig<*>.configureClient() {
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = true
@@ -65,14 +83,18 @@ class InternalApiClient(
         }
         
         defaultRequest {
-            url(baseUrl)
+            url {
+                takeFrom(apiBaseUrl)
+                encodedPath = "/"
+            }
         }
     }
     
     // ===== Authentication =====
     
     suspend fun register(request: RegisterRequest): Result<AuthResponse> = safeApiCall {
-        val response = client.post("/auth/register") {
+        val response = client.post {
+            apiUrl("auth/register")
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body<ApiResponse<AuthResponse>>()
@@ -88,7 +110,8 @@ class InternalApiClient(
     }
     
     suspend fun login(email: String, password: String): Result<AuthResponse> = safeApiCall {
-        val response = client.post("/auth/login") {
+        val response = client.post {
+            apiUrl("auth/login")
             contentType(ContentType.Application.Json)
             setBody(LoginRequest(email, password))
         }.body<ApiResponse<AuthResponse>>()
@@ -107,7 +130,8 @@ class InternalApiClient(
         val refreshToken = tokenStorage.getRefreshToken()
             ?: return@safeApiCall Result.Error(AppException.Auth.SessionExpired())
         
-        val response = client.post("/auth/refresh") {
+        val response = client.post {
+            apiUrl("auth/refresh")
             contentType(ContentType.Application.Json)
             setBody(RefreshTokenRequest(refreshToken))
         }.body<ApiResponse<AuthResponse>>()
@@ -132,7 +156,8 @@ class InternalApiClient(
     // ===== User =====
     
     suspend fun getCurrentUser(): Result<UserDTO> = safeApiCall {
-        val response = client.get("/users/me") {
+        val response = client.get {
+            apiUrl("users/me")
             bearerAuth(getToken())
         }.body<ApiResponse<UserDTO>>()
         
@@ -144,7 +169,8 @@ class InternalApiClient(
     }
     
     suspend fun updateProfile(request: UpdateProfileRequest): Result<UserDTO> = safeApiCall {
-        val response = client.put("/users/me") {
+        val response = client.put {
+            apiUrl("users/me")
             bearerAuth(getToken())
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -158,7 +184,8 @@ class InternalApiClient(
     }
     
     suspend fun deleteAccount(): Result<Unit> = safeApiCall {
-        client.delete("/users/me") {
+        client.delete {
+            apiUrl("users/me")
             bearerAuth(getToken())
         }
         tokenStorage.clearTokens()
@@ -168,7 +195,8 @@ class InternalApiClient(
     // ===== Values =====
     
     suspend fun getAllKeyValues(category: String? = null): Result<List<KeyValueDTO>> = safeApiCall {
-        val response = client.get("/values") {
+        val response = client.get {
+            apiUrl("values")
             category?.let { parameter("category", it) }
         }.body<ApiResponse<List<KeyValueDTO>>>()
         
@@ -180,7 +208,8 @@ class InternalApiClient(
     }
     
     suspend fun getUserValues(): Result<List<UserValueDTO>> = safeApiCall {
-        val response = client.get("/users/me/values") {
+        val response = client.get {
+            apiUrl("users/me/values")
             bearerAuth(getToken())
         }.body<ApiResponse<List<UserValueDTO>>>()
         
@@ -192,7 +221,8 @@ class InternalApiClient(
     }
     
     suspend fun saveUserValues(values: List<UserValueInput>): Result<List<UserValueDTO>> = safeApiCall {
-        val response = client.post("/users/me/values") {
+        val response = client.post {
+            apiUrl("users/me/values")
             bearerAuth(getToken())
             contentType(ContentType.Application.Json)
             setBody(SaveUserValuesRequest(values))
@@ -208,7 +238,8 @@ class InternalApiClient(
     // ===== Matches =====
     
     suspend fun getMatches(): Result<List<MatchDTO>> = safeApiCall {
-        val response = client.get("/matches") {
+        val response = client.get {
+            apiUrl("matches")
             bearerAuth(getToken())
         }.body<ApiResponse<List<MatchDTO>>>()
         
@@ -220,7 +251,8 @@ class InternalApiClient(
     }
     
     suspend fun discoverMatches(limit: Int = 10): Result<DiscoverMatchesResponse> = safeApiCall {
-        val response = client.get("/matches/discover") {
+        val response = client.get {
+            apiUrl("matches/discover")
             bearerAuth(getToken())
             parameter("limit", limit)
         }.body<ApiResponse<DiscoverMatchesResponse>>()
@@ -233,7 +265,8 @@ class InternalApiClient(
     }
     
     suspend fun likeMatch(matchId: String): Result<MatchDTO> = safeApiCall {
-        val response = client.post("/matches/$matchId/like") {
+        val response = client.post {
+            apiUrl("matches/$matchId/like")
             bearerAuth(getToken())
         }.body<ApiResponse<MatchDTO>>()
         
@@ -245,7 +278,8 @@ class InternalApiClient(
     }
     
     suspend fun passMatch(matchId: String): Result<MatchDTO> = safeApiCall {
-        val response = client.post("/matches/$matchId/pass") {
+        val response = client.post {
+            apiUrl("matches/$matchId/pass")
             bearerAuth(getToken())
         }.body<ApiResponse<MatchDTO>>()
         
@@ -259,8 +293,9 @@ class InternalApiClient(
     // ===== Prompts =====
     
     suspend fun getAllPrompts(): Result<List<PromptDTO>> = safeApiCall {
-        val response = client.get("/prompts")
-            .body<ApiResponse<List<PromptDTO>>>()
+        val response = client.get {
+            apiUrl("prompts")
+        }.body<ApiResponse<List<PromptDTO>>>()
         
         if (response.success && response.data != null) {
             Result.Success(response.data)
@@ -270,7 +305,8 @@ class InternalApiClient(
     }
     
     suspend fun getUserAnswers(): Result<List<PromptAnswerDTO>> = safeApiCall {
-        val response = client.get("/users/me/answers") {
+        val response = client.get {
+            apiUrl("users/me/answers")
             bearerAuth(getToken())
         }.body<ApiResponse<List<PromptAnswerDTO>>>()
         
@@ -282,7 +318,8 @@ class InternalApiClient(
     }
     
     suspend fun submitAnswer(promptId: String, answer: String): Result<PromptAnswerDTO> = safeApiCall {
-        val response = client.post("/users/me/answers") {
+        val response = client.post {
+            apiUrl("users/me/answers")
             bearerAuth(getToken())
             contentType(ContentType.Application.Json)
             setBody(SubmitAnswerRequest(promptId, answer))
@@ -298,11 +335,33 @@ class InternalApiClient(
     // ===== Health Check =====
     
     suspend fun healthCheck(): Result<HealthResponse> = safeApiCall {
-        val response = client.get("/health").body<HealthResponse>()
+        val response = client.get {
+            apiUrl("health")
+        }.body<HealthResponse>()
         Result.Success(response)
     }
     
     // ===== Helper Methods =====
+    
+    private fun HttpRequestBuilder.apiUrl(path: String = "") {
+        val normalizedSegments = path.trim('/')
+            .takeIf { it.isNotBlank() }
+            ?.split('/')
+            ?.filter { it.isNotBlank() }
+            ?: emptyList()
+        val segments = mutableListOf<String>().apply {
+            addAll(apiBasePathSegments)
+            addAll(normalizedSegments)
+        }
+        url {
+            takeFrom(apiBaseUrl)
+            encodedPath = if (segments.isEmpty()) {
+                "/"
+            } else {
+                "/" + segments.joinToString("/")
+            }
+        }
+    }
     
     private suspend fun getToken(): String {
         val token = tokenStorage.getToken()
