@@ -15,11 +15,27 @@ import love.bside.app.core.AppException
 import love.bside.app.core.Result
 import love.bside.app.domain.models.*
 import love.bside.app.domain.repository.MessagingRepository
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import kotlinx.serialization.json.encodeToJsonElement
+
+@Serializable
+private data class ParticipantCreateRequest(
+    val conversationId: String,
+    val userId: String,
+    val role: String,
+    @kotlinx.serialization.SerialName("unread_count")
+    val unreadCount: Int,
+    val joinedAt: String,
+    val isMuted: Boolean,
+    val isPinned: Boolean
+)
 
 class PocketBaseMessagingRepository(
     private val pocketBase: PocketBase
@@ -60,6 +76,7 @@ class PocketBaseMessagingRepository(
         val totalMessageCount: Int,
         val maxParticipants: Int,
         val isArchived: Boolean,
+        val participants: List<String> = emptyList(),
         val conversationName: String? = null,
         val lastMessageText: String? = null,
         val lastMessageAt: String? = null
@@ -70,7 +87,7 @@ class PocketBaseMessagingRepository(
         val conversationId: String,
         val userId: String,
         val role: String,
-        val unreadCount: Int,
+        val unreadCount: String,
         val joinedAt: String,
         val isMuted: Boolean,
         val isPinned: Boolean
@@ -96,14 +113,18 @@ class PocketBaseMessagingRepository(
                 maxParticipants = 2,
                 isArchived = false
             )
-            // encoding to JsonObject then to Primitive Map ensures serialization works with SDK
-            val jsonBody = Json.encodeToJsonElement<CreateConversationRequest>(convBody).jsonObject.toPrimitiveMap()
-            val convRecord = pocketBase.collection("m_conversations").create(jsonBody)
-            val convId = convRecord["id"]?.jsonPrimitive?.content ?: throw AppException.Unknown("Failed to get conversation ID")
+            // Use pocketBase.send directly to bypass RecordService restriction on Map<String, Any>
+            // This allows passing DTOs which are properly serialized by Ktor
+            val convJson = pocketBase.send<kotlinx.serialization.json.JsonObject>(
+                path = "/api/collections/m_conversations/records",
+                method = "POST",
+                body = convBody
+            )
+            val convId = convJson["id"]?.jsonPrimitive?.content ?: throw AppException.Unknown("Failed to parse conversation ID")
 
             val now = Clock.System.now().toString()
             participantIds.forEach { userId ->
-                val partBody = CreateParticipantRequest(
+                val partBody = ParticipantCreateRequest(
                     conversationId = convId,
                     userId = userId,
                     role = "member",
@@ -112,14 +133,18 @@ class PocketBaseMessagingRepository(
                     isMuted = false,
                     isPinned = false
                 )
-                val partJson = Json.encodeToJsonElement<CreateParticipantRequest>(partBody).jsonObject.toPrimitiveMap()
-                pocketBase.collection("m_conversation_participants").create(partJson)
+                pocketBase.send<io.pocketbase.models.RecordModel>(
+                    path = "/api/collections/m_conversation_participants/records",
+                    method = "POST",
+                    body = partBody
+                )
             }
-            convId
+            mapRecordToConversation(convJson)
         }.fold(
-            onSuccess = { getConversation(it) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to create conversation")) }
+            onSuccess = { Result.Success(it) },
+            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to create conversation", it)) }
         )
+
     }
 
     // ============================= Participants =============================
@@ -133,13 +158,13 @@ class PocketBaseMessagingRepository(
             )
     }.fold(
         onSuccess = { Result.Success(it.items.map { mapRecordToParticipant(it) }) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch participants")) }
+        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch participants", it)) }
     )
 
     override suspend fun addParticipants(conversationId: String, userIds: List<String>): Result<Unit> = runCatching {
         val now = Clock.System.now().toString()
         userIds.forEach { userId ->
-            val body = CreateParticipantRequest(
+            val body = ParticipantCreateRequest(
                 conversationId = conversationId,
                 userId = userId,
                 role = "member",
@@ -148,12 +173,16 @@ class PocketBaseMessagingRepository(
                 isMuted = false,
                 isPinned = false
             )
-            val jsonBody = Json.encodeToJsonElement<CreateParticipantRequest>(body).jsonObject.toPrimitiveMap()
-            pocketBase.collection("m_conversation_participants").create(jsonBody)
+
+            pocketBase.send<io.pocketbase.models.RecordModel>(
+                path = "/api/collections/m_conversation_participants/records",
+                method = "POST",
+                body = body
+            )
         }
     }.fold(
         onSuccess = { Result.Success(Unit) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to add participants")) }
+        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to add participants", it)) }
     )
 
     // ============================= Messages =============================
@@ -168,7 +197,7 @@ class PocketBaseMessagingRepository(
             )
     }.fold(
         onSuccess = { Result.Success(it.items.map { mapRecordToMessage(it) }) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch messages")) }
+        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch messages", it)) }
     )
 
     override suspend fun sendMessage(conversationId: String, content: String, replyToMessageId: String?): Result<Message> = runCatching {
@@ -188,8 +217,11 @@ class PocketBaseMessagingRepository(
             replyToMessageId = replyToMessageId
         )
         
-        val jsonBody = Json.encodeToJsonElement<CreateMessageRequest>(body).jsonObject.toPrimitiveMap()
-        val created = pocketBase.collection("m_messages").create(jsonBody)
+        val created = pocketBase.send<kotlinx.serialization.json.JsonObject>(
+            path = "/api/collections/m_messages/records",
+            method = "POST",
+            body = body
+        )
         val createdId = created["id"]?.jsonPrimitive?.content ?: throw AppException.Unknown("Failed to get message ID")
         
         // update conversation last message fields - using Map<String, String> is fine here as it's not mixed
@@ -199,12 +231,13 @@ class PocketBaseMessagingRepository(
         )
         pocketBase.collection("m_conversations").update(conversationId, updateBody)
 
+
         // fetch full message record and map
         val msgRecord = pocketBase.collection("m_messages").getOne(createdId)
         mapRecordToMessage(msgRecord)
     }.fold(
         onSuccess = { Result.Success(it) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to send message")) }
+        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to send message", it)) }
     )
 
     // ============================= Threading =============================
@@ -321,10 +354,33 @@ class PocketBaseMessagingRepository(
          return Result.Error(AppException.Unknown("Not implemented yet"))
     }
 
-    override suspend fun markAsRead(conversationId: String): Result<Unit> {
-        // Implement as no-op or proper update
-        return Result.Success(Unit) 
-    }
+    override suspend fun markAsRead(conversationId: String): Result<Unit> = runCatching {
+        val model = pocketBase.authStore.model
+        val userId = (model as? RecordModel)?.id 
+            ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.jsonPrimitive?.content
+            ?: return Result.Error(AppException.Unknown("Not authenticated"))
+
+        // Find participant record for this user
+        val records = pocketBase.collection("m_conversation_participants").getList(
+            QueryOptions(
+                 filter = "conversationId='$conversationId' && userId='$userId'"
+            )
+        )
+        
+        if (records.items.isNotEmpty()) {
+             val pId = (records.items[0] as RecordModel).id
+             // Update lastReadAt and unreadCount
+             val updateBody = mapOf(
+                 "lastReadAt" to Clock.System.now().toString(),
+                 "unreadCount" to 0
+             )
+             pocketBase.collection("m_conversation_participants").update(pId, updateBody)
+        }
+        Unit
+    }.fold(
+        onSuccess = { Result.Success(Unit) },
+        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to mark as read", it)) }
+    )
 
     // ============================= Real‑time placeholders =============================
     override fun subscribeToConversation(conversationId: String): Flow<Message> = realtimeService.subscribeToConversation(conversationId)
@@ -429,23 +485,8 @@ class PocketBaseMessagingRepository(
         )
     }
 
-    private fun kotlinx.serialization.json.JsonObject.toPrimitiveMap(): Map<String, Any> {
-        return this.mapValues { (_, value) ->
-            if (value is kotlinx.serialization.json.JsonPrimitive) {
-                if (value.isString) {
-                    value.content
-                } else {
-                    // Try boolean, then number (long/double), fallback to content
-                    value.booleanOrNull 
-                        ?: value.longOrNull 
-                        ?: value.doubleOrNull 
-                        ?: value.content
-                }
-            } else {
-                value.toString() // Fallback for Arrays/Objects if any, though our DTOs are flat
-            }
-        }
-    }
+    
+
 }
 
 // Extension to avoid 'booleanOrNull' import issues if missing, checking primitives
@@ -476,4 +517,4 @@ private val kotlinx.serialization.json.JsonPrimitive.doubleOrNull: Double? get()
         created = Instant.parse(this.created),
         updated = Instant.parse(this.updated)
     )
-}
+

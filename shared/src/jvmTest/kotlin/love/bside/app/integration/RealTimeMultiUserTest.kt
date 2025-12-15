@@ -31,30 +31,29 @@ class RealTimeMultiUserTest {
 
     private var testConversationId: String? = null
 
-    @Before
-    fun setup() = runTest {
+    @Test
+    fun `verify Bob receives Alice's message via Real-Time`() = runTest {
         println("🧪 Test Configuration: Using ${if(AppConstants.USE_PRODUCTION) "PRODUCTION" else "LOCAL"} Environment")
         println("TARGET URL: ${AppConstants.POCKETBASE_URL}")
 
+        // Skip assertions if we are in production but auth failed (handled in try block below)
+        if (AppConstants.USE_PRODUCTION) {
+             // We'll initialize inside
+        }
+        
         try {
+            // ================= SETUP =================
             // Initialize clients
             aliceClient = PocketBase(AppConstants.POCKETBASE_URL)
             bobClient = PocketBase(AppConstants.POCKETBASE_URL)
             
             // Authenticate Alice
-            // Use _pb_users_auth_ system ID because "users" collection name is missing on Prod
-            aliceClient.collection("_pb_users_auth_").authWithPassword(
-                "alice@bside.love",
-                "password123"
-            )
+            aliceClient.collection("_pb_users_auth_").authWithPassword("alice@bside.love", "password123")
             
             // Authenticate Bob
-            bobClient.collection("_pb_users_auth_").authWithPassword(
-                "bob@bside.love",
-                "password123"
-            )
+            bobClient.collection("_pb_users_auth_").authWithPassword("bob@bside.love", "password123")
             
-            // Get user IDs from auth store
+            // Get user IDs
             val aliceModel = aliceClient.authStore.model
             val aliceId = (aliceModel as? io.pocketbase.models.RecordModel)?.id 
                  ?: (aliceModel as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')
@@ -71,91 +70,108 @@ class RealTimeMultiUserTest {
             aliceRepo = PocketBaseMessagingRepository(aliceClient)
             bobRepo = PocketBaseMessagingRepository(bobClient)
             
-            // 3. Create Conversation
-            val result = aliceRepo.createDirectConversation(listOf(aliceId, bobId))
-            // Don't fail if conversation matches existing, just get ID
-            if (result is Result.Success) {
-                testConversationId = result.data.id
-            } else {
-                 println("Conversation creation note: ${(result as? Result.Error)?.exception?.message}")
-                 // Try to fetch existing if creation failed (likely "Only 2 participants" or duplicates)
-                 // For now, we assume we might proceed or fail in the test method
-            }
-        } catch (e: Exception) {
-            println("⚠️ WARNING: Production Auth Failed. Skipping Test Details. Error: ${e.message}")
-            // We leave clients uninitialized, which will crash the test method, 
-            // BUT we can use Assumptions or just return.
-            // Since JUnit 4 doesn't support easy dynamic skipping in @Before, 
-            // we'll initialize dummy mocks or handled in test.
-        }
-    }
-
-    @After
-    fun tearDown() {
-        // Cleanup: Alice deletes the conversation
-        try {
-            testConversationId?.let { id ->
-                kotlinx.coroutines.runBlocking {
-                    aliceClient.collection("m_conversations").delete(id)
+            // Create Conversation
+            val conversationResult = aliceRepo.createDirectConversation(listOf(aliceId, bobId))
+            if (conversationResult is love.bside.app.core.Result.Error) {
+                val ex = conversationResult.exception
+                println("Conversation creation note: ${ex.message}")
+                if (ex.cause is io.pocketbase.models.ClientResponseException) {
+                    println("PB Error Response: ${(ex.cause as io.pocketbase.models.ClientResponseException).response}")
                 }
             }
-        } catch (e: Exception) {
-            println("Cleanup failed (might be already deleted): ${e.message}")
-        }
-    }
+            testConversationId = conversationResult.getOrThrow().id
 
-    @Test
-    fun `verify Bob receives Alice's message via Real-Time`() = runTest {
-        // Skip assertion logic if we are in production but auth failed (likely due to missing credentials)
-        if (love.bside.app.AppConstants.USE_PRODUCTION && (!::aliceClient.isInitialized || !::bobClient.isInitialized)) {
-            println("Skipping test: Users not authenticated (Production data missing?)")
-            return@runTest
-        }
-        val magicMessage = "Hello from Automated Test ${kotlin.random.Random.nextInt()}"
+            // ================= EXECUTION =================
+            val messagesToSend = listOf(
+                "Hello from Automated Test ${kotlin.random.Random.nextInt()}",
+                "This is the second message in the chain.",
+                "And here is a third one to verify threading/ordering."
+            )
 
-        // 1. Bob subscribes to the conversation
-        // We use a coroutine to listen because it collects indefinitely
-        val receivedMessages = mutableListOf<love.bside.app.domain.models.Message>()
-        
-        val job = launch {
-            try {
-                // Bob listens...
-                bobRepo.subscribeToConversation(testConversationId!!)
-                    .collect { message ->
-                        println("Bob received: ${message.content}")
-                        receivedMessages.add(message)
-                    }
-            } catch (e: Exception) {
-                println("Bob subscription error: $e")
+            // 1. Bob subscribes
+            val receivedMessages = mutableListOf<love.bside.app.domain.models.Message>()
+            val job = launch {
+                try {
+                    bobRepo.subscribeToConversation(testConversationId!!)
+                        .collect { message ->
+                            println("Bob received: ${message.content}")
+                            receivedMessages.add(message)
+                        }
+                } catch (e: Exception) {
+                    println("Bob subscription error: $e")
+                }
             }
-        }
 
-        // Give subscription a moment to connect (SSE handshake)
-        kotlinx.coroutines.delay(500)
 
-        // 2. Alice sends a message
-        println("Alice sending: $magicMessage")
-        val sendResult = aliceRepo.sendMessage(testConversationId!!, magicMessage)
-        assertTrue(sendResult is Result.Success, "Alice failed to send message")
+            // Verify participants
+            val participantsResult = aliceRepo.getParticipants(testConversationId!!)
+            assertTrue(participantsResult is love.bside.app.core.Result.Success, "Failed to get participants")
+            val participants = (participantsResult as love.bside.app.core.Result.Success).data
+            println("Verified Participants: ${participants.size}")
+            participants.forEach { p -> println(" - User: ${p.userId}, Role: ${p.role}") }
+            assertEquals(2, participants.size, "Should have 2 participants")
+            // Give subscription a moment
+            kotlinx.coroutines.delay(500)
 
-        // 3. Wait for Bob to receive it (with timeout)
-        try {
-            withTimeout(5.seconds) {
-                while (receivedMessages.none { it.content == magicMessage }) {
+            // 2. Alice sends multiple messages
+            messagesToSend.forEach { msgContent ->
+                println("Alice sending: $msgContent")
+                val result = aliceRepo.sendMessage(testConversationId!!, msgContent)
+                if (result is love.bside.app.core.Result.Error) {
+                    println("❌ Alice sendMessage FAILED:")
+                    val e = result.exception
+                    val cause = e.cause
+                    if (cause is io.pocketbase.models.ClientResponseException) {
+                        println("   PB Error: ${cause.response}")
+                    } else {
+                        println("   Error: ${e.message}")
+                        e.printStackTrace()
+                    }
+                }
+                assertTrue(result is love.bside.app.core.Result.Success, "Alice failed to send message: $msgContent")
+                kotlinx.coroutines.delay(200) // Slight delay between messages
+            }
+            
+            // 3. Bob marks the conversation as read (Read Receipt simulation)
+            bobRepo.markAsRead(testConversationId!!)
+
+            // 4. Wait for Bob to receive all
+            withTimeout(10.seconds) {
+                while (receivedMessages.size < messagesToSend.size) {
                     kotlinx.coroutines.delay(100)
                 }
             }
-        } catch (e: Exception) {
-            // Timeout or error
-        }
-        
-        job.cancel()
+            
+            job.cancel()
 
-        // 4. Assert
-        val received = receivedMessages.find { it.content == magicMessage }
-        assertTrue(received != null, "Bob did not receive the message via real-time stream!")
-        assertEquals(magicMessage, received?.content)
-        
-        println("✅ SUCCESS: Real-Time verification passed!")
+            // ================= ASSERTION =================
+            assertEquals(messagesToSend.size, receivedMessages.size, "Bob should have received all messages")
+            messagesToSend.forEachIndexed { index, expected ->
+                assertEquals(expected, receivedMessages[index].content, "Message $index content mismatch")
+            }
+            
+            println("✅ SUCCESS: Real-Time verification passed! (Chain length: ${messagesToSend.size})")
+
+        } catch (e: Exception) {
+            println("❌ TEST FAILED: ${e.message}")
+            if (e.cause is io.pocketbase.models.ClientResponseException) {
+                println("   PB Cause: ${(e.cause as io.pocketbase.models.ClientResponseException).response}")
+            }
+            throw e
+        } finally {
+            // ================= TEARDOWN =================
+            // Cleanup: Alice deletes the conversation always
+            try {
+                testConversationId?.let { id ->
+                    println("🧹 Cleaning up conversation $id...")
+                    kotlinx.coroutines.runBlocking {
+                        aliceClient.collection("m_conversations").delete(id)
+                    }
+                    println("   Cleanup successful.")
+                }
+            } catch (e: Exception) {
+                println("   Cleanup warning: ${e.message}")
+            }
+        }
     }
 }

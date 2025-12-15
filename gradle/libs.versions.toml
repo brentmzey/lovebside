@@ -85,6 +85,8 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 pocketbase-sdk = { module = "io.pocketbase:pocketbase-kt-sdk", version.ref = "pocketbase-sdk" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "androidx-biometric" }
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidx-security-crypto" }
+maps-compose = { module = "com.google.maps.android:maps-compose", version = "4.3.3" }
+google-play-services-maps = { module = "com.google.android.gms:play-services-maps", version = "18.2.0" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

@@ -29,6 +29,9 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+import love.bside.app.domain.services.LocationService
+import love.bside.app.domain.services.StubLocationService
+
 /**
  * Main DI module configuration for the application  
  * Pass Settings instance during Koin initialization
@@ -65,6 +68,9 @@ fun appModule(settings: Settings) = module {
     singleOf(::ApiMatchRepository) bind MatchRepository::class
     singleOf(::ApiQuestionnaireRepository) bind QuestionnaireRepository::class
     singleOf(::ApiValuesRepository) bind ValuesRepository::class
+    
+    // Location
+    singleOf(::StubLocationService) bind LocationService::class
     
     // Use Cases
     factoryOf(::LoginUseCase)

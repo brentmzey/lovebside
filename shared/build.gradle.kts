@@ -66,6 +66,7 @@ kotlin {
             implementation(libs.essenty.lifecycle)
             implementation(libs.essenty.lifecycle.coroutines)
             implementation(libs.koin.core)
+            implementation(libs.koin.compose.multiplatform)
             implementation(libs.pocketbase.sdk)
             implementation(libs.arrow.core)
             
@@ -92,6 +93,8 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.compose)
             implementation(libs.androidx.security.crypto)
+            implementation(libs.maps.compose)
+            implementation(libs.google.play.services.maps)
         }
         
         // iOS source set - automatically created by hierarchy template
