@@ -123,23 +123,36 @@ fun MessageBubble(message: Message, isMyMessage: Boolean) {
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = alignment
     ) {
-// ...
-        Surface(
-            color = containerColor,
-            shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (isMyMessage) 16.dp else 4.dp,
-                bottomEnd = if (isMyMessage) 4.dp else 16.dp
-            ),
-            shadowElevation = 1.dp
+        Column(
+            modifier = Modifier
+                .padding(start = if (!isMyMessage) ((message.threadDepth ?: 0) * 16).dp else 0.dp)
+                .widthIn(max = 280.dp)
         ) {
-            Text(
-                text = message.content,
-                modifier = Modifier.padding(12.dp),
-                color = textColor,
-                style = MaterialTheme.typography.bodyLarge
-            )
+            if ((message.threadDepth ?: 0) > 0) {
+                 Text(
+                     text = "Replying...",
+                     style = MaterialTheme.typography.labelSmall,
+                     color = MaterialTheme.colorScheme.outline,
+                     modifier = Modifier.padding(bottom = 4.dp, start = 8.dp)
+                 )
+            }
+            Surface(
+                color = containerColor,
+                shape = RoundedCornerShape(
+                    topStart = 16.dp,
+                    topEnd = 16.dp,
+                    bottomStart = if (isMyMessage) 16.dp else 4.dp,
+                    bottomEnd = if (isMyMessage) 4.dp else 16.dp
+                ),
+                shadowElevation = 1.dp
+            ) {
+                Text(
+                    text = message.content,
+                    modifier = Modifier.padding(12.dp),
+                    color = textColor,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 }

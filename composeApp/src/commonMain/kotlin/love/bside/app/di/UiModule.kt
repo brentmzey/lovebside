@@ -5,6 +5,8 @@ import love.bside.app.domain.repository.MessagingRepository
 import love.bside.app.data.repository.PocketBaseMessagingRepository
 import love.bside.app.presentation.ChatViewModel
 import love.bside.app.presentation.MessagingViewModel
+import love.bside.app.ui.screens.proust.QuestionnaireViewModel
+import love.bside.app.ui.screens.home.DashboardViewModel
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -26,4 +28,6 @@ val uiModule = module {
     // Using factory instead of viewModel DSL for KMP compatibility without Android
     factory { params -> MessagingViewModel(get(), params.get()) }
     factory { params -> ChatViewModel(get(), params.get()) }
+    factory { QuestionnaireViewModel(get()) }
+    factory { DashboardViewModel(get()) }
 }

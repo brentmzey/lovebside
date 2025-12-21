@@ -35,11 +35,26 @@ import love.bside.app.domain.models.AuthDetails
 import love.bside.app.domain.models.Profile
 
 @OptIn(ExperimentalLayoutApi::class)
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
+import love.bside.app.domain.models.Match
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DashboardScreen(
     details: AuthDetails,
+    matches: List<Match> = emptyList(), // Default empty for preview/compatibility
     onLogout: () -> Unit,
-    onOpenMessaging: () -> Unit
+    onOpenMessaging: () -> Unit,
+    onOpenProust: () -> Unit,
+    onOpenMatch: (Match) -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val gradient = remember(colorScheme) {
@@ -60,6 +75,11 @@ fun DashboardScreen(
         ) {
             HeroCard(details.profile)
             
+            // Matches Carousel
+            if (matches.isNotEmpty()) {
+                MatchesCarousel(matches, onOpenMatch)
+            }
+            
             // Messaging Entry Point
             Button(
                 onClick = onOpenMessaging,
@@ -71,6 +91,19 @@ fun DashboardScreen(
                 )
             ) {
                 Text("Open Messages", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            }
+
+            // Proust Questionnaire Entry Point
+            Button(
+                onClick = onOpenProust,
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
+                Text("Complete Questionnaire", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             }
 
             InsightRow(details.profile)
@@ -85,6 +118,103 @@ fun DashboardScreen(
             ) {
                 Text("Sign out of B-Side", style = MaterialTheme.typography.titleMedium)
             }
+        }
+    }
+}
+
+@Composable
+fun MatchesCarousel(matches: List<Match>, onMatchClick: (Match) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(
+            "Your Matches",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 4.dp)
+        )
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(matches) { match ->
+                MatchCard(match, onClick = { onMatchClick(match) })
+            }
+        }
+    }
+}
+
+@Composable
+fun MatchCard(match: Match, onClick: () -> Unit) {
+    val profile = match.expand?.matchedUserProfile
+    val name = profile?.firstName ?: "Unknown"
+    val score = match.matchScore
+    
+    // Construct avatar URL if available (Assuming full URL or relative)
+    // profilePicture is likely just filename. needs base URL.
+    // For now, assume relative filename and let AsyncImage handle or placeholder based on logic elsewhere.
+    // Ideally use a helper `profile.avatarUrl(baseUrl)`. 
+    // Just using placeholder logic for now if empty.
+    
+    Card(
+        modifier = Modifier
+            .width(140.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+             Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center
+             ) {
+                 if (!profile?.profilePicture.isNullOrBlank()) {
+                     // TODO: Base URL injection
+                     // AsyncImage(model = getFileUrl(..., profile.profilePicture), ...)
+                     // For now, simplified or text avatar
+                      Text(name.take(1), style = MaterialTheme.typography.headlineMedium)
+                 } else {
+                     Text(name.take(1), style = MaterialTheme.typography.headlineMedium)
+                 }
+                 
+                 // Score Badge
+                 Surface(
+                     modifier = Modifier.align(Alignment.BottomEnd),
+                     shape = CircleShape,
+                     color = MaterialTheme.colorScheme.primary,
+                     contentColor = MaterialTheme.colorScheme.onPrimary
+                 ) {
+                     Text(
+                         text = "$score%", 
+                         style = MaterialTheme.typography.labelSmall, 
+                         fontWeight = FontWeight.Bold,
+                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                     )
+                 }
+             }
+             
+             Text(
+                text = name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                color = MaterialTheme.colorScheme.onSurface
+             )
+             
+             profile?.location?.let {
+                 Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                 )
+             }
         }
     }
 }

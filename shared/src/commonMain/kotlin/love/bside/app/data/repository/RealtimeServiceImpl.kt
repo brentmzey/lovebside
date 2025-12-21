@@ -204,28 +204,48 @@ class RealtimeServiceImpl(
     }
 
     override suspend fun setTypingStatus(conversationId: String, isTyping: Boolean) {
-        // ... (Keep existing implementation but manually handled)
-        // Since I can't call pocketBase.collection... because of the SDK issue? 
-        // No, standard API calls via SDK work fine usually because they don't use polymorphic deserialization in the same way?
-        // Actually, send might fail too if I use SDK.
-        // I will keep SDK for outgoing calls if possible, assuming they work.
-        // If they fail, I'll replace.
-        // For now, assume SDK works for simple writes.
         try {
-            val user = pocketBase.authStore.model
-            val userId = if (user is RecordModel) user.id else (user as? JsonObject)?.get("id")?.jsonPrimitive?.content ?: return
+            val user = pocketBase.authStore.model ?: return
+            val userId = (user as? RecordModel)?.id ?: return
             
-            // Logic to upsert
-            // ... (simplify for brevity, implement properly if needed)
-            // Just fire and forget for now or basic implementation
-            val body = mapOf(
-                "conversationId" to conversationId,
-                "userId" to userId,
-                "isTyping" to isTyping
-            )
-            pocketBase.collection("t_typing_status").create(body)
+            // Check for existing status to decide Update vs Create
+            val records = try {
+                 pocketBase.collection("t_typing_status").getList(
+                    io.pocketbase.models.QueryOptions(
+                        page = 1,
+                        perPage = 1,
+                        filter = "conversationId='$conversationId' && userId='$userId'"
+                    )
+                ).items
+            } catch (e: Exception) {
+                emptyList()
+            }
+            
+            val existingId = records.firstOrNull()?.get("id")?.jsonPrimitive?.content
+            
+            val body = buildJsonObject {
+                put("conversationId", conversationId)
+                put("userId", userId)
+                put("isTyping", isTyping)
+                put("updated", Clock.System.now().toString())
+            }
+
+            if (existingId != null) {
+                 pocketBase.send<JsonObject>(
+                     path = "/api/collections/t_typing_status/records/$existingId",
+                     method = "PATCH",
+                     body = body.toString()
+                 )
+            } else {
+                 pocketBase.send<JsonObject>(
+                     path = "/api/collections/t_typing_status/records",
+                     method = "POST",
+                     body = body.toString()
+                 )
+            }
         } catch (e: Exception) {
             println("Set typing failed: ${e.message}")
+            throw e
         }
     }
 

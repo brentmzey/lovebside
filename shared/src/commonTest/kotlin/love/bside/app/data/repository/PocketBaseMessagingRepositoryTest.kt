@@ -77,7 +77,7 @@ class PocketBaseMessagingRepositoryTest {
         assertEquals(content, sentMessage.content)
         
         // 4. Get Messages
-        val messagesResult = repo.getMessages(conversationId, limit = 10)
+        val messagesResult = repo.getMessages(conversationId, perPage = 10)
         assertTrue(messagesResult is Result.Success)
         assertTrue(messagesResult.data.any { it.id == sentMessage.id }, "Fetched messages should include sent message")
         

@@ -52,6 +52,7 @@ kotlin {
     sourceSets {
         // Common source set - shared across all platforms
         commonMain.dependencies {
+            implementation(projects.bsideApi)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktor.client.core)
@@ -142,5 +143,12 @@ android {
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
+
+tasks.withType<Test> {
+    testLogging {
+        events("passed", "skipped", "failed", "standardOut", "standardError")
+        showStandardStreams = true
     }
 }

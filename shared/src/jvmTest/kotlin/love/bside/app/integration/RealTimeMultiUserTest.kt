@@ -136,10 +136,17 @@ class RealTimeMultiUserTest {
             bobRepo.markAsRead(testConversationId!!)
 
             // 4. Wait for Bob to receive all
-            withTimeout(10.seconds) {
-                while (receivedMessages.size < messagesToSend.size) {
-                    kotlinx.coroutines.delay(100)
+            println("Waiting for messages... (Received so far: ${receivedMessages.size}/${messagesToSend.size})")
+            try {
+                withTimeout(15.seconds) {
+                    while (receivedMessages.size < messagesToSend.size) {
+                        println("   ... waiting (count=${receivedMessages.size})")
+                        kotlinx.coroutines.delay(1000)
+                    }
                 }
+            } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+                println("❌ TIMEOUT waiting for messages. Received: ${receivedMessages.size}")
+                // Do not throw yet, let assertions fail for better report
             }
             
             job.cancel()

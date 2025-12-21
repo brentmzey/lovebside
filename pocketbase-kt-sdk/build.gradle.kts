@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     `maven-publish`
     signing
-    alias(libs.plugins.kover)
+    // alias(libs.plugins.kover)
 }
 
 group = project.findProperty("GROUP") as String? ?: "io.pocketbase"

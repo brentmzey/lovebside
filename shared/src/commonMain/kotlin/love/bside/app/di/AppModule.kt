@@ -3,11 +3,11 @@ package love.bside.app.di
 import com.russhwolf.settings.Settings
 import love.bside.app.core.AppConfig
 import love.bside.app.data.api.InternalApiClient
-import love.bside.app.data.repository.ApiAuthRepository
-import love.bside.app.data.repository.ApiMatchRepository
-import love.bside.app.data.repository.ApiProfileRepository
-import love.bside.app.data.repository.ApiQuestionnaireRepository
-import love.bside.app.data.repository.ApiValuesRepository
+// import love.bside.app.data.repository.ApiAuthRepository
+// import love.bside.app.data.repository.ApiMatchRepository
+// import love.bside.app.data.repository.ApiProfileRepository
+// import love.bside.app.data.repository.ApiQuestionnaireRepository
+// import love.bside.app.data.repository.ApiValuesRepository
 import love.bside.app.data.storage.SessionManager
 import love.bside.app.data.storage.SessionManagerImpl
 import love.bside.app.data.storage.TokenStorage
@@ -63,11 +63,11 @@ fun appModule(settings: Settings) = module {
     
     // API-based Repositories - All use InternalApiClient
     // Updated to use PocketBaseClient for Auth
-    singleOf(::ApiAuthRepository) bind AuthRepository::class
-    singleOf(::ApiProfileRepository) bind ProfileRepository::class
-    singleOf(::ApiMatchRepository) bind MatchRepository::class
-    singleOf(::ApiQuestionnaireRepository) bind QuestionnaireRepository::class
-    singleOf(::ApiValuesRepository) bind ValuesRepository::class
+    // singleOf(::ApiAuthRepository) bind AuthRepository::class
+    // singleOf(::ApiProfileRepository) bind ProfileRepository::class
+    // singleOf(::ApiMatchRepository) bind MatchRepository::class
+    // singleOf(::ApiQuestionnaireRepository) bind QuestionnaireRepository::class
+    // singleOf(::ApiValuesRepository) bind ValuesRepository::class
     
     // Location
     singleOf(::StubLocationService) bind LocationService::class

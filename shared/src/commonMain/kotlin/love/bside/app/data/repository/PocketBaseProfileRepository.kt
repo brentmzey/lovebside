@@ -76,15 +76,15 @@ class PocketBaseProfileRepository(
                     val recordId = listResult.items.first().id
                     val body = mutableMapOf<String, Any>()
                     
-                    request.firstName?.let { body["firstName"] = it }
+                    request.firstName?.let { body["first_name"] = it }
                     request.middle?.let { body["middle"] = it }
-                    request.lastName?.let { body["lastName"] = it }
+                    request.lastName?.let { body["last_name"] = it }
                     request.bio?.let { body["bio"] = it }
                     request.location?.let { body["location"] = it }
                     request.seeking?.let { body["seeking"] = it.name }
                     
                     // New fields
-                    request.aboutMe?.let { body["aboutMe"] = it }
+                    request.aboutMe?.let { body["about_me"] = it }
                     request.height?.let { body["height"] = it }
                     request.occupation?.let { body["occupation"] = it }
                     request.education?.let { body["education"] = it }

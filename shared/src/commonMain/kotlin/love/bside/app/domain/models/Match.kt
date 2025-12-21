@@ -1,14 +1,26 @@
 package love.bside.app.domain.models
 
-import kotlinx.datetime.Instant
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Match(
     val id: String,
-    val created: Instant,
-    val updated: Instant,
-    val userOneId: String,
-    val userTwoId: String,
-    val matchScore: Double,
-    val matchStatus: String,
-    val generatedAt: Instant
+    @SerialName("user_id") val userId: String,
+    @SerialName("matched_user_id") val matchedUserId: String,
+    @SerialName("match_score") val matchScore: Int, // 0-100
+    val status: MatchStatus,
+    @SerialName("expand") val expand: MatchExpand? = null
+)
+
+@Serializable
+enum class MatchStatus {
+    @SerialName("pending") PENDING,
+    @SerialName("accepted") ACCEPTED,
+    @SerialName("rejected") REJECTED
+}
+
+@Serializable
+data class MatchExpand(
+    @SerialName("matched_user_id") val matchedUserProfile: Profile? = null
 )

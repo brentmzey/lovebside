@@ -14,6 +14,9 @@ import love.bside.app.security.UnsupportedBiometricPromptBridge
 import love.bside.app.security.UnsupportedPasskeyBridge
 import love.bside.app.security.di.secureAuthModule
 import org.koin.core.context.startKoin
+import app.composeapp.generated.resources.Res
+import app.composeapp.generated.resources.bside_logo
+import org.jetbrains.compose.resources.painterResource
 import java.util.prefs.Preferences
 
 fun main() = application {
@@ -44,7 +47,8 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         state = windowState,
-        title = "B-Side Dating App"
+        title = "B-Side Dating App",
+        icon = painterResource(Res.drawable.bside_logo)
     ) {
         App(rootComponent, appDependencies)
     }

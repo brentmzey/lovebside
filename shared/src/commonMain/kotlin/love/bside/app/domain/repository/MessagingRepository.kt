@@ -5,6 +5,9 @@ import love.bside.app.domain.models.Conversation
 import love.bside.app.domain.models.ConversationParticipant
 import love.bside.app.domain.models.Message
 import love.bside.app.domain.models.TypingStatus
+import love.bside.app.domain.models.ProustQuestionnaire
+import love.bside.app.domain.models.UserAnswer
+import love.bside.app.domain.models.Match
 import kotlinx.coroutines.flow.Flow
 
 interface MessagingRepository {
@@ -25,12 +28,13 @@ interface MessagingRepository {
     ): Result<Unit>
     
     // Messages
-    suspend fun getMessages(conversationId: String, limit: Int = 50): Result<List<Message>>
+    suspend fun getMessages(conversationId: String, page: Int = 1, perPage: Int = 50): Result<List<Message>>
     suspend fun sendMessage(
         conversationId: String,
         content: String,
         replyToMessageId: String? = null
     ): Result<Message>
+    suspend fun deleteMessage(messageId: String): Result<Unit>
     suspend fun markAsRead(conversationId: String): Result<Unit>
     
     // Threading
@@ -56,4 +60,12 @@ interface MessagingRepository {
     fun subscribeToConversation(conversationId: String): Flow<Message>
     fun subscribeToTypingIndicators(conversationId: String): Flow<TypingStatus>
     suspend fun setTypingStatus(conversationId: String, isTyping: Boolean): Result<Unit>
+
+    // Proust Questionnaire
+    suspend fun getQuestionnaire(): Result<List<ProustQuestionnaire>>
+    suspend fun getUserAnswers(): Result<List<UserAnswer>>
+    suspend fun submitQuestionnaireResponse(questionId: String, answer: String): Result<UserAnswer>
+    
+    // Matching
+    suspend fun getMatches(): Result<List<Match>>
 }
