@@ -4,7 +4,6 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.LocalAuthentication.LAContext
 import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthenticationWithBiometrics
-import platform.LocalAuthentication.LAErrorAuthenticationFailed
 import platform.LocalAuthentication.LAErrorUserCancel
 import platform.LocalAuthentication.LAErrorSystemCancel
 import kotlin.coroutines.resume

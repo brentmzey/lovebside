@@ -8,4 +8,5 @@ interface ProfileRepository {
     suspend fun getProfile(userId: String): Result<Profile>
     suspend fun createProfile(profile: Profile): Result<Unit>
     suspend fun updateProfile(userId: String, request: ProfileUpdateRequest): Result<Profile>
+    suspend fun getDiscoveryProfiles(lat: Double? = null, lng: Double? = null): Result<List<Profile>>
 }

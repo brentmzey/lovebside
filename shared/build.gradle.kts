@@ -70,6 +70,8 @@ kotlin {
             implementation(libs.koin.compose.multiplatform)
             implementation(libs.pocketbase.sdk)
             implementation(libs.arrow.core)
+            implementation(libs.arrow.fx.coroutines)
+            implementation(libs.uuid)
             
             // Compose dependencies for UI components
             implementation(compose.runtime)
@@ -85,6 +87,7 @@ kotlin {
             implementation(libs.kotlinx.coroutinesCore)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.ktor.client.mock)
+            implementation(libs.kotest.property)
         }
 
         // Android source set

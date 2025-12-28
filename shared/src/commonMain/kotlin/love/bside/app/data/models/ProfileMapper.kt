@@ -16,6 +16,8 @@ fun Profile.toDomain(): DomainProfile {
         birthDate = LocalDate.parse(this.birthDate.substring(0, 10)), // PocketBase date format is `YYYY-MM-DD HH:MM:SS.SSSZ`
         bio = this.bio,
         location = this.location,
+        lat = this.lat,
+        lng = this.lng,
         seeking = when (this.seeking) {
             SeekingStatus.FRIENDSHIP -> DomainSeekingStatus.FRIENDSHIP
             SeekingStatus.RELATIONSHIP -> DomainSeekingStatus.RELATIONSHIP

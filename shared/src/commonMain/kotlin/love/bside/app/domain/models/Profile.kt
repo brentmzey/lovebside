@@ -17,6 +17,8 @@ data class Profile(
     val birthDate: LocalDate,
     val bio: String? = null,
     val location: String? = null,
+    val lat: Double? = null,
+    val lng: Double? = null,
     val seeking: SeekingStatus,
     val profilePicture: String = "",
     val photos: List<String> = emptyList(),

@@ -1,52 +1,21 @@
 package love.bside.app.ui.screens.auth
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -75,6 +43,10 @@ import love.bside.app.security.SecurePromptText
 import love.bside.app.security.usecase.BiometricLoginUseCase
 import love.bside.app.security.usecase.EnableBiometricLoginUseCase
 import love.bside.app.security.usecase.ObserveSecureEnrollmentsUseCase
+import love.bside.app.ui.theme.BsideBrand
+import love.bside.app.ui.theme.glassEffect
+import love.bside.app.domain.usecase.GetDiscoveryUsersUseCase
+import love.bside.app.domain.models.Profile
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -85,6 +57,7 @@ fun AuthScreen(
     biometricLoginUseCase: BiometricLoginUseCase,
     enableBiometricLoginUseCase: EnableBiometricLoginUseCase,
     observeSecureEnrollmentsUseCase: ObserveSecureEnrollmentsUseCase,
+    getDiscoveryUsersUseCase: GetDiscoveryUsersUseCase,
     onAuthenticated: (AuthDetails) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -96,9 +69,17 @@ fun AuthScreen(
     var wantsBiometric by remember { mutableStateOf(false) }
     var biometricError by remember { mutableStateOf<String?>(null) }
     var isBiometricLoading by remember { mutableStateOf(false) }
-
+    
+    // Discovery
+    var discoveryProfiles by remember { mutableStateOf<List<Profile>>(emptyList()) }
+    
     LaunchedEffect(Unit) {
         biometricAvailability = biometricLoginUseCase.availability()
+        // Prefetch for Landing
+        val result = getDiscoveryUsersUseCase()
+        if (result is Result.Success) {
+            discoveryProfiles = result.data
+        }
     }
 
     fun describeAvailability(availability: BiometricAvailability): String = when (availability) {
@@ -108,16 +89,6 @@ fun AuthScreen(
         is BiometricAvailability.Unavailable -> availability.reason
         BiometricAvailability.Unknown -> "Biometric status unknown"
     }
-
-    val colorScheme = MaterialTheme.colorScheme
-    val gradient = remember(colorScheme) {
-        Brush.verticalGradient(
-            0f to colorScheme.secondaryContainer,
-            0.6f to colorScheme.primaryContainer,
-            1f to colorScheme.primary.copy(alpha = 0.9f)
-        )
-    }
-    val scrollState = rememberScrollState()
 
     fun handleResult(result: Result<AuthDetails>) {
         uiState = uiState.copy(isLoading = false)
@@ -183,6 +154,7 @@ fun AuthScreen(
                             seeking = uiState.seeking
                         )
                     )
+                    AuthMode.Landing -> throw IllegalStateException("Cannot submit in Landing mode")
                 }
                 handleResult(result)
             } catch (ce: CancellationException) {
@@ -195,289 +167,287 @@ fun AuthScreen(
             }
         }
     }
+    
+    AnimatedContent(
+        targetState = uiState.mode,
+        transitionSpec = {
+            if (targetState == AuthMode.Landing || initialState == AuthMode.Landing) {
+                fadeIn(animationSpec = tween(500)) togetherWith fadeOut(animationSpec = tween(500))
+            } else if (targetState == AuthMode.SignUp) {
+                slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+            } else {
+                slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+            }
+        }
+    ) { currentMode ->
+        if (currentMode == AuthMode.Landing) {
+            LandingScreen(
+                profiles = discoveryProfiles,
+                onLoginOptions = { uiState = uiState.copy(mode = AuthMode.Login) },
+                onSignUp = { uiState = uiState.copy(mode = AuthMode.SignUp) }
+            )
+        } else {
+            // Existing Auth Form UI (Login/SignUp)
+            AuthFormContent(
+                uiState = uiState,
+                onStateChange = { uiState = it },
+                onModeChange = { uiState = uiState.copy(mode = it) },
+                onBack = { uiState = uiState.copy(mode = AuthMode.Landing) }, // Add Back support
+                onSubmit = { submit() },
+                hasBiometricEnrollment = hasBiometricEnrollment,
+                biometricAvailability = biometricAvailability,
+                isBiometricLoading = isBiometricLoading,
+                biometricError = biometricError,
+                wantsBiometric = wantsBiometric,
+                onWantsBiometricChange = { wantsBiometric = it },
+                onAttemptBiometric = { 
+                    biometricError = null
+                    attemptBiometricLogin() 
+                },
+                modifier = modifier
+            )
+        }
+    }
+}
 
-    Surface(modifier = modifier.fillMaxSize()) {
-        BoxWithConstraints(
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun AuthFormContent(
+    uiState: AuthUiState,
+    onStateChange: (AuthUiState) -> Unit,
+    onModeChange: (AuthMode) -> Unit,
+    onBack: () -> Unit,
+    onSubmit: () -> Unit,
+    hasBiometricEnrollment: Boolean,
+    biometricAvailability: BiometricAvailability,
+    isBiometricLoading: Boolean,
+    biometricError: String?,
+    wantsBiometric: Boolean,
+    onWantsBiometricChange: (Boolean) -> Unit,
+    onAttemptBiometric: () -> Unit,
+    modifier: Modifier
+) {
+    // Premium Mesh Gradient Background
+    val gradient = Brush.linearGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.background,
+            BsideBrand.TealTileLight.copy(alpha=0.2f),
+            BsideBrand.PlumHeartLight.copy(alpha=0.1f)
+        )
+    )
+
+    val scrollState = rememberScrollState()
+    
+    fun describeAvailability(availability: BiometricAvailability): String = when (availability) {
+        BiometricAvailability.Available -> "Ready to use"
+        BiometricAvailability.NoHardware -> "This device lacks biometric hardware"
+        BiometricAvailability.NotEnrolled -> "Enroll Face ID or Touch ID in system settings"
+        is BiometricAvailability.Unavailable -> availability.reason
+        BiometricAvailability.Unknown -> "Biometric status unknown"
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(gradient)
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(gradient)
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(vertical = 40.dp, horizontal = 24.dp)
+                .systemBarsPadding()
+                .imePadding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            val responsiveWidth = remember(maxWidth) {
-                val goldenRatio = 1.618f
-                if (maxWidth <= 640.dp) {
-                    maxWidth
-                } else {
-                    (maxWidth / goldenRatio).coerceAtMost(960.dp)
-                }
+            
+            // Header Section
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // Back Button (hidden if desired, but good for UX)
+                 IconButton(onClick = onBack, modifier = Modifier.align(Alignment.Start)) {
+                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                 }
+                 
+                BrandGlyph(modifier = Modifier.size(80.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = if (uiState.mode == AuthMode.Login) "Welcome Back" else "Create Account",
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = if (uiState.mode == AuthMode.Login) "Sign in to continue your journey" else "Sign up to start matching",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
             }
 
+            // Biometric Option
+            if (hasBiometricEnrollment && biometricAvailability is BiometricAvailability.Available) {
+                BiometricQuickLoginCard(
+                    isLoading = isBiometricLoading,
+                    availabilityLabel = describeAvailability(biometricAvailability),
+                    onClick = onAttemptBiometric
+                )
+            }
+
+            // Main Form
             Column(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .widthIn(max = responsiveWidth)
-                    .fillMaxWidth()
-                    .systemBarsPadding()
-                    .imePadding()
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 24.dp, vertical = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = Modifier.fillMaxWidth().widthIn(max = 480.dp)
             ) {
-                if (hasBiometricEnrollment && biometricAvailability is BiometricAvailability.Available) {
-                    BiometricQuickLoginCard(
-                        isLoading = isBiometricLoading,
-                        availabilityLabel = describeAvailability(biometricAvailability),
-                        onClick = {
-                            biometricError = null
-                            attemptBiometricLogin()
-                        }
-                    )
-                }
-
-                AuthHeader(uiState.mode)
-
+                // Mode Switcher
                 AuthModeSwitcher(
                     mode = uiState.mode,
-                    onModeChange = { mode ->
-                        if (mode != uiState.mode) {
-                            uiState = AuthUiState(mode = mode)
-                        }
-                    }
+                    onModeChange = onModeChange
+                )
+                
+                // Fields
+                AuthTextField(
+                    label = "Email",
+                    value = uiState.email,
+                    onValueChange = { onStateChange(uiState.copy(email = it)) },
+                    keyboardType = KeyboardType.Email
+                )
+                AuthTextField(
+                    label = "Password",
+                    value = uiState.password,
+                    onValueChange = { onStateChange(uiState.copy(password = it)) },
+                    keyboardType = KeyboardType.Password,
+                    isPassword = true
                 )
 
-                AuthFormCard {
-                    AuthTextField(
-                        label = "Email",
-                        value = uiState.email,
-                        onValueChange = { uiState = uiState.copy(email = it) },
-                        keyboardType = KeyboardType.Email
-                    )
-                    AuthTextField(
-                        label = "Password",
-                        value = uiState.password,
-                        onValueChange = { uiState = uiState.copy(password = it) },
-                        keyboardType = KeyboardType.Password,
-                        isPassword = true
-                    )
+                AnimatedVisibility(uiState.mode == AuthMode.SignUp) {
+                    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                        AuthTextField(
+                            label = "Confirm Password",
+                            value = uiState.confirmPassword,
+                            onValueChange = { onStateChange(uiState.copy(confirmPassword = it)) },
+                            keyboardType = KeyboardType.Password,
+                            isPassword = true
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                AuthTextField(
+                                    label = "First Name",
+                                    value = uiState.firstName,
+                                    onValueChange = { onStateChange(uiState.copy(firstName = it)) }
+                                )
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                AuthTextField(
+                                    label = "Last Name",
+                                    value = uiState.lastName,
+                                    onValueChange = { onStateChange(uiState.copy(lastName = it)) }
+                                )
+                            }
+                        }
+                        
+                        AuthTextField(
+                            label = "Birth Date (YYYY-MM-DD)",
+                            value = uiState.birthDate,
+                            onValueChange = { onStateChange(uiState.copy(birthDate = it)) }
+                        )
 
-                    AnimatedVisibility(uiState.mode == AuthMode.SignUp) {
-                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                            AuthTextField(
-                                label = "Confirm Password",
-                                value = uiState.confirmPassword,
-                                onValueChange = { uiState = uiState.copy(confirmPassword = it) },
-                                keyboardType = KeyboardType.Password,
-                                isPassword = true
-                            )
-                            AuthTextField(
-                                label = "First Name",
-                                value = uiState.firstName,
-                                onValueChange = { uiState = uiState.copy(firstName = it) }
-                            )
-                            AuthTextField(
-                                label = "Last Name",
-                                value = uiState.lastName,
-                                onValueChange = { uiState = uiState.copy(lastName = it) }
-                            )
-                            AuthTextField(
-                                label = "Birth Date (YYYY-MM-DD)",
-                                value = uiState.birthDate,
-                                onValueChange = { uiState = uiState.copy(birthDate = it) }
-                            )
-                            Text(
-                                text = "Seeking",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            FlowRow(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                SeekingStatus.values().forEach { status ->
-                                    FilterChip(
-                                        selected = uiState.seeking == status,
-                                        label = { Text(status.name.lowercase().replaceFirstChar { it.titlecase() }) },
-                                        onClick = { uiState = uiState.copy(seeking = status) },
-                                        leadingIcon = if (uiState.seeking == status) {
-                                            { Icon(Icons.Default.Check, contentDescription = null) }
-                                        } else null,
-                                        shape = RoundedCornerShape(50)
+                        Text(
+                            text = "I am seeking...",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            SeekingStatus.values().forEach { status ->
+                                FilterChip(
+                                    selected = uiState.seeking == status,
+                                    label = { Text(status.name.lowercase().replaceFirstChar { it.titlecase() }) },
+                                    onClick = { onStateChange(uiState.copy(seeking = status)) },
+                                    leadingIcon = if (uiState.seeking == status) {
+                                        { Icon(Icons.Default.Check, contentDescription = null) }
+                                    } else null,
+                                    shape = RoundedCornerShape(50),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = BsideBrand.TealTile,
+                                        selectedLabelColor = BsideBrand.PlumHeart,
+                                        selectedLeadingIconColor = BsideBrand.PlumHeart
                                     )
-                                }
+                                )
                             }
                         }
                     }
                 }
+                
+                // Errors
+                if (uiState.errorMessage != null) ErrorCard(message = uiState.errorMessage!!)
+                if (biometricError != null) ErrorCard(message = biometricError!!)
 
-                if (uiState.errorMessage != null) {
-                    ErrorCard(message = uiState.errorMessage!!)
-                }
-
-                if (biometricError != null) {
-                    ErrorCard(message = biometricError!!)
-                }
-
+                // Submit Action
                 Button(
-                    onClick = { submit() },
+                    onClick = onSubmit,
                     enabled = uiState.canSubmit && !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(32.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        .height(56.dp)
+                        .padding(top = 16.dp),
+                    shape = RoundedCornerShape(28.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = BsideBrand.TealTile,
+                        contentColor = BsideBrand.PlumHeartDark,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
-                    if (uiState.isLoading) {
-                        Text("One moment…", style = MaterialTheme.typography.titleMedium)
+                   if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = BsideBrand.PlumHeartDark,
+                            strokeWidth = 2.dp
+                        )
                     } else {
                         Text(
                             text = if (uiState.mode == AuthMode.Login) "Sign In" else "Create Account",
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
-
+                
+                // Biometric Opt-In (Login Only)
                 if (!hasBiometricEnrollment && biometricAvailability is BiometricAvailability.Available && uiState.mode == AuthMode.Login) {
-                    BiometricOptInRow(
-                        checked = wantsBiometric,
-                        onCheckedChange = { wantsBiometric = it },
-                        availabilityLabel = describeAvailability(biometricAvailability)
-                    )
-                }
-
-                TextButton(
-                    onClick = {
-                        val nextMode = if (uiState.mode == AuthMode.Login) AuthMode.SignUp else AuthMode.Login
-                        uiState = AuthUiState(mode = nextMode, email = uiState.email)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = if (uiState.mode == AuthMode.Login) "Need an account? Sign up" else "Have an account? Sign in",
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-
-                AuthFeatureShowcase(
-                    mode = uiState.mode,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun AuthHeader(mode: AuthMode) {
-    val colorScheme = MaterialTheme.colorScheme
-    val heroTitle = if (mode == AuthMode.Login) "Welcome back to your softer side" else "Design your B-Side story"
-    val heroSubtitle = if (mode == AuthMode.Login) {
-        "We hydrate your latest data from PocketBase and flow it into every screen before you even tap Sign In."
-    } else {
-        "One setup fuels Android, iOS, Desktop, and Web. Link people, places, and feelings once—own them everywhere."
-    }
-    val highlightChips = if (mode == AuthMode.Login) {
-        listOf("Secure refresh tokens", "Continuity across devices", "Graph-backed matches")
-    } else {
-        listOf("Emotion graph ready", "PocketBase ownership", "Adaptive spacing on iOS")
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(36.dp),
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surface.copy(alpha = 0.92f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            colorScheme.primary.copy(alpha = 0.12f),
-                            colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                            colorScheme.primaryContainer.copy(alpha = 0.5f)
-                        )
-                    )
-                )
-                .fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                BrandGlyph()
-                Text(
-                    text = heroTitle,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = colorScheme.onSurface,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = heroSubtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    color = colorScheme.onSurfaceVariant
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    highlightChips.forEach { highlight ->
-                        AuthFeatureChip(text = highlight, tonalElevation = 0.dp)
-                    }
+                     BiometricOptInRow(
+                         checked = wantsBiometric,
+                         onCheckedChange = onWantsBiometricChange,
+                         availabilityLabel = describeAvailability(biometricAvailability)
+                     )
                 }
             }
         }
     }
 }
 
-@Composable
-private fun AuthFormCard(
-    modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(36.dp),
-        tonalElevation = 12.dp,
-        shadowElevation = 4.dp,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            content()
-        }
-    }
-}
 
 @Composable
 private fun BrandGlyph(modifier: Modifier = Modifier) {
-    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = modifier
-            .size(72.dp)
             .clip(CircleShape)
             .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        colorScheme.primary,
-                        colorScheme.secondary,
-                        colorScheme.primaryContainer
-                    )
+                brush = Brush.linearGradient(
+                    colors = listOf(BsideBrand.TealTile, BsideBrand.PlumHeart)
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "B",
-            style = MaterialTheme.typography.headlineMedium,
-            color = colorScheme.onPrimary,
+            style = MaterialTheme.typography.displayMedium,
+            color = Color.White,
             fontWeight = FontWeight.Black
         )
     }
@@ -489,36 +459,36 @@ private fun BiometricQuickLoginCard(
     availabilityLabel: String,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .glassEffect()
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = "Quick unlock",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = availabilityLabel,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Button(
-                onClick = onClick,
-                enabled = !isLoading,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp)
-            ) {
-                Text(if (isLoading) "Checking…" else "Use biometrics")
-            }
+        Column {
+             Text(
+                 text = "Quick Unlock",
+                 style = MaterialTheme.typography.titleMedium,
+                 fontWeight = FontWeight.SemiBold
+             )
+             Text(
+                 text = availabilityLabel,
+                 style = MaterialTheme.typography.bodySmall,
+                 color = MaterialTheme.colorScheme.onSurfaceVariant
+             )
+        }
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+        } else {
+            // Icon placeholder for FaceID/TouchID would go here
+             Text("Use", color = MaterialTheme.colorScheme.primary)
         }
     }
 }
+
 
 @Composable
 private fun BiometricOptInRow(
@@ -529,131 +499,62 @@ private fun BiometricOptInRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "Remember me with biometrics",
+                text = "Enable Biometrics",
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface
+                fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = availabilityLabel,
+                text = "Securely log in next time",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
-    }
-}
-
-@Composable
-private fun AuthFeatureShowcase(
-    mode: AuthMode,
-    modifier: Modifier = Modifier
-) {
-    val title = if (mode == AuthMode.Login) "Reconnect with context" else "Build your emotion graph"
-    val blurb = if (mode == AuthMode.Login) {
-        "We hydrate your existing graph edges, values, and prompts before presenting refreshed layouts."
-    } else {
-        "Every emotion edge you define is stored in PocketBase with owner-only rules, ready for graph-style queries."
-    }
-    val features = if (mode == AuthMode.Login) {
-        listOf("Resumes PocketBase sessions", "Adaptive Compose spacing", "Desktop ↔ iOS continuity")
-    } else {
-        listOf("Link people + items", "Own verbs & adverbs", "Exportable DDL migrations")
-    }
-
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(32.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+        Switch(
+            checked = checked, 
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = BsideBrand.PlumHeart,
+                checkedTrackColor = BsideBrand.TealTile
             )
-            Text(
-                text = blurb,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                features.forEach { feature ->
-                    AuthFeatureChip(text = feature)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AuthFeatureChip(
-    text: String,
-    modifier: Modifier = Modifier,
-    tonalElevation: Dp = 4.dp
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(48.dp),
-        tonalElevation = tonalElevation,
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp)
         )
     }
 }
 
 @Composable
 private fun AuthModeSwitcher(mode: AuthMode, onModeChange: (AuthMode) -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.5f))
+            .padding(4.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            AuthMode.values().forEach { entry ->
-                val selected = entry == mode
-                Surface(
-                    color = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                    shape = RoundedCornerShape(50),
-                    tonalElevation = if (selected) 6.dp else 0.dp,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = if (entry == AuthMode.Login) "Sign in" else "Sign up",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 12.dp)
-                            .clickable { onModeChange(entry) },
-                        textAlign = TextAlign.Center,
-                        color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                }
-            }
+        Row {
+             listOf(AuthMode.Login, AuthMode.SignUp).forEach { entry ->
+                 val selected = entry == mode
+                 Box(
+                     modifier = Modifier
+                         .weight(1f)
+                         .clip(RoundedCornerShape(50))
+                         .background(if (selected) MaterialTheme.colorScheme.surface else Color.Transparent)
+                         .clickable { onModeChange(entry) }
+                         .padding(vertical = 10.dp),
+                     contentAlignment = Alignment.Center
+                 ) {
+                     Text(
+                         text = if (entry == AuthMode.Login) "Sign In" else "Sign Up",
+                         style = MaterialTheme.typography.titleSmall,
+                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+                         color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                     )
+                 }
+             }
         }
     }
 }
@@ -674,22 +575,27 @@ private fun AuthTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = true,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
-        shape = RoundedCornerShape(24.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = BsideBrand.TealTile,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha=0.3f),
+            focusedLabelColor = BsideBrand.TealTile
+        )
     )
 }
 
 @Composable
 private fun ErrorCard(message: String) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.fillMaxWidth()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+            .padding(16.dp)
     ) {
         Text(
             text = message,
-            color = MaterialTheme.colorScheme.onErrorContainer,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(16.dp)
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }

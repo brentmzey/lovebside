@@ -30,9 +30,13 @@ pocketbase-sdk = "0.1.0-SNAPSHOT"
 androidx-biometric = "1.1.0"
 androidx-security-crypto = "1.1.0-alpha06"
 arrow = "1.2.4"
+uuid = "0.8.4"
+kotest = "5.8.0"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -87,6 +91,7 @@ androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "a
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidx-security-crypto" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version = "4.3.3" }
 google-play-services-maps = { module = "com.google.android.gms:play-services-maps", version = "18.2.0" }
+uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

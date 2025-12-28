@@ -2,7 +2,6 @@ package love.bside.app.core.validation
 
 import kotlinx.datetime.*
 import love.bside.app.core.AppException
-import kotlin.time.Duration.Companion.days
 
 /**
  * Comprehensive request validation for all API operations

@@ -1,16 +1,19 @@
 package love.bside.app.integration
 
 import io.pocketbase.PocketBase
+import io.pocketbase.models.QueryOptions
+import io.pocketbase.models.RecordModel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
+import kotlinx.serialization.json.JsonObject
 import love.bside.app.core.Result
 import love.bside.app.data.repository.PocketBaseMessagingRepository
 import love.bside.app.domain.repository.MessagingRepository
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
-import org.junit.AfterClass
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -54,8 +57,8 @@ class MessagingThreadingIntegrationTest {
                     try {
                         pocketBase.collection("t_user").authWithPassword(email, pass)
                         val id = pocketBase.authStore.model?.let { 
-                             (it as? io.pocketbase.models.RecordModel)?.id 
-                             ?: (it as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')
+                             (it as? RecordModel)?.id 
+                             ?: (it as? JsonObject)?.get("id")?.toString()?.trim('"')
                         }
                         println("✓ Authenticated as existing user: $id ($email)")
                         id
@@ -73,8 +76,8 @@ class MessagingThreadingIntegrationTest {
                         // Auth with new user
                         pocketBase.collection("t_user").authWithPassword(email, pass)
                          val id = pocketBase.authStore.model?.let { 
-                             (it as? io.pocketbase.models.RecordModel)?.id 
-                             ?: (it as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')
+                             (it as? RecordModel)?.id 
+                             ?: (it as? JsonObject)?.get("id")?.toString()?.trim('"')
                         }
                         println("✓ Created and authenticated as new user: $id ($email)")
                         id
@@ -119,7 +122,7 @@ class MessagingThreadingIntegrationTest {
                 runCatching {
                     // Delete participants first
                     val result = pocketBase.collection("m_conversation_participants")
-                        .getList(io.pocketbase.models.QueryOptions(
+                        .getList(QueryOptions(
                             filter = "conversationId='$convId'"
                         ))
                     

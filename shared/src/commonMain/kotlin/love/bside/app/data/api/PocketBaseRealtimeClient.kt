@@ -5,7 +5,6 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json
 import love.bside.app.data.models.messaging.*
 import love.bside.app.data.storage.TokenStorage

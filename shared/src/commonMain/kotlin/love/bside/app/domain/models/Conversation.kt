@@ -1,7 +1,6 @@
 package love.bside.app.domain.models
 
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
 
 enum class ConversationType {
     DIRECT, GROUP, CHANNEL

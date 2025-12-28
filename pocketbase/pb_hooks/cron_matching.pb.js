@@ -1,34 +1,35 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-cronAdd("0 0 * * *", "calculate_affinity", (c) => {
+// Reusable Matching Logic
+function runMatchingAlgorithm(limit = 1000) {
+    const logs = [];
+    const log = {
+        info: (msg) => { $app.logger().info(msg); logs.push(msg); },
+        error: (msg) => { $app.logger().error(msg); logs.push("ERROR: " + msg); }
+    };
+
+    log.info(`[Matching] Starting algorithm (Limit: ${limit})...`);
+
     // 1. Fetch all profiles with their User IDs
     const profiles = $app.dao().findRecordsByFilter(
         "s_profiles",
         "seeking != ''",
-        "-created",
-        1000
+        "-created", // Newest first
+        limit
     );
 
-    $app.logger().info(`[Matching] Starting affinity calculation for ${profiles.length} profiles.`);
+    log.info(`[Matching DEBUG] Found ${profiles.length} profiles to process.`);
 
-    // --- PRE-FETCH PROUST ANSWERS ---
-    // Optimization: Fetch all answers for these users to avoid N+1 queries.
-    // Since we can't easily do "IN (...)" for many IDs, we'll fetch all recent answers or just ALL if small scale.
-    // For now, let's just fetch all (MVP) or use a smarter filter if possible.
-    // Warning: This scales poorly. Better approach for Prod: Filter by "updated > yesterday" if running daily, 
-    // but we need FULL state.
-    // Let's assume < 10k answers for now.
-
+    // 2. Pre-fetch Proust Answers
     const allAnswers = $app.dao().findRecordsByFilter(
         "t_user_questionnaire_responses",
-        "answer_text != ''", // valid answers
+        "answer_text != ''",
         "-updated",
-        5000 // Limit
+        limit * 10
     );
 
-    // index by userId -> { questionId: answerText }
-    const userAnswers = {}; // Map<UserId, Map<QuestionId, String>>
-
+    // Index: UserId -> { QuestionId: AnswerText }
+    const userAnswers = {};
     allAnswers.forEach(r => {
         const uid = r.getString("user_id");
         const qid = r.getString("question_id");
@@ -38,6 +39,25 @@ cronAdd("0 0 * * *", "calculate_affinity", (c) => {
         userAnswers[uid][qid] = txt;
     });
 
+    // Helper: Token-based Jaccard Similarity for Text
+    const calculateTextSimilarity = (textA, textB) => {
+        if (!textA || !textB) return 0;
+        if (textA === textB) return 1.0;
+
+        // Tokenize by non-word chars
+        const tokensA = new Set(textA.split(/\W+/).filter(w => w.length > 2));
+        const tokensB = new Set(textB.split(/\W+/).filter(w => w.length > 2));
+
+        if (tokensA.size === 0 || tokensB.size === 0) return 0;
+
+        const intersection = [...tokensA].filter(x => tokensB.has(x)).length;
+        const union = new Set([...tokensA, ...tokensB]).size;
+
+        return intersection / union;
+    };
+
+    let newMatches = 0;
+
     for (let i = 0; i < profiles.length; i++) {
         const profileA = profiles[i];
         const uaId = profileA.getString("user_id");
@@ -46,8 +66,13 @@ cronAdd("0 0 * * *", "calculate_affinity", (c) => {
             const profileB = profiles[j];
             const ubId = profileB.getString("user_id");
 
-            // --- SCORING ---
+            log.info(`[Matching DEBUG] Comparing ${uaId} vs ${ubId}`);
+
+            /* ------------------------------------------------------------------
+               SCORING ALGORITHM
+               ------------------------------------------------------------------ */
             let score = 0;
+            let explanation = [];
 
             // A. Interests (40%)
             const interestsA = profileA.getStringSlice("interests") || [];
@@ -57,71 +82,95 @@ cronAdd("0 0 * * *", "calculate_affinity", (c) => {
                 const intersection = interestsA.filter(x => interestsB.includes(x));
                 const union = new Set([...interestsA, ...interestsB]);
                 const jaccard = intersection.length / union.size;
-                score += (jaccard * 40);
+                const points = jaccard * 40;
+                score += points;
+                if (points > 5) explanation.push(`Active interests (${Math.round(jaccard * 100)}%)`);
+                log.info(`[Matching DEBUG] Interests Jaccard: ${jaccard}, Points: ${points}`);
             }
 
             // B. Location (20%)
-            if (profileA.getString("location") && profileA.getString("location") === profileB.getString("location")) {
+            // Simple exact match for now. Future: Radius search.
+            const locA = profileA.getString("location");
+            const locB = profileB.getString("location");
+            if (locA && locA === locB) {
                 score += 20;
+                explanation.push("Same Location");
+                log.info(`[Matching DEBUG] Location Match: +20`);
             }
 
             // C. Proust Compatibility (40%)
-            // Compare answers for same questions
             const ansA = userAnswers[uaId] || {};
             const ansB = userAnswers[ubId] || {};
-
-            // Find common questions
             const questionsA = Object.keys(ansA);
-            const questionsB = Object.keys(ansB);
-            const commonQ = questionsA.filter(q => questionsB.includes(q));
+            const commonQ = questionsA.filter(q => (userAnswers[ubId] && userAnswers[ubId][q]));
 
             if (commonQ.length > 0) {
-                let matchCount = 0;
+                let totalSim = 0;
                 commonQ.forEach(q => {
-                    const txtA = ansA[q];
-                    const txtB = ansB[q];
-                    // Simple logic: key phrase match or exact match?
-                    // Let's do partial match or exact.
-                    // If exact match (rare for free text): 100%
-                    // If one contains the other (e.g. "Paris" in "I love Paris"): 50%
-                    if (txtA === txtB) {
-                        matchCount += 1.0;
-                    } else if (txtA.includes(txtB) || txtB.includes(txtA)) {
-                        matchCount += 0.5;
-                    }
+                    const sim = calculateTextSimilarity(ansA[q], ansB[q]);
+                    totalSim += sim;
                 });
 
-                // Normalize by number of common questions
-                const questionScore = (matchCount / commonQ.length) * 40;
-                score += questionScore;
+                const avgSim = totalSim / commonQ.length;
+                const points = avgSim * 40;
+                score += points;
+                if (points > 5) explanation.push(`Compatible answers (${Math.round(avgSim * 100)}%)`);
+                log.info(`[Matching DEBUG] Proust Sim: ${avgSim}, Points: ${points}`);
             }
 
-            // --- THRESHOLD ---
-            if (score >= 15) { // Lower threshold to allow partial interest matches
+            log.info(`[Matching DEBUG] Total Score for ${uaId}-${ubId}: ${score}`);
+
+            /* ------------------------------------------------------------------
+               PERSISTENCE
+               ------------------------------------------------------------------ */
+            // Threshold: 15 points
+            if (score >= 15) {
                 try {
-                    // Check if match already exists to avoid unique constraint error spam (optional but cleaner)
-                    // Actually, let's just Try/Catch for upsert behavior if unique index exists.
-                    // Correct collection name: m_matches (standardized)
-                    const record = new Record($app.dao().findCollectionByNameOrId("m_matches"));
-                    record.set("userId", uaId);
-                    record.set("matchedUserId", ubId);
+                    // Check existence logic could go here, or rely on Unique Index upsert
+                    const collection = $app.dao().findCollectionByNameOrId("m_matches");
+                    const existing = $app.dao().findFirstRecordByFilter("m_matches", `userId='${uaId}' && matchedUserId='${ubId}'`);
+
+                    const record = existing || new Record(collection);
+                    if (!existing) {
+                        record.set("userId", uaId);
+                        record.set("matchedUserId", ubId);
+                        record.set("status", "pending");
+                    }
+
                     record.set("matchScore", Math.round(score));
-                    record.set("status", "pending");
-                    // Add reasoning for UI explanation?
-                    // record.set("reason", `Interests: ${matchCount} common`); 
+
+                    // We don't have a 'reason' field in schema yet, but good for debug
+                    // record.set("reason", explanation.join(", "));
 
                     $app.dao().saveRecord(record);
-                    $app.logger().info(`[Matching] New Match: ${uaId} <-> ${ubId} (Score: ${Math.round(score)})`);
+                    newMatches++;
+                    log.info(`[Matching] Upserted match ${uaId}-${ubId} with score ${score}`);
                 } catch (e) {
-                    // If error is not unique constraint, log it.
-                    // PocketBase errors often contain "integrity constraint"
-                    const msg = e.toString();
-                    if (!msg.includes("UNIQUE constraint failed") && !msg.includes("integrity constraint")) {
-                        $app.logger().error(`[Matching] Failed to save match ${uaId} <-> ${ubId}: ${msg}`);
-                    }
+                    log.error(`[Matching] Failed ${uaId}<->${ubId}: ${e}`);
                 }
             }
         }
     }
-    $app.logger().info("[Matching] Daily calculation complete.");
+    log.info(`[Matching] Complete. Upserted ${newMatches} matches.`);
+    return { count: newMatches, logs: logs };
+}
+
+// Cron Job (Production)
+cronAdd("0 0 * * *", "daily_matching", (c) => {
+    runMatchingAlgorithm(1000);
+});
+
+// Test Endpoint (Development/Testing)
+// POST /api/test/trigger-matching
+routerAdd("POST", "/api/test/trigger-matching", (c) => {
+    // Optional security check
+    // const admin = c.get("admin"); 
+    // if (!admin) return c.json(403, { error: "Admin only" });
+
+    const result = runMatchingAlgorithm(100);
+    return c.json(200, {
+        message: "Matching algorithm executed manually",
+        matches_processed: result.count,
+        debug_logs: result.logs
+    });
 });

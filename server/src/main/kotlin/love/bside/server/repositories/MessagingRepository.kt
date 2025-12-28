@@ -4,7 +4,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import love.bside.app.data.models.messaging.*
 import love.bside.app.data.api.PocketBaseClient
-import love.bside.app.core.AppException
 import java.util.UUID
 
 /**

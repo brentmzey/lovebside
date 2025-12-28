@@ -37,7 +37,6 @@ kotlin {
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }
 
-
     sourceSets {
         val commonMain by getting {
             dependencies {

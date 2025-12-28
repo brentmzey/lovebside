@@ -8,6 +8,7 @@ import love.bside.app.domain.models.TypingStatus
 import love.bside.app.domain.models.ProustQuestionnaire
 import love.bside.app.domain.models.UserAnswer
 import love.bside.app.domain.models.Match
+import love.bside.app.domain.models.MessagingSettings
 import kotlinx.coroutines.flow.Flow
 
 interface MessagingRepository {
@@ -68,4 +69,8 @@ interface MessagingRepository {
     
     // Matching
     suspend fun getMatches(): Result<List<Match>>
+    
+    // Settings
+    suspend fun getGlobalSettings(): Result<MessagingSettings>
+    suspend fun updateGlobalSettings(settings: MessagingSettings): Result<Unit>
 }

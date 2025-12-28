@@ -3,14 +3,12 @@ package love.bside.app.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import love.bside.app.core.Result
 import love.bside.app.domain.models.Message
-import love.bside.app.domain.models.TypingStatus
 import love.bside.app.domain.repository.MessagingRepository
 
 class ChatViewModel(
@@ -61,11 +59,11 @@ class ChatViewModel(
         }
     }
 
-    fun sendMessage(content: String) {
+    fun sendMessage(content: String, replyToId: String? = null) {
         val convId = currentConversationId ?: return
         viewModelScope.launch {
             // Optimistic update could go here
-            repository.sendMessage(convId, content)
+            repository.sendMessage(convId, content, replyToId)
         }
     }
 

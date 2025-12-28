@@ -19,6 +19,8 @@ data class Profile(
     val birthDate: String, // Can be mapped to LocalDate later
     val bio: String? = null,
     val location: String? = null,
+    val lat: Double? = null,
+    val lng: Double? = null,
     val seeking: SeekingStatus,
     
     // Extended profile fields

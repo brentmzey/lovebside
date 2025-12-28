@@ -4,8 +4,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
-import love.bside.server.models.api.ApiError
-import love.bside.server.models.api.ApiResponse
 import love.bside.server.utils.toErrorResponse
 
 /**

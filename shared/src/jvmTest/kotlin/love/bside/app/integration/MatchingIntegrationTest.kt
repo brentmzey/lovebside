@@ -5,14 +5,10 @@ import io.pocketbase.models.RecordModel
 import io.pocketbase.models.QueryOptions
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Clock
 import love.bside.app.core.Result
 import love.bside.app.data.repository.PocketBaseMessagingRepository
-import love.bside.app.domain.models.SeekingStatus
 import love.bside.app.domain.repository.MessagingRepository
 import org.junit.After
 import org.junit.Before

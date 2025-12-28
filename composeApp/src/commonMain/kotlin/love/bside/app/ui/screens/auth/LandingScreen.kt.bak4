@@ -1,0 +1,432 @@
+package love.bside.app.ui.screens.auth
+
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Message
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import love.bside.app.ui.theme.BsideBrand
+import kotlin.math.cos
+import kotlin.math.sin
+
+// Helper function to generate pastel colors from string
+private fun generatePastelColor(name: String): Color {
+    val hash = name.hashCode()
+    val hue = (hash and 0xFF) / 255f * 360f
+    // Pastel: high lightness, low saturation
+    return Color.hsl(hue, 0.5f, 0.8f)
+}
+
+@Composable
+fun LandingScreen(
+    onLoginOptions: () -> Unit,
+    onSignUp: () -> Unit,
+    profiles: List<love.bside.app.domain.models.Profile> = emptyList(),
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .systemBarsPadding()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(60.dp))
+            
+            // Orbit Animation Area
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                OrbitAnimation(profiles)
+            }
+// ... (rest of content)
+
+// ...
+
+@Composable
+fun OrbitAnimation(profiles: List<love.bside.app.domain.models.Profile>) {
+    val infiniteTransition = rememberInfiniteTransition()
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    
+    // Layout Constants match visual proportions
+    val outerRadius = 140.dp
+    val innerRadius = 90.dp
+    
+    Box(contentAlignment = Alignment.Center) {
+        // ... (Circles)
+        
+        // 4. Floating Elements on Outer Ring
+        if (profiles.isNotEmpty()) {
+            // Distribute profiles
+            // We have 8 spots. 0, 45, 90, 135, 180, 225, 270, 315
+            // Reserve 45 (Location) and 225 (Chat) for icons as per design
+            // Spots: 0, 90, 135, 180, 270, 315 (6 spots for profiles)
+            
+            val profileSpots = listOf(0f, 90f, 135f, 180f, 270f, 315f)
+            
+            profileSpots.forEachIndexed { index, angle ->
+                val profile = profiles.getOrNull(index % profiles.size)
+                if (profile != null) {
+                    OrbitItem(angle = angle, radius = outerRadius, content = { 
+                       // Generate pastel color based on name hash
+                       val color = generatePastelColor(profile.firstName)
+                       AvatarPlaceholder(color = color, initial = profile.firstName.firstOrNull()?.toString() ?: "?")
+                    })
+                }
+            }
+        } else {
+            // Fallback to static if no profiles (e.g. loading or network error)
+            OrbitItem(angle = 0f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFF81C784)) })
+            OrbitItem(angle = 90f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFFE57373)) })
+            OrbitItem(angle = 135f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFFFFD54F)) })
+            OrbitItem(angle = 180f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFF7986CB)) })
+            OrbitItem(angle = 270f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFFBA68C8)) })
+            OrbitItem(angle = 315f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFFFF8A65), size = 64.dp) })
+        }
+        
+        // Icons (Fixed)
+        OrbitItem(angle = 45f, radius = outerRadius, content = { 
+             Icon(Icons.Default.LocationOn, null, tint = Color(0xFFF48FB1), modifier = Modifier.size(24.dp)) 
+        })
+        
+        OrbitItem(angle = 225f, radius = outerRadius, content = { 
+             Icon(Icons.Default.Message, null, tint = Color(0xFFF06292), modifier = Modifier.size(24.dp))
+        })
+    }
+}
+
+// ...
+
+@Composable
+fun AvatarPlaceholder(color: Color, size: Dp = 48.dp, initial: String? = null) {
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(Color.White)
+            .padding(2.dp)
+            .clip(CircleShape)
+            .background(color),
+        contentAlignment = Alignment.Center
+    ) {
+        if (initial != null) {
+            Text(initial, color = Color.White, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+fun generatePastelColor(seed: String): Color {
+    val hash = seed.hashCode()
+    val r = (hash and 0xFF0000 shr 16) / 255f
+    val g = (hash and 0x00FF00 shr 8) / 255f
+    val b = (hash and 0x0000FF) / 255f
+    
+    // Mix with white for pastel
+    return Color(
+        red = (r + 1f) / 2f,
+        green = (g + 1f) / 2f,
+        blue = (b + 1f) / 2f,
+        alpha = 1f
+    )
+}
+            
+            // Content Area
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 32.dp, vertical = 24.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Let's meet new\npeople around you",
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = BsideBrand.Charcoal
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Login Buttons
+                // Phone Button (Deep Purple)
+                LandingButton(
+                    text = "Login with Phone",
+                    icon = Icons.Default.Call,
+                    backgroundColor = Color(0xFF4A1D4D), // Exact Plum from design
+                    contentColor = Color.White,
+                    iconContainerColor = Color.White,
+                    iconTintColor = Color(0xFF4A1D4D),
+                    onClick = onLoginOptions
+                )
+                
+                // Google Button (Pale Pink)
+                LandingButton(
+                    text = "Login with Google",
+                    icon = null, 
+                    isGoogle = true,
+                    backgroundColor = Color(0xFFFFF0F5), // Light Lavender/Pink
+                    contentColor = Color(0xFF4A1D4D),
+                    iconContainerColor = Color.White,
+                    iconTintColor = Color.Unspecified,
+                    onClick = onLoginOptions
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Sign Up Text
+                val annotatedString = buildAnnotatedString {
+                    append("Don't have an account? ")
+                    withStyle(style = SpanStyle(color = BsideBrand.TealTileDark, fontWeight = FontWeight.Bold)) {
+                        append("Sign Up")
+                    }
+                }
+                
+                Text(
+                    text = annotatedString,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    modifier = Modifier.clickable(onClick = onSignUp)
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun LandingButton(
+    text: String,
+    icon: ImageVector?,
+    onClick: () -> Unit,
+    backgroundColor: Color,
+    contentColor: Color,
+    iconContainerColor: Color,
+    iconTintColor: Color,
+    isGoogle: Boolean = false
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = backgroundColor,
+            contentColor = contentColor
+        ),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(iconContainerColor),
+                contentAlignment = Alignment.Center
+            ) {
+                 if (isGoogle) {
+                      // Google G placeholder (Simulated with text/color)
+                      Text("G", fontWeight = FontWeight.Bold, color = Color.Black)
+                 } else if (icon != null) {
+                      Icon(
+                          imageVector = icon,
+                          contentDescription = null,
+                          tint = iconTintColor,
+                          modifier = Modifier.size(18.dp)
+                      )
+                 }
+            }
+            
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center
+            )
+            
+            Spacer(modifier = Modifier.size(32.dp)) // Balance layout
+        }
+    }
+}
+
+@Composable
+fun OrbitAnimation() {
+    val infiniteTransition = rememberInfiniteTransition()
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    
+    // Layout Constants match visual proportions
+    val outerRadius = 140.dp
+    val innerRadius = 90.dp
+    
+    Box(contentAlignment = Alignment.Center) {
+        // 1. Dashed Outer Circle
+        Canvas(modifier = Modifier.size(outerRadius * 2)) {
+             drawCircle(
+                color = BsideBrand.TealTileLight, // Pale green
+                radius = size.minDimension / 2,
+                style = Stroke(
+                    width = 2.dp.toPx(), 
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(15f, 15f))
+                )
+            )
+        }
+
+        // 2. Solid Inner Circle (Pinkish Glow)
+        Box(
+            modifier = Modifier
+                .size(innerRadius * 2)
+                .clip(CircleShape)
+                .background(Color(0xFFFCE4EC).copy(alpha=0.5f)) // Very light pink
+        )
+        
+        // 3. Center Logo (Teal Squircle + Purple Heart)
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .scale(pulseScale)
+                .clip(RoundedCornerShape(32.dp)) // Super-ellipse / Squircle look
+                .background(BsideBrand.TealTile),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.Default.Favorite,
+                contentDescription = null,
+                tint = Color(0xFF4A1D4D), // Deep Plum Heart
+                modifier = Modifier.size(40.dp).graphicsLayer(rotationZ = -15f) // Slight tilt
+            )
+        }
+        
+        // 4. Floating Elements on Outer Ring
+        // Angles calculated clockwise from 12 o'clock (0 degrees at top)
+        // Top: Avatar
+        OrbitItem(angle = 0f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFF81C784)) })
+        
+        // Top Right: Location Icon
+        OrbitItem(angle = 45f, radius = outerRadius, content = { 
+             Icon(Icons.Default.LocationOn, null, tint = Color(0xFFF48FB1), modifier = Modifier.size(24.dp)) 
+        })
+        
+        // Right: Avatar
+        OrbitItem(angle = 90f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFFE57373)) })
+        
+        // Bottom Right: Avatar
+        OrbitItem(angle = 135f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFFFFD54F)) })
+        
+        // Bottom: Avatar
+        OrbitItem(angle = 180f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFF7986CB)) })
+        
+        // Bottom Left: Chat Icon
+        OrbitItem(angle = 225f, radius = outerRadius, content = { 
+             Icon(Icons.Default.Message, null, tint = Color(0xFFF06292), modifier = Modifier.size(24.dp))
+        })
+        
+        // Left: Avatar
+        OrbitItem(angle = 270f, radius = outerRadius, content = { AvatarPlaceholder(Color(0xFFBA68C8)) })
+        
+        // Top Left: Avatar (Larger?)
+         OrbitItem(angle = 315f, radius = outerRadius, content = { 
+             AvatarPlaceholder(Color(0xFFFF8A65), size = 64.dp) 
+         })
+    }
+}
+
+@Composable
+fun OrbitItem(
+    angle: Float, 
+    radius: Dp, 
+    content: @Composable () -> Unit
+) {
+    // Convert angle (degrees, 0 is top) to radians-ish offsets
+    // 0 deg -> (0, -r)
+    // 90 deg -> (r, 0)
+    // etc.
+    // Standard trig: x = r * cos(theta), y = r * sin(theta)
+    // Our 0 is top -> shifted by -90 deg (-PI/2)
+    val theta = (angle - 90) * (Math.PI / 180.0)
+    
+    // We need to access density to convert Dp to Px? No, can use Box offset with Dp.
+    // Assuming radius is Dp.
+    
+    val x = (radius.value * cos(theta)).toFloat()
+    val y = (radius.value * sin(theta)).toFloat()
+    
+    Box(
+        modifier = Modifier.offset(x.dp, y.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun AvatarPlaceholder(color: Color, size: Dp = 48.dp) {
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(Color.White)
+            .padding(2.dp)
+            .clip(CircleShape)
+            .background(color),
+        contentAlignment = Alignment.Center
+    ) {
+        // Placeholder face logic could go here
+    }
+}

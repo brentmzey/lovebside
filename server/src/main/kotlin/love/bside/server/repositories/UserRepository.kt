@@ -8,7 +8,6 @@ import love.bside.server.utils.toDomain
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import love.bside.app.core.AppException
 
 /**
  * Repository interface for user operations

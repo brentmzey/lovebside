@@ -1,19 +1,15 @@
 package love.bside.app.integration
 
 import io.pocketbase.PocketBase
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import love.bside.app.core.Result
 import love.bside.app.data.repository.PocketBaseMessagingRepository
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
-
 import love.bside.app.AppConstants
 
 /**

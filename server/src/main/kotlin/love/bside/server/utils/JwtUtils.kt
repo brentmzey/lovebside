@@ -9,7 +9,6 @@ import io.ktor.server.auth.jwt.*
 import love.bside.server.config.ServerConfig
 import love.bside.server.models.domain.AuthToken
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.milliseconds
 
 /**

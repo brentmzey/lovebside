@@ -2,10 +2,10 @@ package love.bside.app.ui.screens.auth
 
 import love.bside.app.domain.models.SeekingStatus
 
-enum class AuthMode { Login, SignUp }
+enum class AuthMode { Landing, Login, SignUp }
 
 data class AuthUiState(
-    val mode: AuthMode = AuthMode.Login,
+    val mode: AuthMode = AuthMode.Landing,
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
@@ -18,6 +18,7 @@ data class AuthUiState(
 ) {
     val canSubmit: Boolean
         get() = email.isNotBlank() && password.length >= 6 && when (mode) {
+            AuthMode.Landing -> false
             AuthMode.Login -> true
             AuthMode.SignUp -> firstName.isNotBlank() && lastName.isNotBlank() &&
                 confirmPassword == password && birthDate.isNotBlank()

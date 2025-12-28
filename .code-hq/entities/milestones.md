@@ -1,28 +1,29 @@
 # Milestones
 
-## M1: Navigation Complete
+## M1: Navigation & Auth
 - **Target Date**: January 15, 2026
-- **Status**: In Progress
+- **Status**: Done
 - **Key Deliverables**:
   - Working Decompose navigation
   - Complete authentication flow
   - Onboarding wizard
 
-## M2: Core MVP
+## M2: Core & Premium UI
 - **Target Date**: February 28, 2026
-- **Status**: Not Started
+- **Status**: Done
 - **Key Deliverables**:
   - Profile system (view/edit)
   - Proust questionnaire
-  - Basic matching/discovery
+  - Matching Engine (Backend)
+  - Premium "Tiles" UI Overhaul
 
-## M3: Messaging Beta
+## M3: Messaging & Discovery
 - **Target Date**: April 15, 2026
-- **Status**: Not Started
+- **Status**: In Progress
 - **Key Deliverables**:
-  - Conversations list
-  - Real-time chat
-  - Push notifications
+  - Conversations list & Real-time chat (Done)
+  - Threading & Read Receipts (Done)
+  - Geolocation Discovery (Pending)
 
 ## M4: Polish Release
 - **Target Date**: May 31, 2026

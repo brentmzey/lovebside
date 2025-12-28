@@ -1,5 +1,6 @@
 package love.bside.app
 
+import love.bside.app.domain.usecase.GetDiscoveryUsersUseCase
 import love.bside.app.domain.usecase.LoginUseCase
 import love.bside.app.domain.usecase.LogoutUseCase
 import love.bside.app.domain.usecase.SignUpUseCase
@@ -14,5 +15,6 @@ fun buildAppDependencies(koin: Koin): AppDependencies = AppDependencies(
     logoutUseCase = koin.get<LogoutUseCase>(),
     biometricLoginUseCase = koin.get<BiometricLoginUseCase>(),
     enableBiometricLoginUseCase = koin.get<EnableBiometricLoginUseCase>(),
-    observeSecureEnrollmentsUseCase = koin.get<ObserveSecureEnrollmentsUseCase>()
+    observeSecureEnrollmentsUseCase = koin.get<ObserveSecureEnrollmentsUseCase>(),
+    getDiscoveryUsersUseCase = koin.get<GetDiscoveryUsersUseCase>()
 )

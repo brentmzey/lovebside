@@ -36,13 +36,16 @@ import love.bside.app.security.usecase.BiometricLoginUseCase
 import love.bside.app.security.usecase.EnableBiometricLoginUseCase
 import love.bside.app.security.usecase.ObserveSecureEnrollmentsUseCase
 
+import love.bside.app.domain.usecase.GetDiscoveryUsersUseCase
+
 data class AppDependencies(
     val loginUseCase: LoginUseCase,
     val signUpUseCase: SignUpUseCase,
     val logoutUseCase: LogoutUseCase,
     val biometricLoginUseCase: BiometricLoginUseCase,
     val enableBiometricLoginUseCase: EnableBiometricLoginUseCase,
-    val observeSecureEnrollmentsUseCase: ObserveSecureEnrollmentsUseCase
+    val observeSecureEnrollmentsUseCase: ObserveSecureEnrollmentsUseCase,
+    val getDiscoveryUsersUseCase: GetDiscoveryUsersUseCase
 )
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -71,6 +74,7 @@ fun App(
                                 biometricLoginUseCase = dependencies.biometricLoginUseCase,
                                 enableBiometricLoginUseCase = dependencies.enableBiometricLoginUseCase,
                                 observeSecureEnrollmentsUseCase = dependencies.observeSecureEnrollmentsUseCase,
+                                getDiscoveryUsersUseCase = dependencies.getDiscoveryUsersUseCase,
                                 onAuthenticated = { details ->
                                     logoutError = null
                                     authDetails = details

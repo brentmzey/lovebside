@@ -2,6 +2,8 @@
 
 A modern multiplatform application built with Kotlin Multiplatform, Compose Multiplatform, and Ktor.
 
+> **🚀 NEW TO THE PROJECT?** Start with **[QUICKSTART.md](./QUICKSTART.md)** for a concise guide to building and running everything!
+
 ## 🚀 Quick Start
 
 This project now mirrors the end-to-end target coverage recommended in the [Kotlin Multiplatform quickstart](https://kotlinlang.org/docs/multiplatform/quickstart.html#run-the-sample-apps), so every sample app (Android, iOS, Desktop, JVM Server, Kotlin/JS Web, and experimental Wasm) can be launched from either the provided scripts or Android Studio run configurations.
@@ -96,11 +98,18 @@ verify-targets.sh   # Instead of ./scripts/verify-targets.sh
 
 ## 📚 Documentation
 
+### Essential Guides
 - **[scripts/README.md](./scripts/README.md)** - Comprehensive guide to all development scripts and workflows
+- **[docs/BUILD_RUN_TEST.md](./docs/BUILD_RUN_TEST.md)** - How to build, run, and test the full stack
 - **[docs/GRADLE_BUILD_ROADMAP.md](./docs/GRADLE_BUILD_ROADMAP.md)** - Roadmap to `gradle build` success
-- **[docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)** - UI/UX design guidelines
-- **[docs/SHARED_TYPES_GUIDE.md](./docs/SHARED_TYPES_GUIDE.md)** - Cross-platform type safety
 - **[docs/POCKETBASE_SCHEMA.md](./docs/POCKETBASE_SCHEMA.md)** - Database schema + migration instructions
+- **[docs/DESIGN_SYSTEM.md](./docs/DESIGN_SYSTEM.md)** - UI/UX design guidelines
+
+### Development Resources
+- **[docs/SHARED_TYPES_GUIDE.md](./docs/SHARED_TYPES_GUIDE.md)** - Cross-platform type safety
+- **[docs/SETUP_CHECKLIST.md](./docs/SETUP_CHECKLIST.md)** - Environment setup checklist
+- **[docs/BUILD_FIXES.md](./docs/BUILD_FIXES.md)** - Common build issues and solutions
+- **[docs/STATUS.md](./docs/STATUS.md)** - Current project status
 - **[docs/BUILD_STATUS.md](./docs/BUILD_STATUS.md)** - CI/CD configuration (archived)
 - **[docs/disabled-github-actions/](./docs/disabled-github-actions/)** - Archived CI workflows
 

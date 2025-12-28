@@ -59,12 +59,36 @@ class PocketBase(
     /**
      * Configuration for realtime transports (SSE vs smart polling).
      */
-    val realtimeConfig: RealtimeConfig = RealtimeConfig()
+    /**
+     * Configuration for realtime transports (SSE vs smart polling).
+     */
+    val realtimeConfig: RealtimeConfig = RealtimeConfig(),
+    
+    /**
+     * Optional HttpClient to use for requests. 
+     * If not provided, a default one will be created.
+     */
+    httpClient: HttpClient? = null
 ) {
     @PublishedApi
-    internal val httpClient: HttpClient
+    internal val httpClient: HttpClient = httpClient ?: HttpClient {
+        install(ContentNegotiation) {
+            json(this@PocketBase.json)
+        }
+        
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30000
+            connectTimeoutMillis = 15000
+            socketTimeoutMillis = 30000
+        }
+        
+        // Don't throw on non-2xx responses, we'll handle them manually
+        expectSuccess = false
+    }
+
     @PublishedApi
     internal val requestMutex = Mutex()
+    
     @PublishedApi
     internal val json = Json {
         ignoreUnknownKeys = true
@@ -92,26 +116,8 @@ class PocketBase(
     init {
         // Normalize base URL - remove trailing slash
         baseURL = baseURL.trimEnd('/')
-        
-        httpClient = HttpClient {
-            install(ContentNegotiation) {
-                json(this@PocketBase.json)
-            }
-            
-            install(HttpTimeout) {
-                requestTimeoutMillis = 30000
-                connectTimeoutMillis = 15000
-                socketTimeoutMillis = 30000
-            }
-            
-            // Don't throw on non-2xx responses, we'll handle them manually
-            expectSuccess = false
-        }
+        // httpClient is already initialized via property initializer above
     }
-    
-    /**
-     * Get a RecordService for a specific collection.
-     */
     fun collection(collectionIdOrName: String): RecordService {
         return RecordService(this, collectionIdOrName)
     }

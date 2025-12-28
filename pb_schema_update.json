@@ -1,0 +1,643 @@
+[
+    {
+        "name": "t_tenant_property",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "tprop_key",
+                "name": "key",
+                "type": "text",
+                "required": true,
+                "presentable": true,
+                "unique": true,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "tprop_value",
+                "name": "value",
+                "type": "text",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "tprop_type",
+                "name": "type",
+                "type": "select",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 1,
+                    "values": [
+                        "boolean",
+                        "string",
+                        "int",
+                        "json"
+                    ]
+                }
+            },
+            {
+                "system": false,
+                "id": "tprop_desc",
+                "name": "description",
+                "type": "text",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX idx_tenant_key ON t_tenant_property (key)"
+        ],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": null,
+        "updateRule": null,
+        "deleteRule": null,
+        "options": {}
+    },
+    {
+        "name": "t_user_property",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "uprop_uid",
+                "name": "user_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "uprop_key",
+                "name": "key",
+                "type": "text",
+                "required": true,
+                "presentable": true,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "uprop_val",
+                "name": "value",
+                "type": "text",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX idx_user_key ON t_user_property (user_id, key)"
+        ],
+        "listRule": "user_id = @request.auth.id",
+        "viewRule": "user_id = @request.auth.id",
+        "createRule": "user_id = @request.auth.id",
+        "updateRule": "user_id = @request.auth.id",
+        "deleteRule": "user_id = @request.auth.id",
+        "options": {}
+    },
+    {
+        "name": "m_conversations",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "mconv_type",
+                "name": "type",
+                "type": "select",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 1,
+                    "values": [
+                        "direct",
+                        "group"
+                    ]
+                }
+            },
+            {
+                "system": false,
+                "id": "mconv_name",
+                "name": "name",
+                "type": "text",
+                "required": false,
+                "presentable": true,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "mconv_lmat",
+                "name": "last_message_at",
+                "type": "date",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": "",
+                    "max": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "mconv_lmtx",
+                "name": "last_message_text",
+                "type": "text",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "mconv_meta",
+                "name": "metadata",
+                "type": "json",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSize": 2000000
+                }
+            },
+            {
+                "system": false,
+                "id": "mconv_arch",
+                "name": "is_archived",
+                "type": "bool",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {}
+            }
+        ],
+        "indexes": [],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "@request.auth.id != \"\"",
+        "updateRule": "@request.auth.id != \"\"",
+        "deleteRule": null,
+        "options": {}
+    },
+    {
+        "name": "m_conversation_participants",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "mpart_cid",
+                "name": "conversation_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "m_conversations",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mpart_uid",
+                "name": "user_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mpart_role",
+                "name": "role",
+                "type": "select",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 1,
+                    "values": [
+                        "admin",
+                        "member"
+                    ]
+                }
+            },
+            {
+                "system": false,
+                "id": "mpart_ucnt",
+                "name": "unread_count",
+                "type": "number",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": 0,
+                    "max": null,
+                    "noDecimal": true
+                }
+            },
+            {
+                "system": false,
+                "id": "mpart_lrmi",
+                "name": "last_read_message_id",
+                "type": "relation",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "m_messages",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mpart_join",
+                "name": "joined_at",
+                "type": "date",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": "",
+                    "max": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "mpart_mute",
+                "name": "is_muted",
+                "type": "bool",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {}
+            },
+            {
+                "system": false,
+                "id": "mpart_pin",
+                "name": "is_pinned",
+                "type": "bool",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {}
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX idx_participant ON m_conversation_participants (conversation_id, user_id)",
+            "CREATE INDEX idx_user_conversations ON m_conversation_participants (user_id)"
+        ],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "@request.auth.id != \"\"",
+        "updateRule": "@request.auth.id != \"\"",
+        "deleteRule": "@request.auth.id != \"\"",
+        "options": {}
+    },
+    {
+        "name": "m_messages",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "mmsg_cid",
+                "name": "conversation_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "m_conversations",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_sid",
+                "name": "sender_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_cont",
+                "name": "content",
+                "type": "editor",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "convertUrls": false
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_type",
+                "name": "type",
+                "type": "select",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 1,
+                    "values": [
+                        "text",
+                        "image",
+                        "system"
+                    ]
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_att",
+                "name": "attachments",
+                "type": "file",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 10,
+                    "maxSize": 5242880,
+                    "mimeTypes": [],
+                    "thumbs": [],
+                    "protected": false
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_sent",
+                "name": "sent_at",
+                "type": "date",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": "",
+                    "max": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_rep",
+                "name": "reply_to_message_id",
+                "type": "relation",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "m_messages",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_root",
+                "name": "thread_root_id",
+                "type": "relation",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "m_messages",
+                    "cascadeDelete": false,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_depth",
+                "name": "thread_depth",
+                "type": "number",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": 0,
+                    "max": null,
+                    "noDecimal": true
+                }
+            },
+            {
+                "system": false,
+                "id": "mmsg_del",
+                "name": "deleted_at",
+                "type": "date",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": "",
+                    "max": ""
+                }
+            }
+        ],
+        "indexes": [
+            "CREATE INDEX idx_conversation_sent ON m_messages (conversation_id, sent_at)"
+        ],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "sender_id = @request.auth.id",
+        "updateRule": "sender_id = @request.auth.id",
+        "deleteRule": "sender_id = @request.auth.id",
+        "options": {}
+    },
+    {
+        "name": "m_read_receipts",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "mread_mid",
+                "name": "message_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "m_messages",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mread_uid",
+                "name": "user_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mread_at",
+                "name": "read_at",
+                "type": "date",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": "",
+                    "max": ""
+                }
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX idx_msg_read ON m_read_receipts (message_id, user_id)"
+        ],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "user_id = @request.auth.id",
+        "updateRule": "user_id = @request.auth.id",
+        "deleteRule": "user_id = @request.auth.id",
+        "options": {}
+    },
+    {
+        "name": "m_typing_status",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "mtype_cid",
+                "name": "conversation_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "m_conversations",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mtype_uid",
+                "name": "user_id",
+                "type": "relation",
+                "required": true,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "collectionId": "_pb_users_auth_",
+                    "cascadeDelete": true,
+                    "minSelect": null,
+                    "maxSelect": 1,
+                    "displayFields": []
+                }
+            },
+            {
+                "system": false,
+                "id": "mtype_bool",
+                "name": "is_typing",
+                "type": "bool",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {}
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX idx_typing_status ON m_typing_status (conversation_id, user_id)"
+        ],
+        "listRule": "@request.auth.id != \"\"",
+        "viewRule": "@request.auth.id != \"\"",
+        "createRule": "user_id = @request.auth.id",
+        "updateRule": "user_id = @request.auth.id",
+        "deleteRule": "user_id = @request.auth.id",
+        "options": {}
+    }
+]
