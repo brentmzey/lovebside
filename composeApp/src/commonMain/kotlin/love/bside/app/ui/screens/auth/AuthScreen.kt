@@ -52,17 +52,18 @@ import love.bside.app.domain.models.Profile
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
-    loginUseCase: LoginUseCase,
-    signUpUseCase: SignUpUseCase,
+    viewModel: AuthViewModel = org.koin.compose.viewmodel.koinViewModel(),
+    // Use cases for Biometric still needed here if not moved to VM?
+    // The previous implementation had biometric logic in AuthScreen.
+    // For now, let's keep biometric logic here but delegate auth form to VM.
     biometricLoginUseCase: BiometricLoginUseCase,
     enableBiometricLoginUseCase: EnableBiometricLoginUseCase,
     observeSecureEnrollmentsUseCase: ObserveSecureEnrollmentsUseCase,
-    getDiscoveryUsersUseCase: GetDiscoveryUsersUseCase,
     onAuthenticated: (AuthDetails) -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsState()
 
-    var uiState by remember { mutableStateOf(AuthUiState()) }
     val enrollments by observeSecureEnrollmentsUseCase().collectAsState(initial = emptyList())
     val hasBiometricEnrollment = remember(enrollments) { enrollments.any { it.factor is SecureAuthFactor.Biometric } }
     var biometricAvailability by remember { mutableStateOf<BiometricAvailability>(BiometricAvailability.Unknown) }
@@ -70,16 +71,9 @@ fun AuthScreen(
     var biometricError by remember { mutableStateOf<String?>(null) }
     var isBiometricLoading by remember { mutableStateOf(false) }
     
-    // Discovery
-    var discoveryProfiles by remember { mutableStateOf<List<Profile>>(emptyList()) }
-    
+    // Initial Side Effect
     LaunchedEffect(Unit) {
         biometricAvailability = biometricLoginUseCase.availability()
-        // Prefetch for Landing
-        val result = getDiscoveryUsersUseCase()
-        if (result is Result.Success) {
-            discoveryProfiles = result.data
-        }
     }
 
     fun describeAvailability(availability: BiometricAvailability): String = when (availability) {
@@ -90,27 +84,7 @@ fun AuthScreen(
         BiometricAvailability.Unknown -> "Biometric status unknown"
     }
 
-    fun handleResult(result: Result<AuthDetails>) {
-        uiState = uiState.copy(isLoading = false)
-        when (result) {
-            is Result.Success -> {
-                if (uiState.mode == AuthMode.Login && wantsBiometric &&
-                    biometricAvailability is BiometricAvailability.Available
-                ) {
-                    scope.launch {
-                        runCatching {
-                            enableBiometricLoginUseCase(result.data, uiState.email.trim())
-                        }
-                        wantsBiometric = false
-                    }
-                }
-                onAuthenticated(result.data)
-            }
-            is Result.Error -> uiState = uiState.copy(errorMessage = result.exception.message)
-            Result.Loading -> {}
-        }
-    }
-
+    // Biometric Login Logic (Separate from VM for now as it needs Activity Context sometimes or specific UI flow)
     fun attemptBiometricLogin() {
         if (!hasBiometricEnrollment) return
         scope.launch {
@@ -127,44 +101,27 @@ fun AuthScreen(
         }
     }
 
+    // Handle ViewModel Events manually or just observe state?
+    // We need to trigger navigation on success.
+    // Ideally VM exposes specific event channel. 
+    // For now, let's modify submit to take callback OR observe success state if we add it.
+    // The previous implementation passed `handleResult` to VM? No, VM didn't exist.
+    // Let's wrap submit in a lambda that handles the success callback.
+
     fun submit() {
-        if (!uiState.canSubmit || uiState.isLoading) return
-
-        val birthDate = if (uiState.mode == AuthMode.SignUp) {
-            runCatching { LocalDate.parse(uiState.birthDate.trim()) }
-                .onFailure {
-                    uiState = uiState.copy(errorMessage = "Use YYYY-MM-DD for birth date")
+        viewModel.submit { authDetails ->
+            // Success Callback
+            if (uiState.mode == AuthMode.Login && wantsBiometric &&
+                biometricAvailability is BiometricAvailability.Available
+            ) {
+                scope.launch {
+                    runCatching {
+                        enableBiometricLoginUseCase(authDetails, uiState.email.trim())
+                    }
+                    wantsBiometric = false
                 }
-                .getOrNull() ?: return
-        } else null
-
-        uiState = uiState.copy(isLoading = true, errorMessage = null)
-        scope.launch {
-            try {
-                val result = when (uiState.mode) {
-                    AuthMode.Login -> loginUseCase(uiState.email.trim(), uiState.password)
-                    AuthMode.SignUp -> signUpUseCase(
-                        SignUpData(
-                            email = uiState.email.trim(),
-                            password = uiState.password,
-                            passwordConfirm = uiState.confirmPassword,
-                            firstName = uiState.firstName.trim(),
-                            lastName = uiState.lastName.trim(),
-                            birthDate = birthDate!!,
-                            seeking = uiState.seeking
-                        )
-                    )
-                    AuthMode.Landing -> throw IllegalStateException("Cannot submit in Landing mode")
-                }
-                handleResult(result)
-            } catch (ce: CancellationException) {
-                uiState = uiState.copy(isLoading = false)
-                throw ce
-            } catch (e: AppException) {
-                uiState = uiState.copy(isLoading = false, errorMessage = e.message)
-            } catch (e: Exception) {
-                uiState = uiState.copy(isLoading = false, errorMessage = e.message ?: "Unknown error")
             }
+            onAuthenticated(authDetails)
         }
     }
     
@@ -182,17 +139,29 @@ fun AuthScreen(
     ) { currentMode ->
         if (currentMode == AuthMode.Landing) {
             LandingScreen(
-                profiles = discoveryProfiles,
-                onLoginOptions = { uiState = uiState.copy(mode = AuthMode.Login) },
-                onSignUp = { uiState = uiState.copy(mode = AuthMode.SignUp) }
+                profiles = uiState.discoveryProfiles,
+                onLoginOptions = { viewModel.onModeChange(AuthMode.Login) },
+                onSignUp = { viewModel.onModeChange(AuthMode.SignUp) }
             )
         } else {
             // Existing Auth Form UI (Login/SignUp)
             AuthFormContent(
                 uiState = uiState,
-                onStateChange = { uiState = it },
-                onModeChange = { uiState = uiState.copy(mode = it) },
-                onBack = { uiState = uiState.copy(mode = AuthMode.Landing) }, // Add Back support
+                onStateChange = { 
+                    // Manual mapping back to VM methods or update generic if VM supported "update(State)" which is risky.
+                    // Better to specific methods.
+                    // But AuthFormContent takes `(AuthUiState) -> Unit`.
+                    // We need to unpack this.
+                    if (it.email != uiState.email) viewModel.onEmailChange(it.email)
+                    if (it.password != uiState.password) viewModel.onPasswordChange(it.password)
+                    if (it.confirmPassword != uiState.confirmPassword) viewModel.onConfirmPasswordChange(it.confirmPassword)
+                    if (it.firstName != uiState.firstName) viewModel.onFirstNameChange(it.firstName)
+                    if (it.lastName != uiState.lastName) viewModel.onLastNameChange(it.lastName)
+                    if (it.birthDate != uiState.birthDate) viewModel.onBirthDateChange(it.birthDate)
+                    if (it.seeking != uiState.seeking) viewModel.onSeekingChange(it.seeking)
+                },
+                onModeChange = { viewModel.onModeChange(it) },
+                onBack = { viewModel.onModeChange(AuthMode.Landing) },
                 onSubmit = { submit() },
                 hasBiometricEnrollment = hasBiometricEnrollment,
                 biometricAvailability = biometricAvailability,

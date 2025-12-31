@@ -9,4 +9,6 @@ interface ProfileRepository {
     suspend fun createProfile(profile: Profile): Result<Unit>
     suspend fun updateProfile(userId: String, request: ProfileUpdateRequest): Result<Profile>
     suspend fun getDiscoveryProfiles(lat: Double? = null, lng: Double? = null): Result<List<Profile>>
+    suspend fun uploadProfilePicture(userId: String, data: ByteArray, filename: String): Result<Profile>
+    suspend fun uploadVideo(userId: String, data: ByteArray, filename: String): Result<Profile>
 }

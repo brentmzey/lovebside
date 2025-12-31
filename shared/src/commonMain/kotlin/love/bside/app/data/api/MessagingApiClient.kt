@@ -11,6 +11,7 @@ import love.bside.app.core.appConfig
 import love.bside.app.data.models.messaging.*
 import love.bside.app.data.repository.Page
 import love.bside.app.data.storage.TokenStorage
+import love.bside.app.data.DatabaseCollections
 
 /**
  * API client for real-time messaging functionality
@@ -166,7 +167,7 @@ class MessagingApiClient(
         // Subscribe to m_messages collection with filter for this conversation
         val subscription = client.get("$baseUrl/api/realtime/subscribe") {
             bearerAuth(tokenStorage.getToken() ?: "")
-            parameter("collection", "m_messages")
+            parameter("collection", DatabaseCollections.M_MESSAGES)
             parameter("filter", "conversationId='$conversationId'")
         }
         

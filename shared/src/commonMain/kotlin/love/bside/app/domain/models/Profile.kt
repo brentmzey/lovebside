@@ -22,6 +22,7 @@ data class Profile(
     val seeking: SeekingStatus,
     val profilePicture: String = "",
     val photos: List<String> = emptyList(),
+    val videos: List<String> = emptyList(),
     val aboutMe: String = "",
     val height: Double? = null,
     val occupation: String = "",

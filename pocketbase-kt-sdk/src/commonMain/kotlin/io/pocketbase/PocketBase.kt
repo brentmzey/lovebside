@@ -177,7 +177,9 @@ class PocketBase(
             this.method = HttpMethod.parse(requestOptions.method)
             
             // Set default headers
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
+            if (requestOptions.body !is io.ktor.http.content.OutgoingContent) {
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+            }
             header(HttpHeaders.Accept, ContentType.Application.Json)
             
             // Add auth token if available

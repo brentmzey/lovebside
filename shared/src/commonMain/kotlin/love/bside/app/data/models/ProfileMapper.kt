@@ -8,13 +8,19 @@ import love.bside.app.domain.models.SeekingStatus as DomainSeekingStatus
 fun Profile.toDomain(): DomainProfile {
     return DomainProfile(
         id = this.id,
-        created = Instant.parse(this.created),
-        updated = Instant.parse(this.updated),
+        // Date parsing is now handled by the Serializer
+        created = this.created,
+        updated = this.updated,
         userId = this.userId,
         firstName = this.firstName,
         lastName = this.lastName,
         birthDate = LocalDate.parse(this.birthDate.substring(0, 10)), // PocketBase date format is `YYYY-MM-DD HH:MM:SS.SSSZ`
         bio = this.bio,
+        education = this.education ?: "",
+        interests = this.interests ?: emptyList(),
+        videos = this.videos ?: emptyList(),
+        profilePicture = this.profilePicture ?: "",
+        photos = this.photos ?: emptyList(),
         location = this.location,
         lat = this.lat,
         lng = this.lng,

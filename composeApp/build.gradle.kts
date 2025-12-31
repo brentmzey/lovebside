@@ -57,6 +57,9 @@ kotlin {
                 implementation(projects.shared)
                 implementation(libs.koin.compose.multiplatform)
                 implementation(libs.koin.compose.viewmodel)
+                implementation(libs.coil.compose)
+                implementation(libs.coil.network.ktor)
+                implementation(libs.coil.gif)
             }
         }
 

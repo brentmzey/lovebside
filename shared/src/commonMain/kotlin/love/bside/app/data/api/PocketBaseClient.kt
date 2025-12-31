@@ -16,6 +16,7 @@ import love.bside.app.core.logError
 import love.bside.app.core.logInfo
 import love.bside.app.core.logWarn
 import love.bside.app.core.network.retryable
+import love.bside.app.data.DatabaseCollections
 
 /**
  * PocketBase SDK-like client for Kotlin
@@ -282,7 +283,7 @@ class PocketBaseClient(
      * Refresh authentication token
      */
     suspend inline fun <reified T> authRefresh(
-        collection: String = "t_user"
+        collection: String = DatabaseCollections.USERS
     ): Result<AuthResponse<T>> {
         logDebug("PocketBase authRefresh: collection=$collection")
         

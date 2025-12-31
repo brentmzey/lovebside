@@ -12,8 +12,11 @@ import love.bside.app.data.storage.SessionManager
 import love.bside.app.data.storage.SessionManagerImpl
 import love.bside.app.data.storage.TokenStorage
 import love.bside.app.data.storage.TokenStorageImpl
+import io.ktor.client.HttpClient
 import love.bside.app.data.api.createHttpClient
 import love.bside.app.data.api.PocketBaseClient
+import love.bside.app.data.repository.PocketBaseAuthRepository
+import love.bside.app.data.repository.PocketBaseProfileRepository
 import love.bside.app.AppConstants
 import love.bside.app.domain.repository.AuthRepository
 import love.bside.app.domain.repository.MatchRepository
@@ -24,6 +27,8 @@ import love.bside.app.domain.usecase.GetUserProfileUseCase
 import love.bside.app.domain.usecase.LoginUseCase
 import love.bside.app.domain.usecase.LogoutUseCase
 import love.bside.app.domain.usecase.SignUpUseCase
+import love.bside.app.domain.usecase.GetDiscoveryUsersUseCase
+import love.bside.app.domain.repository.MessagingRepository
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
@@ -60,10 +65,18 @@ fun appModule(settings: Settings) = module {
 
     // Internal API Client - The ONLY way clients communicate with backend
     single { InternalApiClient(get()) }
+
+    // Official PocketBase SDK (Required by some legacy repositories)
+    single { io.pocketbase.PocketBase("${love.bside.app.AppConstants.POCKETBASE_URL}/", httpClient = get<io.ktor.client.HttpClient>()) }
     
     // API-based Repositories - All use InternalApiClient
     // Updated to use PocketBaseClient for Auth
-    // singleOf(::ApiAuthRepository) bind AuthRepository::class
+    singleOf(::PocketBaseAuthRepository) bind AuthRepository::class
+    
+    // Repositories using Official SDK
+    single<ProfileRepository> { PocketBaseProfileRepository(get()) }
+    single<MessagingRepository> { love.bside.app.data.repository.PocketBaseMessagingRepository(get()) }
+    
     // singleOf(::ApiProfileRepository) bind ProfileRepository::class
     // singleOf(::ApiMatchRepository) bind MatchRepository::class
     // singleOf(::ApiQuestionnaireRepository) bind QuestionnaireRepository::class
@@ -77,4 +90,6 @@ fun appModule(settings: Settings) = module {
     factoryOf(::SignUpUseCase)
     factoryOf(::LogoutUseCase)
     factoryOf(::GetUserProfileUseCase)
+    factoryOf(::GetDiscoveryUsersUseCase)
 }
+

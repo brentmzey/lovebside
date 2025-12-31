@@ -10,8 +10,10 @@ data class Profile(
     val collectionId: String,
     @SerialName("collectionName")
     val collectionName: String,
-    val created: String, // Can be mapped to Instant later
-    val updated: String,
+    @Serializable(with = love.bside.app.data.serializers.PocketBaseInstantSerializer::class)
+    val created: kotlinx.datetime.Instant,
+    @Serializable(with = love.bside.app.data.serializers.PocketBaseInstantSerializer::class)
+    val updated: kotlinx.datetime.Instant,
     @SerialName("userId")
     val userId: String,
     val firstName: String,
@@ -26,6 +28,7 @@ data class Profile(
     // Extended profile fields
     val profilePicture: String? = null,  // Filename from PocketBase
     val photos: List<String>? = null,    // List of filenames
+    val videos: List<String>? = null,    // List of video filenames
     val aboutMe: String? = null,
     val height: Int? = null,             // Height in cm
     val occupation: String? = null,
@@ -47,6 +50,15 @@ data class Profile(
     fun getPhotoUrls(baseUrl: String, size: String = "800x800"): List<String> {
         return photos?.map { filename ->
             "$baseUrl/api/files/$collectionId/$id/$filename?thumb=$size"
+        } ?: emptyList()
+    }
+
+    /**
+     * Get full URLs for videos
+     */
+    fun getVideoUrls(baseUrl: String): List<String> {
+        return videos?.map { filename ->
+            "$baseUrl/api/files/$collectionId/$id/$filename"
         } ?: emptyList()
     }
     

@@ -31,6 +31,7 @@ import love.bside.app.ui.screens.home.DashboardScreen
 import love.bside.app.ui.screens.AuthorizedContent
 import love.bside.app.ui.theme.BsideBackground
 import love.bside.app.ui.theme.BsideTheme
+import love.bside.app.ui.theme.BsideTheme
 
 import love.bside.app.security.usecase.BiometricLoginUseCase
 import love.bside.app.security.usecase.EnableBiometricLoginUseCase
@@ -54,6 +55,14 @@ fun App(
     root: RootComponent,
     dependencies: AppDependencies
 ) {
+    coil3.compose.setSingletonImageLoaderFactory { context ->
+        coil3.ImageLoader.Builder(context)
+            .components {
+                add(coil3.network.ktor3.KtorNetworkFetcherFactory())
+            }
+            .build()
+    }
+
     BsideTheme {
         BsideBackground {
             val logoutUseCase = dependencies.logoutUseCase
@@ -69,12 +78,9 @@ fun App(
                     AnimatedContent(targetState = authDetails) { current ->
                         if (current == null) {
                             AuthScreen(
-                                loginUseCase = dependencies.loginUseCase,
-                                signUpUseCase = dependencies.signUpUseCase,
                                 biometricLoginUseCase = dependencies.biometricLoginUseCase,
                                 enableBiometricLoginUseCase = dependencies.enableBiometricLoginUseCase,
                                 observeSecureEnrollmentsUseCase = dependencies.observeSecureEnrollmentsUseCase,
-                                getDiscoveryUsersUseCase = dependencies.getDiscoveryUsersUseCase,
                                 onAuthenticated = { details ->
                                     logoutError = null
                                     authDetails = details

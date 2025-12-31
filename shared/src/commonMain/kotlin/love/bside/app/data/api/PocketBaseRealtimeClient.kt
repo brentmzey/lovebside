@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import love.bside.app.data.models.messaging.*
 import love.bside.app.data.storage.TokenStorage
+import love.bside.app.data.DatabaseCollections
 
 /**
  * PocketBase Real-time Client
@@ -34,7 +35,7 @@ class PocketBaseRealtimeClient(
         
         while (true) {
             try {
-                val response = client.get("$baseUrl/api/collections/m_messages/records") {
+                val response = client.get("$baseUrl/api/collections/${DatabaseCollections.M_MESSAGES}/records") {
                     bearerAuth(tokenStorage.getToken() ?: "")
                     parameter("filter", "conversationId='$conversationId'" + 
                         if (lastCreated.isNotEmpty()) " && created>'$lastCreated'" else "")
@@ -63,7 +64,7 @@ class PocketBaseRealtimeClient(
     fun subscribeToTypingIndicators(conversationId: String): Flow<TypingEvent> = flow {
         while (true) {
             try {
-                val response = client.get("$baseUrl/api/collections/m_typing_indicators/records") {
+                val response = client.get("$baseUrl/api/collections/${DatabaseCollections.M_TYPING_STATUS}/records") {
                     bearerAuth(tokenStorage.getToken() ?: "")
                     parameter("filter", "conversationId='$conversationId' && isTyping=true")
                     parameter("sort", "-updated")
@@ -90,7 +91,7 @@ class PocketBaseRealtimeClient(
         
         while (true) {
             try {
-                val response = client.get("$baseUrl/api/collections/m_conversations/records") {
+                val response = client.get("$baseUrl/api/collections/${DatabaseCollections.M_CONVERSATIONS}/records") {
                     bearerAuth(tokenStorage.getToken() ?: "")
                     parameter("filter", "(participant1Id='$userId' || participant2Id='$userId')" +
                         if (lastUpdated.isNotEmpty()) " && updated>'$lastUpdated'" else "")

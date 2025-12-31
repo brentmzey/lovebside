@@ -1,5 +1,8 @@
 # Dockerfile for B-Side Backend Server
-FROM openjdk:17-slim
+FROM eclipse-temurin:21-jre-alpine
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
 
 # Metadata
 LABEL maintainer="B-Side Development Team"
@@ -9,7 +12,7 @@ LABEL description="B-Side Dating App Backend Server"
 WORKDIR /app
 
 # Copy the JAR file
-COPY build/libs/server-1.0.0-all.jar app.jar
+COPY build/libs/server-all.jar app.jar
 
 # Expose port
 EXPOSE 8080

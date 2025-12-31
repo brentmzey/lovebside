@@ -6,6 +6,7 @@ import kotlinx.coroutines.test.runTest
 import love.bside.app.core.Result
 import love.bside.app.data.repository.PocketBaseMessagingRepository
 import love.bside.app.domain.repository.MessagingRepository
+import love.bside.app.data.DatabaseCollections
 import org.junit.After
 import org.junit.BeforeClass
 import org.junit.Test
@@ -32,7 +33,7 @@ class MessagingDeepVerificationTest {
             // Use known test user to avoid registration overhead/noise
             runBlocking {
                 try {
-                    pocketBase.collection("t_user").authWithPassword("test@example.com", "test12345")
+                    pocketBase.collection(DatabaseCollections.USERS).authWithPassword("test@example.com", "test12345")
                     testUserId = pocketBase.authStore.model?.let { 
                         (it as? io.pocketbase.models.RecordModel)?.id 
                             ?: (it as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')
@@ -52,14 +53,14 @@ class MessagingDeepVerificationTest {
         createdConversationIds.forEach { convId ->
             try {
                 // Best effort cleanup
-                val parts = pocketBase.collection("m_conversation_participants")
+                val parts = pocketBase.collection(DatabaseCollections.M_CONVERSATION_PARTICIPANTS)
                     .getList(io.pocketbase.models.QueryOptions(filter = "conversationId='$convId'"))
                 parts.items.forEach { 
                      val item = it as? io.pocketbase.models.RecordModel
                      val id = item?.id ?: (it as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')
-                     if (id != null) pocketBase.collection("m_conversation_participants").delete(id)
+                     if (id != null) pocketBase.collection(DatabaseCollections.M_CONVERSATION_PARTICIPANTS).delete(id)
                 }
-                pocketBase.collection("m_conversations").delete(convId)
+                pocketBase.collection(DatabaseCollections.M_CONVERSATIONS).delete(convId)
             } catch (e: Exception) {
                 // Ignore cleanup errors
             }

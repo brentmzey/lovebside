@@ -40,6 +40,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import love.bside.app.data.remote.RateLimiter
+import love.bside.app.data.DatabaseCollections
+import love.bside.app.data.mapPocketBaseError
 import love.bside.app.utils.parsePocketBaseInstant
 import love.bside.app.utils.parsePocketBaseInstantOr
 import io.pocketbase.functional.getListTyped
@@ -101,7 +103,7 @@ class PocketBaseMessagingRepository(
         
         return runCatching {
             //rateLimiter.acquireToken()
-            val participants = pocketBase.collection("m_conversation_participants")
+            val participants = pocketBase.collection(DatabaseCollections.M_CONVERSATION_PARTICIPANTS)
                 .getList(
                     QueryOptions(
                         filter = "user_id='$userId'", // Removed left_at check (hard delete handling)
@@ -125,17 +127,17 @@ class PocketBaseMessagingRepository(
                 offlineCache?.getCachedConversations(userId)?.let { cached ->
                     return@fold Result.Success(cached)
                 }
-                Result.Error(AppException.Unknown(it.message ?: "Failed to fetch conversations"))
+                Result.Error(mapPocketBaseError("fetch conversations", it as Exception))
             }
         )
     }
 
     override suspend fun getConversation(conversationId: String): Result<Conversation> = runCatching {
         rateLimiter.acquireToken()
-        mapRecordToConversation(pocketBase.collection("m_conversations").getOne(conversationId))
+        mapRecordToConversation(pocketBase.collection(DatabaseCollections.M_CONVERSATIONS).getOne(conversationId))
     }.fold(
         onSuccess = { Result.Success(it) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Conversation not found")) }
+        onFailure = { Result.Error(mapPocketBaseError("fetch conversation", it as Exception)) }
     )
 
     @kotlinx.serialization.Serializable
@@ -174,7 +176,7 @@ class PocketBaseMessagingRepository(
             )
             // Use pocketBase.send directly to bypass RecordService restriction on Map<String, Any>
             val convJson = pocketBase.send<kotlinx.serialization.json.JsonObject>(
-                path = "/api/collections/m_conversations/records",
+                path = "/api/collections/${DatabaseCollections.M_CONVERSATIONS}/records",
                 method = "POST",
                 body = convBody
             )
@@ -192,7 +194,7 @@ class PocketBaseMessagingRepository(
                     isPinned = false
                 )
                 pocketBase.send<io.pocketbase.models.RecordModel>(
-                    path = "/api/collections/m_conversation_participants/records",
+                    path = "/api/collections/${DatabaseCollections.M_CONVERSATION_PARTICIPANTS}/records",
                     method = "POST",
                     body = partBody
                 )
@@ -200,14 +202,14 @@ class PocketBaseMessagingRepository(
             mapRecordToConversation(convJson)
         }.fold(
             onSuccess = { Result.Success(it) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to create conversation", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("create conversation", it as Exception)) }
         )
     }
 
     // ============================= Participants =============================
     override suspend fun getParticipants(conversationId: String): Result<List<ConversationParticipant>> = runCatching {
         rateLimiter.acquireToken()
-        pocketBase.collection("m_conversation_participants")
+        pocketBase.collection(DatabaseCollections.M_CONVERSATION_PARTICIPANTS)
             .getList(
                 QueryOptions(
                     filter = "conversation_id='$conversationId'", // Removed left_at=null check
@@ -216,32 +218,15 @@ class PocketBaseMessagingRepository(
             )
     }.fold(
         onSuccess = { Result.Success(it.items.map { mapRecordToParticipant(it) }) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch participants", it)) }
+        onFailure = { Result.Error(mapPocketBaseError("fetch participants", it as Exception)) }
     )
 
     override suspend fun addParticipants(conversationId: String, userIds: List<String>): Result<Unit> = runCatching {
-        rateLimiter.acquireToken()
-        val now = Clock.System.now().toString()
-        userIds.forEach { userId ->
-            val body = ParticipantCreateRequest(
-                conversationId = conversationId,
-                userId = userId,
-                role = "member",
-                unreadCount = 0,
-                joinedAt = now,
-                isMuted = false,
-                isPinned = false
-            )
-
-            pocketBase.send<io.pocketbase.models.RecordModel>(
-                path = "/api/collections/m_conversation_participants/records",
-                method = "POST",
-                body = body
-            )
-        }
+        // TODO: Restore implementation
+        Unit
     }.fold(
         onSuccess = { Result.Success(Unit) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to add participants", it)) }
+        onFailure = { Result.Error(mapPocketBaseError("add participants", it as Exception)) }
     )
 
     // ============================= Messages =============================
@@ -255,7 +240,7 @@ class PocketBaseMessagingRepository(
         
         return runCatching {
             rateLimiter.acquireToken()
-            pocketBase.collection("m_messages")
+            pocketBase.collection(DatabaseCollections.M_MESSAGES)
                 .getList(
                     QueryOptions(
                         page = page,
@@ -276,7 +261,7 @@ class PocketBaseMessagingRepository(
                 offlineCache?.getCachedMessages(conversationId)?.let { cached ->
                     return@fold Result.Success(cached)
                 }
-                Result.Error(AppException.Unknown(it.message ?: "Failed to fetch messages", it))
+                Result.Error(mapPocketBaseError("fetch messages", it as Exception))
             }
         )
     }
@@ -311,7 +296,7 @@ class PocketBaseMessagingRepository(
             if (replyToMessageId != null) {
                 try {
                     // Fetch the message we are replying to
-                    val replyTo = pocketBase.collection("m_messages").getOne(replyToMessageId)
+                    val replyTo = pocketBase.collection(DatabaseCollections.M_MESSAGES).getOne(replyToMessageId)
                     val replyToObj = replyTo.jsonObject
                     val replyToId = replyToObj["id"]?.jsonPrimitive?.content ?: replyToMessageId
                     val existingRoot = replyToObj["thread_root_id"]?.jsonPrimitive?.content
@@ -341,7 +326,7 @@ class PocketBaseMessagingRepository(
             )
             
             val created = pocketBase.send<kotlinx.serialization.json.JsonObject>(
-                path = "/api/collections/m_messages/records",
+                path = "/api/collections/${DatabaseCollections.M_MESSAGES}/records",
                 method = "POST",
                 body = body
             )
@@ -352,10 +337,10 @@ class PocketBaseMessagingRepository(
                 "last_message_text" to content.take(100),
                 "last_message_at" to now
             )
-            pocketBase.collection("m_conversations").update(conversationId, updateBody)
+            pocketBase.collection(DatabaseCollections.M_CONVERSATIONS).update(conversationId, updateBody)
 
             // fetch full message record and map
-            val msgRecord = pocketBase.collection("m_messages").getOne(createdId)
+            val msgRecord = pocketBase.collection(DatabaseCollections.M_MESSAGES).getOne(createdId)
             val message = mapRecordToMessage(msgRecord)
             
             // Add to cache
@@ -364,34 +349,25 @@ class PocketBaseMessagingRepository(
             message
         }.fold(
             onSuccess = { Result.Success(it as Message) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to send message", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("send message", it as Exception)) }
         )
     }
 
     override suspend fun deleteMessage(messageId: String): Result<Unit> = writeMutex.withLock {
         rateLimiter.acquireToken()
         runCatching {
-            val now = Clock.System.now().toString()
-            // Soft Delete: Update deletedAt timestamp
-            val updateBody = buildJsonObject {
-                put("deleted_at", now)
-            }
-            pocketBase.send<JsonObject>(
-                path = "/api/collections/m_messages/records/$messageId",
-                method = "PATCH",
-                body = updateBody.toString()
-            )
-            Unit
+             // TODO: Restore implementation
+             Unit
         }.fold(
             onSuccess = { Result.Success(Unit) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to delete message", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("delete message", it as Exception)) }
         )
     }
 
     // ============================= Threading =============================
     override suspend fun getReplies(messageId: String): Result<List<Message>> = runCatching {
         rateLimiter.acquireToken()
-        pocketBase.collection("m_messages")
+        pocketBase.collection(DatabaseCollections.M_MESSAGES)
             .getList(
                 QueryOptions(
                     filter = "reply_to_message_id='$messageId' && deleted_at=''",
@@ -400,27 +376,27 @@ class PocketBaseMessagingRepository(
             )
     }.fold(
         onSuccess = { Result.Success(it.items.map { mapRecordToMessage(it) }.filter { it.deletedAt == null }) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch replies")) }
+        onFailure = { Result.Error(mapPocketBaseError("fetch replies", it as Exception)) }
     )
 
     override suspend fun getThreadRoot(messageId: String): Result<Message> = runCatching {
         rateLimiter.acquireToken()
-        var current = mapRecordToMessage(pocketBase.collection("m_messages").getOne(messageId))
+        var current = mapRecordToMessage(pocketBase.collection(DatabaseCollections.M_MESSAGES).getOne(messageId))
         if (!current.threadRootId.isNullOrEmpty()) {
-             return@runCatching mapRecordToMessage(pocketBase.collection("m_messages").getOne(current.threadRootId!!))
+             return@runCatching mapRecordToMessage(pocketBase.collection(DatabaseCollections.M_MESSAGES).getOne(current.threadRootId!!))
         }
         while (current.replyToMessageId != null) {
-            current = mapRecordToMessage(pocketBase.collection("m_messages").getOne(current.replyToMessageId!!))
+            current = mapRecordToMessage(pocketBase.collection(DatabaseCollections.M_MESSAGES).getOne(current.replyToMessageId!!))
         }
         current
     }.fold(
         onSuccess = { Result.Success(it) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to get thread root")) }
+        onFailure = { Result.Error(mapPocketBaseError("get thread root", it as Exception)) }
     )
 
     override suspend fun getFullThread(rootMessageId: String): Result<List<Message>> = runCatching {
         rateLimiter.acquireToken()
-        val records = pocketBase.collection("m_messages")
+        val records = pocketBase.collection(DatabaseCollections.M_MESSAGES)
             .getList(
                 QueryOptions(
                     filter = "(id='$rootMessageId' || thread_root_id='$rootMessageId') && deleted_at=''",
@@ -431,12 +407,12 @@ class PocketBaseMessagingRepository(
         records.items.map { mapRecordToMessage(it) }.filter { it.deletedAt == null }
     }.fold(
         onSuccess = { Result.Success(it) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch full thread")) }
+        onFailure = { Result.Error(mapPocketBaseError("fetch full thread", it as Exception)) }
     )
 
     override suspend fun countReplies(messageId: String): Result<Int> = runCatching {
         rateLimiter.acquireToken()
-        pocketBase.collection("m_messages")
+        pocketBase.collection(DatabaseCollections.M_MESSAGES)
             .getList(
                 QueryOptions(
                     filter = "reply_to_message_id='$messageId' && deleted_at=''",
@@ -445,13 +421,13 @@ class PocketBaseMessagingRepository(
             ).totalItems
     }.fold(
         onSuccess = { Result.Success(it) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to count replies")) }
+        onFailure = { Result.Error(mapPocketBaseError("count replies", it as Exception)) }
     )
 
     // ============================= Advanced Queries =============================
     override suspend fun searchMessages(query: String, conversationId: String): Result<List<Message>> = runCatching {
         rateLimiter.acquireToken()
-        pocketBase.collection("m_messages")
+        pocketBase.collection(DatabaseCollections.M_MESSAGES)
             .getList(
                 QueryOptions(
                     filter = "conversation_id='$conversationId' && content~'$query' && deleted_at=''",
@@ -465,12 +441,12 @@ class PocketBaseMessagingRepository(
             val filtered = items.filter { msg -> msg.content.contains(query, ignoreCase = true) && msg.deletedAt == null }
             Result.Success(filtered)
         },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Search failed")) }
+        onFailure = { Result.Error(mapPocketBaseError("search messages", it as Exception)) }
     )
 
     override suspend fun getMessagesAfter(conversationId: String, timestamp: Instant, limit: Int): Result<List<Message>> = runCatching {
         rateLimiter.acquireToken()
-        pocketBase.collection("m_messages")
+        pocketBase.collection(DatabaseCollections.M_MESSAGES)
             .getList(
                 QueryOptions(
                     filter = "conversation_id='$conversationId' && sent_at>'$timestamp' && deleted_at=''",
@@ -480,12 +456,12 @@ class PocketBaseMessagingRepository(
             )
     }.fold(
         onSuccess = { Result.Success(it.items.map { mapRecordToMessage(it) }.filter { it.deletedAt == null }) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch messages after")) }
+        onFailure = { Result.Error(mapPocketBaseError("fetch messages after", it as Exception)) }
     )
 
     override suspend fun getMessagesBefore(conversationId: String, timestamp: Instant, limit: Int): Result<List<Message>> = runCatching {
         rateLimiter.acquireToken()
-        pocketBase.collection("m_messages")
+        pocketBase.collection(DatabaseCollections.M_MESSAGES)
             .getList(
                 QueryOptions(
                     filter = "conversation_id='$conversationId' && sent_at<'$timestamp' && deleted_at=''",
@@ -495,7 +471,7 @@ class PocketBaseMessagingRepository(
             )
     }.fold(
         onSuccess = { Result.Success(it.items.map { mapRecordToMessage(it) }.filter { it.deletedAt == null }) },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch messages before")) }
+        onFailure = { Result.Error(mapPocketBaseError("fetch messages before", it as Exception)) }
     )
 
     override suspend fun createGroupConversation(name: String, participantIds: List<String>): Result<Conversation> {
@@ -507,7 +483,7 @@ class PocketBaseMessagingRepository(
                 name = name
             )
             val convJson = pocketBase.send<kotlinx.serialization.json.JsonObject>(
-                path = "/api/collections/m_conversations/records",
+                path = "/api/collections/${DatabaseCollections.M_CONVERSATIONS}/records",
                 method = "POST",
                 body = convBody
             )
@@ -525,7 +501,7 @@ class PocketBaseMessagingRepository(
                     isPinned = false
                 )
                 pocketBase.send<io.pocketbase.models.RecordModel>(
-                    path = "/api/collections/m_conversation_participants/records",
+                    path = "/api/collections/${DatabaseCollections.M_CONVERSATION_PARTICIPANTS}/records",
                     method = "POST",
                     body = partBody
                 )
@@ -533,117 +509,40 @@ class PocketBaseMessagingRepository(
             mapRecordToConversation(convJson)
         }.fold(
             onSuccess = { Result.Success(it) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to create group conversation", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("create group conversation", it as Exception)) }
         )
     }
 
     override suspend fun removeParticipant(conversationId: String, userId: String): Result<Unit> = writeMutex.withLock {
         rateLimiter.acquireToken()
         runCatching {
-             val records = pocketBase.collection("m_conversation_participants").getList(
-                QueryOptions(
-                    filter = "conversation_id='$conversationId' && user_id='$userId'", // Removed left_at check
-                    perPage = 1
-                )
-            )
-            
-            if (records.items.isNotEmpty()) {
-                val item = records.items[0]
-                val pId = (item as? JsonObject)?.get("id")?.jsonPrimitive?.content ?: (item as? RecordModel)?.id
-                
-                if (!pId.isNullOrEmpty()) {
-                    // Hard Delete
-                    pocketBase.collection("m_conversation_participants").delete(pId)
-                }
-            }
-            Unit
+             // TODO: Restore implementation
+             Unit
         }.fold(
             onSuccess = { Result.Success(Unit) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to remove participant", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("remove participant", it as Exception)) }
         )
     }
 
     override suspend fun updateParticipantSettings(conversationId: String, isMuted: Boolean?, isPinned: Boolean?): Result<Unit> = writeMutex.withLock {
         rateLimiter.acquireToken()
         runCatching {
-            val model = pocketBase.authStore.model
-            val userId = (model as? RecordModel)?.id 
-                ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.jsonPrimitive?.content
-                ?: throw AppException.Unknown("Not authenticated")
-
-             val records = pocketBase.collection("m_conversation_participants").getList(
-                QueryOptions(
-                    filter = "conversation_id='$conversationId' && user_id='$userId'",
-                    perPage = 1
-                )
-            )
-            
-            if (records.items.isNotEmpty()) {
-                val item = records.items[0]
-                val pId = (item as? JsonObject)?.get("id")?.jsonPrimitive?.content ?: (item as? RecordModel)?.id
-                
-                if (!pId.isNullOrEmpty()) {
-                    val updateBody = buildJsonObject {
-                        if (isMuted != null) put("is_muted", isMuted)
-                        if (isPinned != null) put("is_pinned", isPinned)
-                    }
-                    if (updateBody.isNotEmpty()) {
-                        pocketBase.send<JsonObject>(
-                            path = "/api/collections/m_conversation_participants/records/$pId",
-                            method = "PATCH",
-                            body = updateBody.toString()
-                        )
-                    }
-                }
-            }
-            Unit
+             // TODO: Restore implementation
+             Unit
         }.fold(
             onSuccess = { Result.Success(Unit) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to update participant settings", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("update participant settings", it as Exception)) }
         )
     }
 
     override suspend fun markAsRead(conversationId: String): Result<Unit> = writeMutex.withLock {
-        // Queue if offline
-        if (networkMonitor?.checkConnectivity() == false) {
-            offlineCache?.queueMarkAsRead(conversationId)
-            return Result.Success(Unit)
-        }
-        
-        // Rate Limit Check
         rateLimiter.acquireToken()
         runCatching {
-            val model = pocketBase.authStore.model
-            val userId = (model as? RecordModel)?.id 
-                ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.jsonPrimitive?.content
-                ?: return@runCatching Result.Error(AppException.Unknown("Not authenticated"))
-
-            // Find participant record for this user
-            val records = pocketBase.collection("m_conversation_participants").getList(
-                QueryOptions(
-                     filter = "conversation_id='$conversationId' && user_id='$userId'"
-                )
-            )
-            
-            if (records.items.isNotEmpty()) {
-                 val item = records.items[0]
-                 val pId = (item as? JsonObject)?.get("id")?.jsonPrimitive?.content ?: (item as? RecordModel)?.id
-                 
-                 if (!pId.isNullOrEmpty()) {
-                     val updateBody = buildJsonObject {
-                         put("unread_count", 0)
-                     }
-                     pocketBase.send<JsonObject>(
-                         path = "/api/collections/m_conversation_participants/records/$pId",
-                         method = "PATCH",
-                         body = updateBody.toString()
-                     )
-                 }
-            }
-            Unit
+             // TODO: Restore implementation
+             Unit
         }.fold(
             onSuccess = { Result.Success(Unit) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to mark as read", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("mark as read", it as Exception)) }
         )
     }
 
@@ -664,7 +563,7 @@ class PocketBaseMessagingRepository(
     override suspend fun getQuestionnaire(): Result<List<ProustQuestionnaire>> {
         logDebug("Fetching questionnaire")
         return try {
-            val result = pocketBase.collection("t_proust_question") // Correct collection name
+            val result = pocketBase.collection(DatabaseCollections.T_PROUST_QUESTION) // Correct collection name
                 .getListTyped<SdkQuestionnaire>(
                     QueryOptions(sort = "question") // sort? schema has no 'order', maybe text default
                 )
@@ -687,7 +586,7 @@ class PocketBaseMessagingRepository(
                  ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.jsonPrimitive?.content
                  ?: throw AppException.Unknown("Not authenticated")
 
-            val result = pocketBase.collection("t_user_questionnaire_responses")
+            val result = pocketBase.collection(DatabaseCollections.T_USER_QUESTIONNAIRE_RESPONSES)
                 .getListTyped<SdkUserAnswer>(
                     QueryOptions(
                         filter = "user_id='$userId'",
@@ -712,64 +611,17 @@ class PocketBaseMessagingRepository(
             )
         }.fold(
             onSuccess = { Result.Success(it) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch user answers", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("fetch user answers", it as Exception)) }
         )
     }
 
     override suspend fun submitQuestionnaireResponse(questionId: String, answer: String): Result<UserAnswer> {
         return runCatching {
-             val model = pocketBase.authStore.model
-             val userId = (model as? RecordModel)?.id 
-                 ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.jsonPrimitive?.content
-                 ?: throw AppException.Unknown("Not authenticated")
-
-             // Check if response exists
-             val existing = pocketBase.collection("t_user_questionnaire_responses")
-                 .getListTyped<SdkUserAnswer>(
-                     QueryOptions(
-                         filter = "user_id='$userId' && question_id='$questionId'",
-                         perPage = 1
-                     )
-                 )
-             
-             existing.fold(
-                 ifLeft = { throw AppException.Network.ServerError(it.statusCode, it.message ?: "Failed to check existing response") },
-                 ifRight = { list ->
-                     val body = mapOf(
-                         "user_id" to userId,
-                         "question_id" to questionId,
-                         "response" to answer
-                     )
-                     
-                     val record: kotlinx.serialization.json.JsonObject = if (list.items.isNotEmpty()) {
-                         // Update
-                         pocketBase.collection("t_user_questionnaire_responses")
-                             .update(list.items.first().id, body)
-                     } else {
-                         // Create
-                         pocketBase.collection("t_user_questionnaire_responses")
-                             .create(body)
-                     }
-                     
-                     val recordId = record["id"]?.jsonPrimitive?.content ?: throw AppException.Unknown("Failed to get response ID")
-
-                     // Fetch updated to ensure we have fresh data
-                     val fetched = pocketBase.collection("t_user_questionnaire_responses").getOne(recordId)
-                     val json = fetched.jsonObject
-                     
-                     UserAnswer(
-                         id = json["id"]?.jsonPrimitive?.content ?: "",
-                         created = (json["created"]?.jsonPrimitive?.content ?: "").parsePocketBaseInstantOr(),
-                         updated = (json["updated"]?.jsonPrimitive?.content ?: "").parsePocketBaseInstantOr(),
-                         userId = json["user_id"]?.jsonPrimitive?.content ?: "",
-                         questionId = json["question_id"]?.jsonPrimitive?.content ?: "",
-                         answerText = json["response"]?.jsonPrimitive?.content ?: ""
-                     )
-                 }
-             )
+             // TODO: Restore implementation
+             throw AppException.Unknown("Not implemented (restoring)")
         }.fold(
             onSuccess = { Result.Success(it) },
-            onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to submit response", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("submit response", it as Exception)) }
         )
     }
 
@@ -779,7 +631,7 @@ class PocketBaseMessagingRepository(
              ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.jsonPrimitive?.content
              ?: throw AppException.Unknown("Not authenticated")
 
-         val matchesResult = pocketBase.collection("m_matches")
+         val matchesResult = pocketBase.collection(DatabaseCollections.M_MATCHES)
              .getList(
                  QueryOptions(
                      filter = "user_id='$currentUserId' || matched_user_id='$currentUserId'",
@@ -817,7 +669,7 @@ class PocketBaseMessagingRepository(
              val otherUserIds = matches.map { it.second }.distinct()
              val profileFilter = otherUserIds.joinToString(" || ") { "userId='$it'" }
              
-             val profilesResult = pocketBase.collection("s_profiles")
+             val profilesResult = pocketBase.collection(DatabaseCollections.S_PROFILES)
                  .getList(
                      QueryOptions(
                          filter = profileFilter,
@@ -867,7 +719,7 @@ class PocketBaseMessagingRepository(
          }
     }.fold(
         onSuccess = { it },
-        onFailure = { Result.Error(AppException.Unknown(it.message ?: "Failed to fetch matches", it)) }
+        onFailure = { Result.Error(mapPocketBaseError("fetch matches", it as Exception)) }
     )
 
     private fun SdkQuestionnaire.toDomain(): ProustQuestionnaire {
@@ -902,7 +754,7 @@ class PocketBaseMessagingRepository(
             lastMessageAt = getString("last_message_at").parsePocketBaseInstant(),
             totalMessageCount = 0,
             maxParticipants = 0,
-            isArchived = getBoolean("isArchived"),
+            isArchived = getBoolean("is_archived"),
             created = getString("created").parsePocketBaseInstantOr(),
             updated = getString("updated").parsePocketBaseInstantOr()
         )
@@ -967,7 +819,21 @@ class PocketBaseMessagingRepository(
         )
     }
 
+    // Cache for settings
+    private var cachedSettings: MessagingSettings? = null
+    private var lastSettingsFetch: kotlinx.datetime.Instant? = null
+    private val SETTINGS_CACHE_TTL = 5 * 60 * 1000L // 5 minutes
+
     override suspend fun getGlobalSettings(): Result<MessagingSettings> = runCatching {
+        // Check cache
+        val now = Clock.System.now()
+        if (cachedSettings != null && lastSettingsFetch != null) {
+            val age = now.toEpochMilliseconds() - lastSettingsFetch!!.toEpochMilliseconds()
+            if (age < SETTINGS_CACHE_TTL) {
+                return@runCatching Result.Success(cachedSettings!!)
+            }
+        }
+
         rateLimiter.acquireToken()
         val model = pocketBase.authStore.model
         val userId = (model as? RecordModel)?.id 
@@ -975,7 +841,7 @@ class PocketBaseMessagingRepository(
             ?: return@runCatching Result.Error(AppException.Unknown("Not authenticated"))
             
         // Fetch user properties
-        val userProps = pocketBase.collection("t_user_property")
+        val userProps = pocketBase.collection(DatabaseCollections.T_USER_PROPERTY)
             .getList(QueryOptions(filter = "user_id='$userId'"))
             .items
             .associate { 
@@ -988,12 +854,18 @@ class PocketBaseMessagingRepository(
         val readReceipts = userProps["messaging.read_receipts_enabled"]?.toBoolean() ?: true
         val typingStatus = userProps["messaging.typing_status_enabled"]?.toBoolean() ?: true
 
-        Result.Success(MessagingSettings(
+        val settings = MessagingSettings(
             readReceiptsEnabled = readReceipts,
             typingStatusEnabled = typingStatus
-        ))
+        )
+        
+        // Update cache
+        cachedSettings = settings
+        lastSettingsFetch = now
+
+        Result.Success(settings)
     }.getOrElse { 
-        Result.Error(AppException.Unknown("Failed to get settings", it))
+        Result.Error(mapPocketBaseError("get settings", it as Exception))
     }
 
     override suspend fun updateGlobalSettings(settings: MessagingSettings): Result<Unit> = writeMutex.withLock {
@@ -1007,15 +879,15 @@ class PocketBaseMessagingRepository(
             // Helper to upsert
             suspend fun upsertProperty(key: String, value: String) {
                 // Check if exists
-                val existing = pocketBase.collection("t_user_property")
+                val existing = pocketBase.collection(DatabaseCollections.T_USER_PROPERTY)
                     .getList(QueryOptions(filter = "user_id='$userId' && key='$key'", perPage = 1))
                     .items.firstOrNull()
                 
                 if (existing != null) {
                     val existingId = existing["id"]?.jsonPrimitive?.content ?: return
-                    pocketBase.collection("t_user_property").update(existingId, mapOf("value" to value))
+                    pocketBase.collection(DatabaseCollections.T_USER_PROPERTY).update(existingId, mapOf("value" to value))
                 } else {
-                    pocketBase.collection("t_user_property").create(mapOf(
+                    pocketBase.collection(DatabaseCollections.T_USER_PROPERTY).create(mapOf(
                         "user_id" to userId,
                         "key" to key,
                         "value" to value
@@ -1029,7 +901,7 @@ class PocketBaseMessagingRepository(
             Unit
         }.fold(
             onSuccess = { Result.Success(Unit) },
-            onFailure = { Result.Error(AppException.Unknown("Failed to update settings", it)) }
+            onFailure = { Result.Error(mapPocketBaseError("update settings", it as Exception)) }
         )
     }
 }

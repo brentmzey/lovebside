@@ -2,6 +2,8 @@ package love.bside.app.data.repository
 
 import io.pocketbase.PocketBase
 import io.pocketbase.models.QueryOptions
+import io.ktor.client.request.forms.*
+import io.ktor.http.*
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.jsonArray
@@ -18,6 +20,8 @@ import love.bside.app.domain.models.Profile
 import love.bside.app.domain.models.SeekingStatus
 import love.bside.app.domain.repository.ProfileRepository
 import love.bside.app.data.models.Profile as DataProfile
+import love.bside.app.data.DatabaseCollections
+import love.bside.app.data.mapPocketBaseError
 
 class PocketBaseProfileRepository(
     private val pocketBase: PocketBase,
@@ -33,8 +37,8 @@ class PocketBaseProfileRepository(
         }
 
         return try {
-            val result = pocketBase.collection("s_profiles")
-                .getList(QueryOptions(filter = "userId='$userId'"))
+            val result = pocketBase.collection(DatabaseCollections.S_PROFILES)
+                .getList(QueryOptions(filter = "user_id='$userId'"))
             
             if (result.items.isEmpty()) {
                 Result.Error(AppException.Business.ResourceNotFound("Profile", userId))
@@ -47,7 +51,7 @@ class PocketBaseProfileRepository(
                 Result.Success(profile)
             }
         } catch (e: Exception) {
-            Result.Error(AppException.Unknown("Failed to fetch profile: ${e.message}", e))
+            Result.Error(mapPocketBaseError("fetch profile for userId: $userId", e))
         }
     }
 
@@ -57,8 +61,8 @@ class PocketBaseProfileRepository(
 
     override suspend fun updateProfile(userId: String, request: ProfileUpdateRequest): Result<Profile> {
         return try {
-            val result = pocketBase.collection("s_profiles")
-                .getList(QueryOptions(filter = "userId='$userId'"))
+            val result = pocketBase.collection(DatabaseCollections.S_PROFILES)
+                .getList(QueryOptions(filter = "user_id='$userId'"))
             
             if (result.items.isEmpty()) {
                 Result.Error(AppException.Business.ResourceNotFound("Profile", userId))
@@ -68,12 +72,12 @@ class PocketBaseProfileRepository(
                 
                 val body = mutableMapOf<String, Any>()
                 
-                request.firstName?.let { body["firstName"] = it }
-                request.lastName?.let { body["lastName"] = it }
-                request.birthDate?.let { body["birthDate"] = it }
+                request.firstName?.let { body["first_name"] = it }
+                request.lastName?.let { body["last_name"] = it }
+                request.birthDate?.let { body["birth_date"] = it }
                 request.bio?.let { body["bio"] = it }
                 request.location?.let { body["location"] = it }
-                request.aboutMe?.let { body["aboutMe"] = it }
+                request.aboutMe?.let { body["about_me"] = it }
                 request.height?.let { body["height"] = it }
                 request.occupation?.let { body["occupation"] = it }
                 request.education?.let { body["education"] = it }
@@ -86,7 +90,7 @@ class PocketBaseProfileRepository(
                     }
                 }
                 
-                val updated = pocketBase.collection("s_profiles").update(recordId, body)
+                val updated = pocketBase.collection(DatabaseCollections.S_PROFILES).update(recordId, body)
                 val dataProfile = mapRecordToDataProfile(updated.jsonObject)
                 val profile = dataProfile.toDomain()
                 
@@ -94,13 +98,13 @@ class PocketBaseProfileRepository(
                 Result.Success(profile)
             }
         } catch (e: Exception) {
-            Result.Error(AppException.Unknown("Failed to update profile: ${e.message}", e))
+            Result.Error(mapPocketBaseError("update profile", e))
         }
     }
 
     override suspend fun getDiscoveryProfiles(lat: Double?, lng: Double?): Result<List<Profile>> {
         return try {
-            val result = pocketBase.collection("s_profiles")
+            val result = pocketBase.collection(DatabaseCollections.S_PROFILES)
                 .getList(QueryOptions(sort = "@random", perPage = 8))
             
             val profiles = result.items.map { record ->
@@ -110,7 +114,42 @@ class PocketBaseProfileRepository(
             
             Result.Success(profiles)
         } catch (e: Exception) {
-            Result.Error(AppException.Unknown("Failed to fetch discovery profiles: ${e.message}", e))
+            Result.Error(mapPocketBaseError("fetch discovery profiles", e))
+        }
+    }
+
+    override suspend fun uploadProfilePicture(userId: String, data: ByteArray, filename: String): Result<Profile> {
+        return uploadFile(userId, "profile_picture", data, filename)
+    }
+
+    override suspend fun uploadVideo(userId: String, data: ByteArray, filename: String): Result<Profile> {
+        return uploadFile(userId, "videos", data, filename)
+    }
+
+    private suspend fun uploadFile(userId: String, field: String, data: ByteArray, filename: String): Result<Profile> {
+        return try {
+            val result = pocketBase.collection(DatabaseCollections.S_PROFILES)
+                .getList(QueryOptions(filter = "user_id='$userId'"))
+            
+            // Safe JSON ID extraction
+            val recordId = result.items.firstOrNull()?.get("id")?.jsonPrimitive?.content
+                ?: return Result.Error(AppException.Business.ResourceNotFound("Profile", userId))
+
+            val multipartBody = MultiPartFormDataContent(
+                formData {
+                    append(field, data, Headers.build {
+                        append(HttpHeaders.ContentDisposition, "form-data; name=\"$field\"; filename=\"$filename\"")
+                    })
+                }
+            )
+
+            val updated = pocketBase.collection(DatabaseCollections.S_PROFILES)
+                .update(recordId, multipartBody)
+
+            val dataProfile = mapRecordToDataProfile(updated.jsonObject)
+            Result.Success(dataProfile.toDomain())
+        } catch (e: Exception) {
+            Result.Error(mapPocketBaseError("upload $field for userId: $userId", e))
         }
     }
     
@@ -132,20 +171,21 @@ class PocketBaseProfileRepository(
             id = getString("id"),
             collectionId = getString("collectionId"),
             collectionName = getString("collectionName"),
-            created = getString("created"),
-            updated = getString("updated"),
-            userId = getString("userId"),
-            firstName = getString("firstName"),
-            lastName = getString("lastName"),
-            birthDate = getString("birthDate"),
+            created = kotlinx.datetime.Instant.parse(getString("created").replace(" ", "T").let { if (!it.endsWith("Z")) "${it}Z" else it }), // Manual mapping fallback
+            updated = kotlinx.datetime.Instant.parse(getString("updated").replace(" ", "T").let { if (!it.endsWith("Z")) "${it}Z" else it }),
+            userId = getString("user_id"),
+            firstName = getString("first_name"),
+            lastName = getString("last_name"),
+            birthDate = getString("birth_date"),
             bio = getStringOrNull("bio"),
             location = getStringOrNull("location"),
             lat = getDouble("lat"),
             lng = getDouble("lng"),
             seeking = seeking,
-            profilePicture = getStringOrNull("profilePicture"),
+            profilePicture = getStringOrNull("profile_picture"),
             photos = getList("photos"),
-            aboutMe = getStringOrNull("aboutMe"),
+            videos = getList("videos"),
+            aboutMe = getStringOrNull("about_me"),
             height = getInt("height"),
             occupation = getStringOrNull("occupation"),
             education = getStringOrNull("education"),

@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material3.*
@@ -73,7 +74,7 @@ fun LandingScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Let's meet new\\npeople around you",
+                    text = "Let's meet new\npeople around you",
                     style = MaterialTheme.typography.displaySmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -143,8 +144,25 @@ fun OrbitAnimation(profiles: List<love.bside.app.domain.models.Profile>) {
     val innerRadius = 90.dp
     
     Box(contentAlignment = Alignment.Center) {
-        // Draw circles (can be expanded later)
-        
+        // Center Brand Logo (Purple Heart)
+        Box(
+            modifier = Modifier
+                .size(80.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(BsideBrand.TealTile) // Outer teal
+                .padding(8.dp) // Gap
+                .clip(RoundedCornerShape(18.dp))
+                .background(BsideBrand.PlumHeart), // Inner plum
+            contentAlignment = Alignment.Center
+        ) {
+             Icon(
+                 imageVector = androidx.compose.material.icons.Icons.Filled.Favorite,
+                 contentDescription = "BSide Logo",
+                 tint = Color.White,
+                 modifier = Modifier.size(32.dp).offset(y = 2.dp)
+             )
+        }
+
         // Floating Elements on Outer Ring
         if (profiles.isNotEmpty()) {
             val profileSpots = listOf(0f, 90f, 135f, 180f, 270f, 315f)
@@ -154,7 +172,15 @@ fun OrbitAnimation(profiles: List<love.bside.app.domain.models.Profile>) {
                 if (profile != null) {
                     OrbitItem(angle = angle, radius = outerRadius) {
                         val color = generatePastelColor(profile.firstName)
-                        AvatarPlaceholder(color = color, initial = profile.firstName.firstOrNull()?.toString() ?: "?")
+                        // Use PocketBase file URL if available
+                        val imageUrl = profile.profilePicture.takeIf { it.isNotEmpty() }?.let { 
+                             "http://127.0.0.1:8090/api/files/s_profiles/${profile.id}/$it"
+                        }
+                        AvatarPlaceholder(
+                            color = color, 
+                            initial = profile.firstName.firstOrNull()?.toString() ?: "?",
+                            imageUrl = imageUrl
+                        )
                     }
                 }
             }
@@ -180,7 +206,12 @@ fun OrbitAnimation(profiles: List<love.bside.app.domain.models.Profile>) {
 }
 
 @Composable
-fun AvatarPlaceholder(color: Color, size: Dp = 48.dp, initial: String? = null) {
+fun AvatarPlaceholder(
+    color: Color,
+    size: Dp = 48.dp,
+    initial: String? = null,
+    imageUrl: String? = null
+) {
     Box(
         modifier = Modifier
             .size(size)
@@ -191,7 +222,14 @@ fun AvatarPlaceholder(color: Color, size: Dp = 48.dp, initial: String? = null) {
             .background(color),
         contentAlignment = Alignment.Center
     ) {
-        if (initial != null) {
+        if (imageUrl != null) {
+            coil3.compose.AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize().clip(CircleShape),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
+        } else if (initial != null) {
             Text(initial, color = Color.White, fontWeight = FontWeight.Bold)
         }
     }

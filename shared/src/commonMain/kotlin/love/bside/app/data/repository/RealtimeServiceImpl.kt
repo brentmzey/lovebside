@@ -21,6 +21,7 @@ import love.bside.app.domain.models.Message
 import love.bside.app.domain.models.TypingStatus
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import love.bside.app.data.DatabaseCollections
 
 class RealtimeServiceImpl(
     private val pocketBase: PocketBase,
@@ -185,7 +186,7 @@ class RealtimeServiceImpl(
 
     override fun subscribeToConversation(conversationId: String): Flow<Message> = flow {
         ensureStarted()
-        val topic = "m_messages"
+        val topic = DatabaseCollections.M_MESSAGES
         subscriptions.add(topic)
         // Trigger subscription update
         if (clientId != null) resubmitSubscriptions()
@@ -214,7 +215,7 @@ class RealtimeServiceImpl(
 
     override fun subscribeToTypingIndicators(conversationId: String): Flow<TypingStatus> = flow {
         ensureStarted()
-        val topic = "t_typing_status"
+        val topic = DatabaseCollections.M_TYPING_STATUS
         subscriptions.add(topic)
         if (clientId != null) resubmitSubscriptions()
         
@@ -246,7 +247,7 @@ class RealtimeServiceImpl(
             
             // Check for existing status to decide Update vs Create
             val records = try {
-                 pocketBase.collection("t_typing_status").getList(
+                 pocketBase.collection(DatabaseCollections.M_TYPING_STATUS).getList(
                     io.pocketbase.models.QueryOptions(
                         page = 1,
                         perPage = 1,
@@ -268,13 +269,13 @@ class RealtimeServiceImpl(
 
             if (existingId != null) {
                  pocketBase.send<JsonObject>(
-                     path = "/api/collections/t_typing_status/records/$existingId",
+                     path = "/api/collections/${DatabaseCollections.M_TYPING_STATUS}/records/$existingId",
                      method = "PATCH",
                      body = body.toString()
                  )
             } else {
                  pocketBase.send<JsonObject>(
-                     path = "/api/collections/t_typing_status/records",
+                     path = "/api/collections/${DatabaseCollections.M_TYPING_STATUS}/records",
                      method = "POST",
                      body = body.toString()
                  )

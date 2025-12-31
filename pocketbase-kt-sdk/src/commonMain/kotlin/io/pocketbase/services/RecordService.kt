@@ -81,7 +81,7 @@ class RecordService(
     /**
      * Create a new record in the collection.
      */
-    suspend fun create(body: Map<String, Any>, options: QueryOptions? = null): JsonObject {
+    suspend fun create(body: Any, options: QueryOptions? = null): JsonObject {
         return client.send(
             path = basePath,
             method = "POST",
@@ -93,7 +93,7 @@ class RecordService(
     /**
      * Update an existing record by its ID.
      */
-    suspend fun update(id: String, body: Map<String, Any>, options: QueryOptions? = null): JsonObject {
+    suspend fun update(id: String, body: Any, options: QueryOptions? = null): JsonObject {
         return client.send(
             path = "$basePath/$id",
             method = "PATCH",

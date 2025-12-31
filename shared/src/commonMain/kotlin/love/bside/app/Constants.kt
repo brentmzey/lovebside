@@ -5,7 +5,7 @@ package love.bside.app
  */
 object AppConstants {
     // const val SERVER_PORT = 8090
-    const val SERVER_PORT = 443
+    const val SERVER_PORT = 8081
     
     // API Configuration
     const val API_VERSION = "v1"
@@ -36,7 +36,7 @@ object AppConstants {
 
     // Environment Control
     // Set this to true to switch to PRODUCTION (live data)
-    const val USE_PRODUCTION = true 
+    const val USE_PRODUCTION = false 
 
     val POCKETBASE_URL = if (USE_PRODUCTION) "https://bside.pockethost.io" else "http://127.0.0.1:$SERVER_PORT"
 }

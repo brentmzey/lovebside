@@ -17,22 +17,18 @@ package love.bside.app.data
  */
 object DatabaseCollections {
     
+
+    
     // ===== Core System Collections =====
     
     /** PocketBase built-in users collection - auth and user management */
-    const val USERS = "users"
-    
-    /** Alternative user table reference used in some contexts */
-    const val T_USER = "t_user"
-    
+    const val USERS = "t_user"
+
     /** User-specific property key-value storage for distributed caching */
     const val T_USER_PROPERTY = "t_user_property"
     
     /** Tenant-specific property key-value storage for multi-tenant features */
     const val T_TENANT_PROPERTY = "t_tenant_property"
-    
-    /** Real-time typing status indicators */
-    const val T_TYPING_STATUS = "t_typing_status"
     
     
     // ===== Messaging Domain (m_) =====
@@ -45,6 +41,12 @@ object DatabaseCollections {
     
     /** Conversation participants (many-to-many relationship) */
     const val M_CONVERSATION_PARTICIPANTS = "m_conversation_participants"
+    
+    /** Real-time typing status indicators */
+    const val M_TYPING_STATUS = "m_typing_status"
+
+    /** Message read receipts */
+    const val M_READ_RECEIPTS = "m_read_receipts"
     
     
     // ===== Social/Profile Domain (s_) =====
@@ -61,10 +63,10 @@ object DatabaseCollections {
     
     // ===== Proust Questionnaire Domain (p_ and t_) =====
     
-    /** Proust questionnaire questions */
-    const val P_QUESTIONNAIRES = "p_questionnaires"
+    /** Proust questionnaire definitions */
+    const val T_PROUST_QUESTIONNAIRE = "t_proust_questionnaire"
     
-    /** Alternative name for Proust questions */
+    /** Proust questionnaire questions */
     const val T_PROUST_QUESTION = "t_proust_question"
     
     /** User responses to questionnaire questions */
@@ -79,16 +81,16 @@ object DatabaseCollections {
      */
     fun all(): List<String> = listOf(
         USERS,
-        T_USER,
         T_USER_PROPERTY,
         T_TENANT_PROPERTY,
-        T_TYPING_STATUS,
         M_CONVERSATIONS,
         M_MESSAGES,
         M_CONVERSATION_PARTICIPANTS,
+        M_TYPING_STATUS,
+        M_READ_RECEIPTS,
         S_PROFILES,
         M_MATCHES,
-        P_QUESTIONNAIRES,
+        T_PROUST_QUESTIONNAIRE,
         T_PROUST_QUESTION,
         T_USER_QUESTIONNAIRE_RESPONSES
     )
@@ -100,7 +102,8 @@ object DatabaseCollections {
         M_CONVERSATIONS,
         M_MESSAGES,
         M_CONVERSATION_PARTICIPANTS,
-        T_TYPING_STATUS
+        M_TYPING_STATUS,
+        M_READ_RECEIPTS
     )
     
     /**
@@ -115,7 +118,7 @@ object DatabaseCollections {
      * Get all questionnaire-related collections.
      */
     fun questionnaireCollections(): List<String> = listOf(
-        P_QUESTIONNAIRES,
+        T_PROUST_QUESTIONNAIRE,
         T_PROUST_QUESTION,
         T_USER_QUESTIONNAIRE_RESPONSES
     )
@@ -125,17 +128,15 @@ object DatabaseCollections {
      */
     fun systemCollections(): List<String> = listOf(
         USERS,
-        T_USER,
         T_USER_PROPERTY,
-        T_TENANT_PROPERTY,
-        T_TYPING_STATUS
+        T_TENANT_PROPERTY
     )
     
     /**
      * Validate if a collection name is known to the system.
      */
     fun isValid(collectionName: String): Boolean = 
-        collectionName in all()
+        collectionName in all() || collectionName == "users" // Allow "users" internal alias
     
     /**
      * Get collection name by domain and entity.
@@ -146,6 +147,8 @@ object DatabaseCollections {
             Entity.CONVERSATIONS -> M_CONVERSATIONS
             Entity.MESSAGES -> M_MESSAGES
             Entity.PARTICIPANTS -> M_CONVERSATION_PARTICIPANTS
+            Entity.TYPING_STATUS -> M_TYPING_STATUS
+            Entity.READ_RECEIPTS -> M_READ_RECEIPTS
             else -> throw IllegalArgumentException("Invalid messaging entity: $entity")
         }
         Domain.SOCIAL -> when (entity) {
@@ -154,6 +157,7 @@ object DatabaseCollections {
             else -> throw IllegalArgumentException("Invalid social entity: $entity")
         }
         Domain.QUESTIONNAIRE -> when (entity) {
+            Entity.QUESTIONNAIRES -> T_PROUST_QUESTIONNAIRE
             Entity.QUESTIONS -> T_PROUST_QUESTION
             Entity.RESPONSES -> T_USER_QUESTIONNAIRE_RESPONSES
             else -> throw IllegalArgumentException("Invalid questionnaire entity: $entity")
@@ -184,12 +188,15 @@ object DatabaseCollections {
         CONVERSATIONS,
         MESSAGES,
         PARTICIPANTS,
+        TYPING_STATUS,
+        READ_RECEIPTS,
         
         // Social
         PROFILES,
         MATCHES,
         
         // Questionnaire
+        QUESTIONNAIRES,
         QUESTIONS,
         RESPONSES,
         
