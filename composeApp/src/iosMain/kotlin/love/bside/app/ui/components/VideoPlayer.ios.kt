@@ -9,6 +9,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import platform.AVFoundation.AVPlayer
 import platform.AVFoundation.AVPlayerLayer
 import platform.AVFoundation.play
+import platform.AVFoundation.pause
 import platform.Foundation.NSURL
 import platform.UIKit.UIView
 import platform.UIKit.UIColor

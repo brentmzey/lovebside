@@ -11,6 +11,12 @@ import love.bside.app.domain.models.Match
 import love.bside.app.domain.models.MessagingSettings
 import kotlinx.coroutines.flow.Flow
 
+data class AttachmentData(
+    val fileName: String,
+    val data: ByteArray,
+    val mimeType: String
+)
+
 interface MessagingRepository {
     // Conversations
     suspend fun getConversations(userId: String): Result<List<Conversation>>
@@ -33,7 +39,8 @@ interface MessagingRepository {
     suspend fun sendMessage(
         conversationId: String,
         content: String,
-        replyToMessageId: String? = null
+        replyToMessageId: String? = null,
+        attachments: List<AttachmentData>? = null
     ): Result<Message>
     suspend fun deleteMessage(messageId: String): Result<Unit>
     suspend fun markAsRead(conversationId: String): Result<Unit>

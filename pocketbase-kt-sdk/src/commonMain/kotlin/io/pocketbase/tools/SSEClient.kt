@@ -1,12 +1,19 @@
 package io.pocketbase.tools
 
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.utils.io.*
-import kotlinx.coroutines.*
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.request.header
+import io.ktor.client.request.prepareGet
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.readUTF8Line
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -21,21 +28,21 @@ class SSEClient(
     private var job: Job? = null
     private var onMessageCallback: ((eventName: String, data: String) -> Unit)? = null
     private var onErrorCallback: ((Throwable) -> Unit)? = null
-    
+
     /**
      * Register callback for SSE messages.
      */
     fun onMessage(callback: (eventName: String, data: String) -> Unit) {
         onMessageCallback = callback
     }
-    
+
     /**
      * Register callback for errors.
      */
     fun onError(callback: (Throwable) -> Unit) {
         onErrorCallback = callback
     }
-    
+
     /**
      * Start the SSE connection.
      */
@@ -49,7 +56,7 @@ class SSEClient(
                         socketTimeoutMillis = Long.MAX_VALUE
                     }
                 }
-                
+
                 client.prepareGet(url) {
                     header(HttpHeaders.Accept, "text/event-stream")
                     header(HttpHeaders.CacheControl, "no-cache")
@@ -61,7 +68,7 @@ class SSEClient(
                         onErrorCallback?.invoke(Exception("HTTP ${response.status.value}"))
                         return@execute
                     }
-                    
+
                     val channel = response.bodyAsChannel()
                     parseSSE(channel).collect { event ->
                         when {
@@ -75,11 +82,11 @@ class SSEClient(
                         }
                     }
                 }
-                
+
                 client.close()
             } catch (e: Exception) {
                 when (e) {
-                    is kotlinx.coroutines.CancellationException -> {
+                    is CancellationException -> {
                         // Ignore cancellation
                     }
                     else -> onErrorCallback?.invoke(e)
@@ -87,7 +94,7 @@ class SSEClient(
             }
         }
     }
-    
+
     /**
      * Close the SSE connection.
      */
@@ -95,18 +102,18 @@ class SSEClient(
         job?.cancel()
         job = null
     }
-    
+
     private fun parseSSE(channel: ByteReadChannel): Flow<SSEEvent> = flow {
         val buffer = StringBuilder()
         var currentEvent = SSEEvent()
-        
+
         while (!channel.isClosedForRead) {
             val line = try {
                 channel.readUTF8Line() ?: break
             } catch (e: Exception) {
                 break
             }
-            
+
             when {
                 line.isEmpty() -> {
                     // Empty line signifies end of event

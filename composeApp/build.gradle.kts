@@ -3,6 +3,7 @@ import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import java.util.Properties
 import java.io.FileInputStream
+import org.gradle.api.file.DuplicatesStrategy
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -13,6 +14,9 @@ plugins {
 
 kotlin {
     androidTarget()
+    
+    // Apply default hierarchy to ensure iosMain is created and linked
+    applyDefaultHierarchyTemplate()
 
     listOf(
         iosArm64(),
@@ -59,7 +63,7 @@ kotlin {
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.coil.compose)
                 implementation(libs.coil.network.ktor)
-                implementation(libs.coil.gif)
+
             }
         }
 
@@ -82,19 +86,21 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.multiplatform.settings)
                 implementation(libs.androidx.biometric)
+                implementation(libs.coil.gif)
             }
         }
 
-        val appleMain by creating {
+        val appleMain by getting {
             dependsOn(nonWasmCommonMain)
+        }
+
+        val iosMain by getting {
+            // appleMain is parent, so it inherits nonWasmCommonMain
             dependencies {
                 implementation(libs.koin.core)
                 implementation(libs.multiplatform.settings)
             }
         }
-
-        val iosArm64Main by getting { dependsOn(appleMain) }
-        val iosSimulatorArm64Main by getting { dependsOn(appleMain) }
 
         val jvmMain by getting {
             dependsOn(nonWasmCommonMain)
@@ -159,6 +165,10 @@ android {
 dependencies {
     implementation(project(":shared"))
     debugImplementation(compose.uiTooling)
+}
+
+tasks.withType<Copy> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 compose.desktop {

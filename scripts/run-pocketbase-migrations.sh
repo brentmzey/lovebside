@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-MANAGER_DIR="$ROOT_DIR/migrations-manager"
+MANAGER_DIR="$ROOT_DIR/pocketbase/migrations-manager"
 DEFAULT_SCRIPT="migrate"
 
 usage() {

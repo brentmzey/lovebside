@@ -30,10 +30,10 @@ object PocketBaseInstantSerializer : KSerializer<Instant> {
             
         return try {
             val instant = Instant.parse(isoString)
-            logDebug("[Date] Raw: \"$rawString\" -> Epoch: ${instant.toEpochMilliseconds()}")
+            // logDebug("[Date] Raw: \"$rawString\" -> Epoch: ${instant.toEpochMilliseconds()}")
             instant
         } catch (e: Exception) {
-            logDebug("[Date] Failed to parse: \"$rawString\". Error: ${e.message}")
+            // logDebug("[Date] Failed to parse: \"$rawString\". Error: ${e.message}")
             throw e
         }
     }

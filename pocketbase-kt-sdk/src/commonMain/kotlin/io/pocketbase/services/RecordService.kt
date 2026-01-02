@@ -1,8 +1,15 @@
 package io.pocketbase.services
 
 import io.pocketbase.PocketBase
-import io.pocketbase.models.*
-import kotlinx.serialization.json.*
+import io.pocketbase.models.AuthResponse
+import io.pocketbase.models.FileField
+import io.pocketbase.models.ListResult
+import io.pocketbase.models.QueryOptions
+import io.pocketbase.models.RealtimeEventCallback
+import io.pocketbase.models.UnsubscribeFunc
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
 
 /**
  * Service for managing records in a specific collection.
@@ -11,10 +18,10 @@ class RecordService(
     client: PocketBase,
     private val collectionIdOrName: String
 ) : BaseService(client) {
-    
+
     private val basePath: String
         get() = "/api/collections/${collectionIdOrName}/records"
-    
+
     /**
      * Get a list of records from the collection.
      */
@@ -27,7 +34,7 @@ class RecordService(
         
         return Json.decodeFromJsonElement(response)
     }
-    
+
     /**
      * Get the full list of records (handles pagination automatically).
      */
@@ -35,22 +42,22 @@ class RecordService(
         val allRecords = mutableListOf<JsonObject>()
         var page = 1
         val perPage = options?.perPage ?: 500
-        
+
         while (true) {
             val result = getList(
-                options?.copy(page = page, perPage = perPage) 
+                options?.copy(page = page, perPage = perPage)
                     ?: QueryOptions(page = page, perPage = perPage)
             )
-            
+
             allRecords.addAll(result.items)
-            
+
             if (result.page >= result.totalPages) break
             page++
         }
-        
+
         return allRecords
     }
-    
+
     /**
      * Get the first record that matches the filter.
      */
@@ -59,14 +66,14 @@ class RecordService(
             options?.copy(filter = filter, perPage = 1, skipTotal = true)
                 ?: QueryOptions(filter = filter, perPage = 1, skipTotal = true)
         )
-        
+
         if (result.items.isEmpty()) {
             throw Exception("No record found matching the filter")
         }
-        
+
         return result.items.first()
     }
-    
+
     /**
      * Get a single record by its ID.
      */
@@ -77,7 +84,7 @@ class RecordService(
             query = options?.toQueryMap()
         )
     }
-    
+
     /**
      * Create a new record in the collection.
      */
@@ -89,7 +96,34 @@ class RecordService(
             query = options?.toQueryMap()
         )
     }
-    
+
+    /**
+     * Create a new record with file uploads.
+     */
+    suspend fun create(body: Map<String, Any?>, files: List<FileField>, options: QueryOptions? = null): JsonObject {
+        val form = io.ktor.client.request.forms.MultiPartFormDataContent(
+            io.ktor.client.request.forms.formData {
+                // Add fields
+                body.forEach { (key, value) ->
+                    append(key, value.toString())
+                }
+                // Add files
+                files.forEach { file ->
+                    append(file.fieldName, file.data, io.ktor.http.Headers.build {
+                        append(io.ktor.http.HttpHeaders.ContentDisposition, "filename=\"${file.fileName}\"")
+                    })
+                }
+            }
+        )
+
+        return client.send(
+            path = basePath,
+            method = "POST",
+            body = form,
+            query = options?.toQueryMap()
+        )
+    }
+
     /**
      * Update an existing record by its ID.
      */
@@ -101,7 +135,7 @@ class RecordService(
             query = options?.toQueryMap()
         )
     }
-    
+
     /**
      * Delete a record by its ID.
      */
@@ -116,10 +150,10 @@ class RecordService(
             false
         }
     }
-    
+
     /**
      * Subscribe to realtime changes for this collection.
-     * 
+     *
      * @param recordId Optional specific record ID, or "*" for all records. Defaults to "*".
      * @param callback Function to call when an event is received
      * @param options Optional query options (filter, expand, etc.)
@@ -134,10 +168,10 @@ class RecordService(
         } else {
             "$collectionIdOrName/$recordId"
         }
-        
+
         return client.realtime.subscribe(topic, callback, options)
     }
-    
+
     /**
      * Unsubscribe from realtime changes.
      */
@@ -147,10 +181,10 @@ class RecordService(
         } else {
             "$collectionIdOrName/$recordId"
         }
-        
+
         client.realtime.unsubscribe(topic)
     }
-    
+
     /**
      * Authenticate a record with email/username and password.
      */
@@ -168,15 +202,15 @@ class RecordService(
             ),
             query = options?.toQueryMap()
         )
-        
+
         val authResponse = Json.decodeFromJsonElement<AuthResponse>(response)
-        
+
         // Save auth data to store
         client.authStore.save(authResponse.token, authResponse.record)
-        
+
         return authResponse
     }
-    
+
     /**
      * Refresh the authentication token.
      */
@@ -186,15 +220,15 @@ class RecordService(
             method = "POST",
             query = options?.toQueryMap()
         )
-        
+
         val authResponse = Json.decodeFromJsonElement<AuthResponse>(response)
-        
+
         // Save updated auth data
         client.authStore.save(authResponse.token, authResponse.record)
-        
+
         return authResponse
     }
-    
+
     /**
      * Request a password reset email.
      */
@@ -210,7 +244,7 @@ class RecordService(
             false
         }
     }
-    
+
     /**
      * Confirm a password reset.
      */
@@ -234,7 +268,7 @@ class RecordService(
             false
         }
     }
-    
+
     /**
      * Request a verification email.
      */
@@ -250,7 +284,7 @@ class RecordService(
             false
         }
     }
-    
+
     /**
      * Confirm email verification.
      */

@@ -28,10 +28,19 @@ data class AuthUiState(
     val lastName: String = "",
     val birthDate: String = "",
     val seeking: SeekingStatus = SeekingStatus.BOTH,
-    val discoveryProfiles: List<Profile> = emptyList(),
-    val canSubmit: Boolean = false
+    val discoveryProfiles: List<Profile> = emptyList()
 ) {
-    // Computed property for immutability logic check if needed
+    val canSubmit: Boolean
+        get() = when (mode) {
+            AuthMode.Login -> email.isNotBlank() && password.length >= 6
+            AuthMode.SignUp -> email.isNotBlank() &&
+                    password.length >= 6 &&
+                    password == confirmPassword &&
+                    firstName.isNotBlank() &&
+                    lastName.isNotBlank() &&
+                    birthDate.length >= 10
+            else -> false
+        }
 }
 
 enum class AuthMode {
@@ -65,61 +74,36 @@ class AuthViewModel(
     }
 
     fun onEmailChange(email: String) {
-        _uiState.update { 
-            it.copy(email = email, canSubmit = validate(it.copy(email = email))) 
-        }
+        _uiState.update { it.copy(email = email) }
     }
 
     fun onPasswordChange(password: String) {
-        _uiState.update { 
-            it.copy(password = password, canSubmit = validate(it.copy(password = password)))
-        }
+        _uiState.update { it.copy(password = password) }
     }
 
     fun onConfirmPasswordChange(confirmPassword: String) {
-        _uiState.update { 
-            it.copy(confirmPassword = confirmPassword, canSubmit = validate(it.copy(confirmPassword = confirmPassword)))
-        }
+        _uiState.update { it.copy(confirmPassword = confirmPassword) }
     }
 
     fun onFirstNameChange(firstName: String) {
-        _uiState.update { 
-            it.copy(firstName = firstName, canSubmit = validate(it.copy(firstName = firstName)))
-        }
+        _uiState.update { it.copy(firstName = firstName) }
     }
 
     fun onLastNameChange(lastName: String) {
-        _uiState.update { 
-            it.copy(lastName = lastName, canSubmit = validate(it.copy(lastName = lastName)))
-        }
+        _uiState.update { it.copy(lastName = lastName) }
     }
 
     fun onBirthDateChange(birthDate: String) {
-        _uiState.update { 
-            it.copy(birthDate = birthDate, canSubmit = validate(it.copy(birthDate = birthDate)))
-        }
+        _uiState.update { it.copy(birthDate = birthDate) }
     }
 
     fun onSeekingChange(seeking: SeekingStatus) {
         _uiState.update { it.copy(seeking = seeking) }
     }
 
-    private fun validate(state: AuthUiState): Boolean {
-        return when (state.mode) {
-            AuthMode.Login -> state.email.isNotBlank() && state.password.isNotBlank()
-            AuthMode.SignUp -> state.email.isNotBlank() && 
-                             state.password.isNotBlank() && 
-                             state.password == state.confirmPassword &&
-                             state.firstName.isNotBlank() &&
-                             state.lastName.isNotBlank() &&
-                             state.birthDate.length >= 10 // Basic check
-            else -> false
-        }
-    }
-
     fun submit(onSuccess: (AuthDetails) -> Unit) {
         val currentState = _uiState.value
-        if (currentState.isLoading) return
+        if (currentState.isLoading || !currentState.canSubmit) return
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 

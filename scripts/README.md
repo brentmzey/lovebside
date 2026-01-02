@@ -5,31 +5,40 @@ This directory contains convenience scripts for building and running different t
 ## 🚀 Quick Setup
 
 ### Option 1: Using direnv (Recommended)
+
 If you have [direnv](https://direnv.net/) installed:
+
 ```bash
 # From project root
 direnv allow
 ```
+
 This automatically adds `./scripts` to your PATH whenever you're in the project directory.
 
 ### Option 2: Manual PATH Setup
+
 Add to your `~/.bashrc` or `~/.zshrc`:
+
 ```bash
 export PATH="$PATH:/Users/brentzey/bside/scripts"
 ```
+
 Or run scripts with `./scripts/script-name.sh` from project root.
 
 ## 📱 Platform-Specific Scripts
 
 ### `run-android.sh`
+
 Builds and deploys the Android app to a connected device or emulator.
 
 **Usage:**
+
 ```bash
 ./run-android.sh
 ```
 
 **Requirements:**
+
 - Android SDK with `adb` in PATH
 - Physical device with USB debugging OR running emulator
 
@@ -38,9 +47,11 @@ Builds and deploys the Android app to a connected device or emulator.
 ---
 
 ### `run-desktop.sh`
+
 Runs the JVM desktop application using Compose Desktop.
 
 **Usage:**
+
 ```bash
 # Foreground (interactive)
 ./run-desktop.sh
@@ -49,7 +60,8 @@ Runs the JVM desktop application using Compose Desktop.
 ./run-desktop.sh --background
 ```
 
-**Use Case:** 
+**Use Case:**
+
 - Fastest iteration cycle for UI development
 - Testing desktop-specific layouts and keyboard navigation
 - Quick testing without emulator overhead
@@ -60,14 +72,17 @@ Runs the JVM desktop application using Compose Desktop.
 ---
 
 ### `run-ios.sh`
+
 Builds and launches the iOS app in Xcode Simulator or on device.
 
 **Usage:**
+
 ```bash
 ./run-ios.sh
 ```
 
 **Requirements:**
+
 - macOS with Xcode installed
 - iOS Simulator or connected iOS device
 
@@ -76,9 +91,11 @@ Builds and launches the iOS app in Xcode Simulator or on device.
 ---
 
 ### `run-web.sh`
+
 Starts the Kotlin/JS web application with hot reload.
 
 **Usage:**
+
 ```bash
 # Foreground with console output
 ./run-web.sh
@@ -87,9 +104,10 @@ Starts the Kotlin/JS web application with hot reload.
 ./run-web.sh --background
 ```
 
-**Access:** http://localhost:8080
+**Access:** <http://localhost:8080>
 
 **Use Case:**
+
 - Web-specific development and responsive design
 - Browser DevTools debugging
 - Progressive Web App (PWA) features
@@ -100,9 +118,11 @@ Starts the Kotlin/JS web application with hot reload.
 ---
 
 ### `run-wasm.sh`
+
 Launches the experimental Compose Multiplatform WebAssembly target described in the [Kotlin Multiplatform quickstart](https://kotlinlang.org/docs/multiplatform/quickstart.html#run-the-sample-apps).
 
 **Usage:**
+
 ```bash
 ./run-wasm.sh
 # or background mode
@@ -110,20 +130,24 @@ Launches the experimental Compose Multiplatform WebAssembly target described in 
 ```
 
 **Notes:**
+
 - Uses `wasmJsBrowserDevelopmentRun --continuous` for hot reload
-- Serves on http://localhost:8080 (same as JS dev server)
+- Serves on <http://localhost:8080> (same as JS dev server)
 - Logs stream to `wasm.log` when running in background
 
 **Use Case:**
+
 - Validate Compose/Wasm builds on supported browsers
 - Compare JS vs Wasm build performance with identical UI code
 
 ---
 
 ### `run-server.sh`
+
 Starts the Ktor backend server.
 
 **Usage:**
+
 ```bash
 # Foreground
 ./run-server.sh
@@ -133,11 +157,13 @@ Starts the Ktor backend server.
 ```
 
 **Features:**
+
 - Auto-builds server JAR if missing
 - Stops existing server before starting new one
-- Runs on http://localhost:8080
+- Runs on <http://localhost:8080>
 
 **Use Case:**
+
 - Backend API development
 - Testing client-server integration
 - Database operations with PocketBase
@@ -149,14 +175,17 @@ Starts the Ktor backend server.
 ## 🎯 Utility Scripts
 
 ### `start-all.sh`
+
 Launches the complete development environment: server + desktop + web apps.
 
 **Usage:**
+
 ```bash
 ./start-all.sh
 ```
 
 **What it does:**
+
 1. Starts server in background
 2. Waits for server health check
 3. Starts desktop app in background
@@ -168,9 +197,11 @@ Launches the complete development environment: server + desktop + web apps.
 ---
 
 ### `stop-all.sh`
+
 Gracefully stops all background processes started by `start-all.sh`.
 
 **Usage:**
+
 ```bash
 ./stop-all.sh
 ```
@@ -180,14 +211,17 @@ Gracefully stops all background processes started by `start-all.sh`.
 ---
 
 ### `verify-targets.sh`
+
 Tests compilation of all Kotlin Multiplatform targets without running them.
 
 **Usage:**
+
 ```bash
 ./verify-targets.sh
 ```
 
 **What it checks:**
+
 - ✅ Android Debug APK build
 - ✅ Desktop JVM JAR compilation
 - ✅ JavaScript (Web) compilation
@@ -195,6 +229,7 @@ Tests compilation of all Kotlin Multiplatform targets without running them.
 - ✅ iOS Device Arm64 framework
 
 **Use Case:**
+
 - After updating dependencies
 - Before committing major changes
 - Ensuring all targets remain compatible
@@ -203,20 +238,24 @@ Tests compilation of all Kotlin Multiplatform targets without running them.
 ---
 
 ### `build-all.sh`
+
 Full build of all Kotlin Multiplatform targets using system Gradle.
 
 **Usage:**
+
 ```bash
 ./build-all.sh
 ```
 
 **What it does:**
+
 - Runs `gradle build`
 - Builds Android APKs, iOS frameworks, Desktop JARs, Web JS, Server JAR
 - Executes unit tests alongside the build
 - Shows location of all built artifacts
 
 **Use Case:**
+
 - Preparing release builds
 - Validating full project compilation + test pass
 - Building all deployment artifacts at once
@@ -224,9 +263,11 @@ Full build of all Kotlin Multiplatform targets using system Gradle.
 ---
 
 ### `test-full-stack.sh`
+
 Runs comprehensive integration tests across the entire stack.
 
 **Usage:**
+
 ```bash
 ./test-full-stack.sh
 ```
@@ -236,27 +277,80 @@ Runs comprehensive integration tests across the entire stack.
 ---
 
 ### `test-server-db.sh`
+
 Tests server and database integration specifically.
 
 **Usage:**
+
 ```bash
 ./test-server-db.sh
 ```
 
 **Use Case:** Backend-focused development, testing PocketBase schemas and server logic.
 
+### `start-everything.sh`
+
+Launches the complete verification environment: infrastructure, desktop app, and emulators.
+
+**Usage:**
+
+```bash
+./scripts/start-everything.sh
+```
+
+**What it does:**
+
+1. Checks environment (Java, Docker, Android SDK).
+2. Starts Backend (PocketBase + Ktor).
+3. Launches Desktop App.
+4. Boots Android Emulator & Installs App.
+5. Boots iOS Simulator & Installs App.
+
+**Use Case:** The "Golden Path" for verifying the entire project works on your machine.
+
+---
+
+### `build-all.sh`
+
+Full build of all Kotlin Multiplatform targets using system Gradle.
+
+**Usage:**
+
+```bash
+./scripts/build-all.sh
+```
+
+**Use Case:** CI/CD simulation, verify full project compilation details.
+
+---
+
+### `demo-realtime.sh`
+
+Interactive demo of real-time capabilities.
+
+**Usage:**
+
+```bash
+./scripts/demo-realtime.sh
+```
+
+**Use Case:** Demonstrating WebSocket functionality without UI overhead.
+
 ---
 
 ## 💡 Common Development Workflows
 
 ### Working on UI Components (Desktop)
+
 **Fastest feedback loop:**
+
 ```bash
 ./run-desktop.sh
 # Edit Compose UI code -> auto-recompile -> see changes
 ```
 
 ### Testing Responsive Web Design
+
 ```bash
 ./run-web.sh --background
 # Access http://localhost:8080 in browser
@@ -264,6 +358,7 @@ Tests server and database integration specifically.
 ```
 
 ### Mobile Feature Development
+
 ```bash
 # Android
 ./run-android.sh
@@ -273,6 +368,7 @@ Tests server and database integration specifically.
 ```
 
 ### Full-Stack API Development
+
 ```bash
 # Terminal 1: Server with live logs
 ./run-server.sh
@@ -284,6 +380,7 @@ Tests server and database integration specifically.
 ```
 
 ### Pre-Commit Validation
+
 ```bash
 # Quick: Verify all targets compile
 ./verify-targets.sh
@@ -293,6 +390,7 @@ Tests server and database integration specifically.
 ```
 
 ### Working on Single Platform (Save Compilation Time)
+
 Instead of building all targets (which can take 5-10+ minutes), build only what you need:
 
 ```bash
@@ -313,11 +411,13 @@ Instead of building all targets (which can take 5-10+ minutes), build only what 
 ## 🔧 Background Process Management
 
 Scripts use `.pids/` directory to track background processes:
+
 - `desktop.pid` - Desktop app process ID
 - `web.pid` - Web dev server process ID  
 - `server.pid` - Backend server process ID
 
 **Manual cleanup if needed:**
+
 ```bash
 # View running processes
 cat .pids/*.pid
@@ -334,12 +434,14 @@ kill $(cat .pids/web.pid)
 ## 📊 Cost Optimization Tips
 
 **Why these scripts save money:**
+
 1. **Targeted builds** - Only compile what you're actively developing
 2. **Local testing** - Avoid triggering expensive CI/CD pipelines
 3. **Fast iteration** - Catch issues before pushing to GitHub
 4. **Resource efficient** - Run only necessary services
 
 **Best practices:**
+
 - Use `verify-targets.sh` before pushing (instead of GitHub Actions)
 - Develop with `run-desktop.sh` (fastest) then validate on other platforms
 - Run `test-full-stack.sh` locally before creating PRs
@@ -350,6 +452,7 @@ kill $(cat .pids/web.pid)
 ## 🛠️ Customization
 
 All scripts are executable and can be modified for your workflow:
+
 ```bash
 # All scripts already have execute permissions
 ls -la scripts/
@@ -363,11 +466,13 @@ vim scripts/run-desktop.sh
 ## 📝 Logs
 
 Background processes write to project root:
+
 - `desktop.log` - Desktop app output
 - `web.log` - Web dev server output
 - `server.log` - Backend server output
 
 **View logs:**
+
 ```bash
 tail -f desktop.log
 tail -f web.log  
@@ -402,6 +507,7 @@ gradle clean build
 **Note on JS/Web builds:** `gradle build` now runs the production `jsBrowserProductionWebpack` task successfully. If a workstation is missing the local Node toolchain, run `./gradlew kotlinNodeJsSetup` once to hydrate the cache.
 
 **All Kotlin compiler backends work:**
+
 - ✅ Android (ARM, x86)
 - ✅ iOS (ARM64 device + simulator)
 - ✅ JVM Desktop (macOS, Windows, Linux)
@@ -413,6 +519,7 @@ gradle clean build
 ## 🆘 Troubleshooting
 
 **Scripts not in PATH?**
+
 ```bash
 # Re-allow direnv
 direnv allow
@@ -422,6 +529,7 @@ direnv allow
 ```
 
 **Port 8080 already in use?**
+
 ```bash
 # Find and kill process
 lsof -ti:8080 | xargs kill -9
@@ -431,6 +539,7 @@ lsof -ti:8080 | xargs kill -9
 ```
 
 **Build failures?**
+
 ```bash
 # Clean build
 ./gradlew clean
@@ -440,6 +549,7 @@ lsof -ti:8080 | xargs kill -9
 ```
 
 **Permission denied?**
+
 ```bash
 # Re-add execute permissions
 chmod +x scripts/*.sh

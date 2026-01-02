@@ -9,6 +9,7 @@ import kotlinx.datetime.Instant
 import love.bside.app.core.AppException
 import love.bside.app.core.Result
 import love.bside.app.core.logDebug
+import love.bside.app.domain.repository.AttachmentData
 import love.bside.app.domain.models.Conversation
 import love.bside.app.domain.models.ConversationParticipant
 import love.bside.app.domain.models.ConversationType
@@ -266,10 +267,16 @@ class PocketBaseMessagingRepository(
         )
     }
 
-    override suspend fun sendMessage(conversationId: String, content: String, replyToMessageId: String?): Result<Message> = writeMutex.withLock {
+    override suspend fun sendMessage(
+        conversationId: String,
+        content: String,
+        replyToMessageId: String?,
+        attachments: List<AttachmentData>?
+    ): Result<Message> = writeMutex.withLock {
         // If offline, queue the message
         if (networkMonitor?.checkConnectivity() == false) {
             offlineCache?.let { cache ->
+                // TODO: Handle offline attachments (store locally and sync later)
                 val localId = cache.queueSendMessage(conversationId, content, replyToMessageId)
                 // Return the optimistic message from cache
                 cache.getCachedMessages(conversationId)?.find { it.id == localId }?.let { msg ->
@@ -324,13 +331,56 @@ class PocketBaseMessagingRepository(
                 threadRootId = threadRootId,
                 threadDepth = currentDepth
             )
+
+            // Convert data class to Map for SDK create(body: Map, ...) method
+            // We use the @SerialName values manually here since we are bypassing the serializer for multipart
+            val bodyMap: MutableMap<String, Any?> = mutableMapOf(
+                "conversation_id" to body.conversationId,
+                "sender_id" to body.senderId,
+                "content" to body.content,
+                "type" to body.type, // "text"
+                "sent_at" to body.sentAt,
+                "thread_depth" to body.threadDepth
+            )
+            if (body.replyToMessageId != null) bodyMap["reply_to_message_id"] = body.replyToMessageId
+            if (body.threadRootId != null) bodyMap["thread_root_id"] = body.threadRootId
             
+            // Build Multipart Request manually or use SDK convenience if available
+            // The PocketBase KMP SDK `create` overload supporting files handles this.
+            // However, the current generic `send` above (lines 328-332) uses JSON.
+            // We must switch to using the collection method which supports Multipart.
+
+            // Since we are using commonMain, we might not have `java.io.File`.
+            // The `AttachmentData` has `ByteArray`.
+            
+            // IF we have attachments, we must use the collection().create() with multipart.
+            // IF NOT, we can stick to JSON or use collection().create() without files.
+
+            val createdRecord = if (attachments.isNullOrEmpty()) {
+                // Use standard JSON create if no attachments
+                pocketBase.collection(DatabaseCollections.M_MESSAGES).create(body)
+            } else {
+                 pocketBase.collection(DatabaseCollections.M_MESSAGES).create(
+                    body = bodyMap,
+                    files = attachments.map { attachment ->
+                        io.pocketbase.models.FileField(
+                            fieldName = "attachments", // Confirm this matches schema name? Usually "attachments" or "file"
+                            fileName = attachment.fileName,
+                            data = attachment.data
+                        )
+                    }
+                )
+            }
+            
+            val createdId = createdRecord["id"]?.jsonPrimitive?.content ?: throw AppException.Unknown("Failed to get message ID")
+/*
             val created = pocketBase.send<kotlinx.serialization.json.JsonObject>(
                 path = "/api/collections/${DatabaseCollections.M_MESSAGES}/records",
                 method = "POST",
                 body = body
             )
             val createdId = created["id"]?.jsonPrimitive?.content ?: throw AppException.Unknown("Failed to get message ID")
+*/
             
             // update conversation last message fields
             val updateBody = mapOf(
