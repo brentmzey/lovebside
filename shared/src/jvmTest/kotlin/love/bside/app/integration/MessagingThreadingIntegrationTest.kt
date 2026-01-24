@@ -35,8 +35,8 @@ class MessagingThreadingIntegrationTest {
         @JvmStatic
         @BeforeClass
         fun setup() {
-            // Use local for development, or switch to "https://bside.pockethost.io/" for production testing
-            pocketBase = PocketBase("https://bside.pockethost.io/") 
+            // Use local for development, or switch to "http://localhost:8091" for production testing
+            pocketBase = PocketBase("http://localhost:8091") 
             repository = PocketBaseMessagingRepository(pocketBase)
 
             // Authenticate or Create test user 1
@@ -46,7 +46,7 @@ class MessagingThreadingIntegrationTest {
             
             // Re-auth as primary user for tests
             runBlocking {
-                pocketBase.collection("t_user").authWithPassword("test@example.com", "test12345")
+                pocketBase.collection("users").authWithPassword("test@example.com", "test12345")
             }
         }
 
@@ -55,7 +55,7 @@ class MessagingThreadingIntegrationTest {
                 runBlocking {
                     // Try auth first
                     try {
-                        pocketBase.collection("t_user").authWithPassword(email, pass)
+                        pocketBase.collection("users").authWithPassword(email, pass)
                         val id = pocketBase.authStore.model?.let { 
                              (it as? RecordModel)?.id 
                              ?: (it as? JsonObject)?.get("id")?.toString()?.trim('"')
@@ -64,7 +64,7 @@ class MessagingThreadingIntegrationTest {
                         id
                     } catch (e: Exception) {
                         println("ℹ Auth failed for $email: $e. Creating new...")
-                        val user = pocketBase.collection("t_user").create(
+                        val user = pocketBase.collection("users").create(
                             mapOf(
                                 "username" to username,
                                 "email" to email,
@@ -74,7 +74,7 @@ class MessagingThreadingIntegrationTest {
                             )
                         )
                         // Auth with new user
-                        pocketBase.collection("t_user").authWithPassword(email, pass)
+                        pocketBase.collection("users").authWithPassword(email, pass)
                          val id = pocketBase.authStore.model?.let { 
                              (it as? RecordModel)?.id 
                              ?: (it as? JsonObject)?.get("id")?.toString()?.trim('"')

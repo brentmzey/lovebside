@@ -45,6 +45,7 @@ class RealtimeServiceImplTest {
     // Mock repository mapping
     val domainMessage = Message(
       id = "msg1",
+      collectionId = "", // Added placeholder
       conversationId = conversationId,
       senderId = "userA",
       content = "Hello",
@@ -54,6 +55,8 @@ class RealtimeServiceImplTest {
       editedAt = null,
       deletedAt = null,
       readByCount = 0,
+      isRead = false, // Added
+      readAt = null, // Added
       replyToMessageId = null,
       threadRootId = null,
       threadDepth = null,

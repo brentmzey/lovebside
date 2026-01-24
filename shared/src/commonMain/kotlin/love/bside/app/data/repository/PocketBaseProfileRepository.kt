@@ -171,8 +171,14 @@ class PocketBaseProfileRepository(
             id = getString("id"),
             collectionId = getString("collectionId"),
             collectionName = getString("collectionName"),
-            created = kotlinx.datetime.Instant.parse(getString("created").replace(" ", "T").let { if (!it.endsWith("Z")) "${it}Z" else it }), // Manual mapping fallback
-            updated = kotlinx.datetime.Instant.parse(getString("updated").replace(" ", "T").let { if (!it.endsWith("Z")) "${it}Z" else it }),
+            created = getString("created").let { raw ->
+                if (raw.isBlank()) kotlinx.datetime.Instant.fromEpochMilliseconds(0)
+                else kotlinx.datetime.Instant.parse(raw.replace(" ", "T").let { if (!it.endsWith("Z")) "${it}Z" else it })
+            },
+            updated = getString("updated").let { raw ->
+                if (raw.isBlank()) kotlinx.datetime.Instant.fromEpochMilliseconds(0)
+                else kotlinx.datetime.Instant.parse(raw.replace(" ", "T").let { if (!it.endsWith("Z")) "${it}Z" else it })
+            },
             userId = getString("user_id"),
             firstName = getString("first_name"),
             lastName = getString("last_name"),

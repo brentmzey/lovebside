@@ -37,6 +37,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import love.bside.app.core.appConfig
+import androidx.compose.ui.unit.sp
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 
 @Composable
 fun ProustQuestionnaireScreen(
@@ -155,6 +162,8 @@ private fun TransportBadge(transport: RealtimeTransportKind, isConnected: Boolea
     )
 }
 
+
+
 @Composable
 private fun QuestionnaireContent(
     uiState: ProustQuestionnaireUiState,
@@ -162,59 +171,116 @@ private fun QuestionnaireContent(
 ) {
     val question = uiState.currentQuestion
     if (question == null) {
-        Text("Prompts will appear here once they're published.")
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                "Prompts will appear here once they're published.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         return
     }
 
-    LinearProgressIndicator(
-        progress = { uiState.completionPercent },
-        modifier = Modifier.fillMaxWidth()
-    )
-    Text(
-        text = "Progress ${uiState.progressLabel}",
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                text = question.category,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary
+    Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
+        // Progress Bar (Animated)
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LinearProgressIndicator(
+                progress = { uiState.completionPercent },
+                modifier = Modifier.fillMaxWidth().height(6.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
             )
-            Text(
-                text = question.text,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(
+                    text = question.category.uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Text(
+                    text = uiState.progressLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
-    }
 
-    OutlinedTextField(
-        value = uiState.currentAnswer,
-        onValueChange = controller::updateCurrentAnswer,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(160.dp),
-        label = { Text("Your reflection") },
-        supportingText = {
-            Text("These drafts stay on-device until you share them.")
+        // Question Card with Animation
+        androidx.compose.animation.AnimatedContent(
+            targetState = question,
+            transitionSpec = {
+                if (targetState.id > initialState.id) {
+                    androidx.compose.animation.slideInHorizontally { width -> width } + androidx.compose.animation.fadeIn() togetherWith
+                            androidx.compose.animation.slideOutHorizontally { width -> -width } + androidx.compose.animation.fadeOut()
+                } else {
+                    androidx.compose.animation.slideInHorizontally { width -> -width } + androidx.compose.animation.fadeIn() togetherWith
+                            androidx.compose.animation.slideOutHorizontally { width -> width } + androidx.compose.animation.fadeOut()
+                }
+            },
+            label = "QuestionTransition"
+        ) { targetQuestion ->
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(
+                    text = targetQuestion.text,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                
+                // "Journal" Style Input
+                OutlinedTextField(
+                    value = uiState.currentAnswer,
+                    onValueChange = controller::updateCurrentAnswer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                    placeholder = { 
+                        Text(
+                            "Write your thoughts here...", 
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                        ) 
+                    },
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
+                    colors = androidx.compose.material3.TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        disabledContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+                    )
+                )
+            }
         }
-    )
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        TextButton(
-            onClick = controller::goToPreviousQuestion,
-            enabled = uiState.currentIndex > 0
+        // Action Buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Previous")
-        }
-        Button(onClick = controller::goToNextQuestion) {
-            Text(if (uiState.currentIndex >= uiState.questions.lastIndex) "Review" else "Next")
+            TextButton(
+                onClick = controller::goToPreviousQuestion,
+                enabled = uiState.currentIndex > 0
+            ) {
+                Text("Previous")
+            }
+            
+            Button(
+                onClick = controller::goToNextQuestion,
+                modifier = Modifier.height(48.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                // contentPadding = PaddingValues(horizontal = 32.dp)
+            ) {
+                Text(
+                    text = if (uiState.currentIndex >= uiState.questions.lastIndex) "Review Answers" else "Next Question",
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
         }
     }
 }

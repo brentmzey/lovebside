@@ -21,6 +21,20 @@ import love.bside.app.ui.design.tokens.*
 /**
  * BSide text input field with beautiful styling.
  * KMP-compatible, works across all platforms.
+ * 
+ * **Responsive Design:**
+ * Use `modifier = Modifier.responsiveFormWidth()` for form inputs (login, signup)
+ * to ensure proper sizing on mobile (full width) and desktop (max 480dp).
+ * 
+ * Example:
+ * ```
+ * BsideTextField(
+ *     value = email,
+ *     onValueChange = { email = it },
+ *     placeholder = "Email address",
+ *     modifier = Modifier.responsiveFormWidth()  // Adapts to platform
+ * )
+ * ```
  */
 @Composable
 fun BsideTextField(

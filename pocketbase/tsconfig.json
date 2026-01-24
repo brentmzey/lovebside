@@ -1,17 +1,21 @@
 {
     "compilerOptions": {
-        "target": "ES2015",
-        "module": "commonjs",
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "node",
         "lib": [
-            "ES2016"
+            "ES2016",
+            "DOM"
         ],
         "strict": true,
-        "noImplicitAny": false,
+        "noImplicitAny": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "./pb_hooks",
-        "rootDir": "./src"
+        "outDir": "./pb_hooks"
+    },
+    "ts-node": {
+        "esm": true
     },
     "include": [
         "src/**/*"

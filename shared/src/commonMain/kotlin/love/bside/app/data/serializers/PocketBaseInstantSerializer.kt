@@ -22,6 +22,11 @@ object PocketBaseInstantSerializer : KSerializer<Instant> {
 
     override fun deserialize(decoder: Decoder): Instant {
         val rawString = decoder.decodeString()
+        
+        if (rawString.isBlank()) {
+            return Instant.fromEpochMilliseconds(0)
+        }
+
         // PocketBase sometimes omits the 'Z' or uses space instead of 'T'
         // Standard ISO format for Instant.parse requires 'T' separator and 'Z' timezone
         val isoString = rawString

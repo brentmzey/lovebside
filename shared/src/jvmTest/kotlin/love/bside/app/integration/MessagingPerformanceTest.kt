@@ -22,30 +22,30 @@ class MessagingPerformanceTest {
         @JvmStatic
         @BeforeClass
         fun setup() {
-            pocketBase = PocketBase("https://bside.pockethost.io/")
+            pocketBase = PocketBase("http://localhost:8091")
             repository = PocketBaseMessagingRepository(pocketBase)
             
             testUserId = getOrCreateUser("test1", "test@example.com", "test12345")
             testUser2Id = getOrCreateUser("test2", "test2@example.com", "test12345")
             
             runBlocking {
-                pocketBase.collection("t_user").authWithPassword("test@example.com", "test12345")
+                pocketBase.collection("users").authWithPassword("test@example.com", "test12345")
             }
         }
 
         private fun getOrCreateUser(username: String, email: String, pass: String): String? {
             return runBlocking {
                 try {
-                    pocketBase.collection("t_user").authWithPassword(email, pass)
+                    pocketBase.collection("users").authWithPassword(email, pass)
                     pocketBase.authStore.model?.let { 
                         (it as? io.pocketbase.models.RecordModel)?.id 
                         ?: (it as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')
                     }
                 } catch (e: Exception) {
-                    pocketBase.collection("t_user").create(
+                    pocketBase.collection("users").create(
                         mapOf("username" to username, "email" to email, "password" to pass, "passwordConfirm" to pass, "name" to "Perf User")
                     )
-                    pocketBase.collection("t_user").authWithPassword(email, pass)
+                    pocketBase.collection("users").authWithPassword(email, pass)
                     pocketBase.authStore.model?.let { 
                         (it as? io.pocketbase.models.RecordModel)?.id 
                         ?: (it as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')

@@ -37,7 +37,7 @@ kotlin {
     }
 
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(17))
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }
 
@@ -63,10 +63,10 @@ kotlin {
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.coil.compose)
                 implementation(libs.coil.network.ktor)
-
+                implementation(libs.filekit.compose)
+                implementation(libs.filekit.core)
             }
         }
-
         val nonWasmCommonMain by creating {
             dependsOn(commonMain)
             dependencies {
@@ -122,6 +122,7 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
@@ -152,13 +153,17 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
-        val java21 = JavaVersion.toVersion("21")
-        sourceCompatibility = java21
-        targetCompatibility = java21
+        val java17 = JavaVersion.toVersion("17")
+        sourceCompatibility = java17
+        targetCompatibility = java17
     }
 }
 

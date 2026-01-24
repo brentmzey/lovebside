@@ -44,10 +44,10 @@ class RealTimeMultiUserTest {
             bobClient = PocketBase(AppConstants.POCKETBASE_URL)
             
             // Authenticate Alice
-            aliceClient.collection("_pb_users_auth_").authWithPassword("alice@bside.love", "password123")
+            aliceClient.collection("users").authWithPassword("alice@bside.love", "password123")
             
             // Authenticate Bob
-            bobClient.collection("_pb_users_auth_").authWithPassword("bob@bside.love", "password123")
+            bobClient.collection("users").authWithPassword("bob@bside.love", "password123")
             
             // Get user IDs
             val aliceModel = aliceClient.authStore.model

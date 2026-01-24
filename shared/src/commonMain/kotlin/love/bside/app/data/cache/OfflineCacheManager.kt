@@ -121,6 +121,7 @@ class OfflineCacheManager {
         // Add optimistic message to cache
         val optimisticMessage = Message(
             id = localId,
+            collectionId = "", // Placeholder for optimistic message
             conversationId = conversationId,
             senderId = "current_user", // Will be replaced on sync
             content = content,
@@ -130,6 +131,8 @@ class OfflineCacheManager {
             editedAt = null,
             deletedAt = null,
             readByCount = 0,
+            isRead = false,
+            readAt = null,
             replyToMessageId = replyToMessageId,
             threadRootId = null,
             threadDepth = 0,

@@ -3,6 +3,7 @@
 ## Phase 2: Navigation & Core Screens
 
 ### NAV-001: Implement RootComponent Navigation
+
 - **Priority**: HIGH
 - **Status**: In Progress
 - **Estimated Hours**: 8
@@ -10,6 +11,7 @@
 - **Description**: Implement full Decompose navigation in RootComponent with child components for Auth, Onboarding, and Home flows.
 
 ### NAV-002: Define Navigation Graph
+
 - **Priority**: HIGH
 - **Status**: In Progress
 - **Estimated Hours**: 4
@@ -17,6 +19,7 @@
 - **Description**: Create navigation graph defining Auth → Onboarding → Home flow with proper state management.
 
 ### NAV-003: Bottom Navigation Setup
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 6
@@ -24,6 +27,7 @@
 - **Description**: Wire up bottom navigation tabs: Discover, Matches, Messages, Profile.
 
 ### AUTH-001: Complete Login Integration
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 4
@@ -31,6 +35,7 @@
 - **Description**: Complete login screen integration with PocketBase authentication.
 
 ### AUTH-002: Complete Signup Flow
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 8
@@ -38,6 +43,7 @@
 - **Description**: Multi-step signup flow with email verification handling.
 
 ### AUTH-003: Session Persistence
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 4
@@ -45,6 +51,7 @@
 - **Description**: Implement session persistence and auto-login on app restart.
 
 ### ONBOARD-001: Profile Creation Wizard
+
 - **Priority**: HIGH
 - **Status**: In Progress
 - **Estimated Hours**: 12
@@ -54,6 +61,7 @@
 ## Updates: Premium UX & Intelligence
 
 ### UI-001: Premium Landing Screen
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 8
@@ -61,6 +69,7 @@
 - **Description**: "Apple-Style" Orbit animation, trigonometric avatar layout, precise colors.
 
 ### UI-002: Apple-Style Auth
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 6
@@ -68,6 +77,7 @@
 - **Description**: Glassmorphism, biometric integration, seamless transitions.
 
 ### BACKEND-001: Matching Engine
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 8
@@ -75,13 +85,21 @@
 - **Description**: Cron job (`cron_matching.ts`) implementing Jaccard+Proust+Location algorithm.
 
 ### BACKEND-002: Discovery Geolocation
+
 - **Priority**: HIGH
-- **Status**: To Do
+- **Status**: In Progress
 - **Estimated Hours**: 6
 - **Milestone**: M3
 - **Description**: Client-side location fetching and backend filtering.
+- **Progress**:
+  - ✅ Created platform-specific LocationService implementations
+  - ✅ GeoUtils distance calculation utility
+  - ✅ All platforms build successfully
+  - ⏳ Need to integrate with discovery queries
+  - ⏳ Need to add distance display to UI
 
 ### MSG-001: Conversations List
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 6
@@ -89,6 +107,7 @@
 - **Description**: Conversations list screen showing active chats.
 
 ### MSG-002: Chat Screen
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 12
@@ -96,6 +115,7 @@
 - **Description**: Individual chat screen with message input and realtime updates.
 
 ### MSG-003: Push Notifications
+
 - **Priority**: HIGH
 - **Status**: Not Started
 - **Estimated Hours**: 8
@@ -103,12 +123,13 @@
 - **Description**: Integrate push notifications for new messages.
 
 ### MSG-004: Offline Cache & Sync
+
 - **Priority**: HIGH
 - **Status**: In Progress
 - **Estimated Hours**: 12
 - **Milestone**: M3
 - **Description**: Implement offline caching with distributed cache support (t_user_property) for airplane mode. Auto-sync when back online.
-- **Progress**: 
+- **Progress**:
   - ✅ Created OfflineCacheManager with LRU cache and TTL
   - ✅ Created platform-specific NetworkMonitor (Android, iOS, JVM, JS)
   - ✅ Integrated cache into PocketBaseMessagingRepository
@@ -117,6 +138,7 @@
   - ⏳ Need to test multi-platform demo
 
 ### MSG-005: Real-time Messaging Demo
+
 - **Priority**: HIGH
 - **Status**: To Do
 - **Estimated Hours**: 4
@@ -126,6 +148,7 @@
 ## Phase 4: Platform Targets & Demo
 
 ### DEMO-001: Multi-Platform Build
+
 - **Priority**: HIGH
 - **Status**: In Progress
 - **Estimated Hours**: 6
@@ -133,6 +156,7 @@
 - **Description**: Build and run app on all targets: Android, iOS, Web, Desktop.
 
 ### DEMO-002: Real-time Messaging Recording
+
 - **Priority**: HIGH
 - **Status**: To Do
 - **Estimated Hours**: 2
@@ -143,6 +167,7 @@
 - **Description**: Push notification infrastructure for messages and matches.
 
 ### MSG-004: Messaging Polish
+
 - **Priority**: HIGH
 - **Status**: Done
 - **Estimated Hours**: 8

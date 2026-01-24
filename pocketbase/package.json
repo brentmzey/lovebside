@@ -5,15 +5,24 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "migrate": "ts-node migrations-manager/migrate.ts",
+    "migrate:up": "npm run migrate up",
+    "migrate:down": "npm run migrate down",
+    "migrate:status": "npm run migrate status",
+    "migrate:create": "npm run migrate create",
+    "schema:export": "ts-node migrations-manager/schema-compare.ts export",
+    "schema:diff": "ts-node migrations-manager/schema-compare.ts diff",
+    "schema:validate": "ts-node migrations-manager/schema-compare.ts validate"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "devDependencies": {
     "@types/node": "^25.0.3",
     "cpx": "^1.5.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

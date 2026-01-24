@@ -59,7 +59,8 @@ fun appModule(settings: Settings) = module {
     
     // HTTP Client (Shared)
     single { createHttpClient(get()) }
-
+    single { PocketBaseAuthRepository(get(), get(), get()) }
+    single { love.bside.app.data.repository.MessagingRepository(get()) }
     // PocketBase Client (SDK)
     single { PocketBaseClient(get(), "${love.bside.app.AppConstants.POCKETBASE_URL}/api/") }
 
@@ -75,15 +76,16 @@ fun appModule(settings: Settings) = module {
     
     // Repositories using Official SDK
     single<ProfileRepository> { PocketBaseProfileRepository(get()) }
-    single<MessagingRepository> { love.bside.app.data.repository.PocketBaseMessagingRepository(get()) }
+    // MessagingRepository is already defined above, removing legacy or duplicate lines if any
+    // single<MessagingRepository> { love.bside.app.data.repository.PocketBaseMessagingRepository(get()) }
     
     // singleOf(::ApiProfileRepository) bind ProfileRepository::class
     // singleOf(::ApiMatchRepository) bind MatchRepository::class
     // singleOf(::ApiQuestionnaireRepository) bind QuestionnaireRepository::class
     // singleOf(::ApiValuesRepository) bind ValuesRepository::class
     
-    // Location
-    singleOf(::StubLocationService) bind LocationService::class
+    // Location - Platform-specific implementations
+    single<LocationService> { createLocationService() }
     
     // Use Cases
     factoryOf(::LoginUseCase)

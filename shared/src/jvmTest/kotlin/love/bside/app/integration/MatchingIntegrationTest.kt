@@ -30,7 +30,7 @@ class MatchingIntegrationTest {
         runBlocking {
             try {
                 // Environment Agnostic Configuration
-                val url = System.getenv("TEST_PB_URL") ?: "https://bside.pockethost.io/"
+                val url = System.getenv("TEST_PB_URL") ?: "http://localhost:8091"
                 val userEmail = System.getenv("TEST_PB_EMAIL") ?: "test@example.com"
                 val userPass = System.getenv("TEST_PB_PASS") ?: "test12345"
 
@@ -48,7 +48,7 @@ class MatchingIntegrationTest {
                 ensureProfile(otherUserId)
                 
                 // 3. Auth as Main User
-                pocketBase.collection("t_user").authWithPassword(userEmail, userPass)
+                pocketBase.collection("users").authWithPassword(userEmail, userPass)
             } catch (e: Exception) {
                 println("❌ Setup FAILED: ${e.message}")
                 if (e is io.pocketbase.models.ClientResponseException) {
@@ -152,7 +152,7 @@ class MatchingIntegrationTest {
 
     private suspend fun getOrCreateUser(username: String, email: String, pass: String): String {
         return try {
-            pocketBase.collection("t_user").authWithPassword(email, pass)
+            pocketBase.collection("users").authWithPassword(email, pass)
             
             val model = pocketBase.authStore.model
             val id = (model as? RecordModel)?.id 
@@ -163,7 +163,7 @@ class MatchingIntegrationTest {
             println("ℹ Auth failed for $email: ${e.message}")
             if (e is io.pocketbase.models.ClientResponseException) println("Auth Response: ${e.response}")
             
-            val user = pocketBase.collection("t_user").create(
+            val user = pocketBase.collection("users").create(
                 mapOf(
                     "username" to username,
                     "email" to email,
@@ -173,7 +173,7 @@ class MatchingIntegrationTest {
                 )
             )
             // Re-auth
-            pocketBase.collection("t_user").authWithPassword(email, pass)
+            pocketBase.collection("users").authWithPassword(email, pass)
              val model = pocketBase.authStore.model
             val id = (model as? RecordModel)?.id 
                 ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')

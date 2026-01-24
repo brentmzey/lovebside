@@ -38,7 +38,7 @@ object AppConstants {
     // Set this to true to switch to PRODUCTION (live data)
     const val USE_PRODUCTION = false 
 
-    val POCKETBASE_URL = if (USE_PRODUCTION) "https://bside.pockethost.io" else "http://127.0.0.1:$SERVER_PORT"
+    val POCKETBASE_URL = if (USE_PRODUCTION) "https://bside.pockethost.io" else "http://localhost:8092"
 }
 
 // Legacy support

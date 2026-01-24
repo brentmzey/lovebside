@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Instant
 import love.bside.app.ui.design.tokens.*
+import love.bside.app.ui.utils.responsiveContentWidth
 
 /**
  * Data class representing a conversation item
@@ -50,7 +51,10 @@ fun ConversationList(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .responsiveContentWidth()
+            .wrapContentWidth(Alignment.CenterHorizontally),
         contentPadding = PaddingValues(vertical = BsideSpacing.Small)
     ) {
         items(

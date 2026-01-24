@@ -2,7 +2,7 @@ import SwiftUI
 import ComposeApp
 
 struct ContentView: View {
-    let koin: Koin
+    let koin: Koin_coreKoin
 
     var body: some View {
         ComposeView(koin: koin)
@@ -11,7 +11,7 @@ struct ContentView: View {
 }
 
 struct ComposeView: UIViewControllerRepresentable {
-    let koin: Koin
+    let koin: Koin_coreKoin
 
     func makeUIViewController(context: Context) -> UIViewController {
         return MainViewControllerKt.MainViewController(koin: koin)

@@ -93,21 +93,20 @@ fun AuthorizedContent(
             }
             AuthorizedScreen.ConversationList -> {
                 ConversationListScreen(
-                    userId = authDetails.profile.id, // Assuming Profile has ID mapping to user ID
-                    onConversationClick = { id, name ->
-                        currentScreen = AuthorizedScreen.Chat(id, name)
-                    }
+                    onNavigateToChat = { conversationId ->
+                         // Need conversation name? Fetch or pass?
+                         // Ideally we just pass ID and ChatScreen fetches name.
+                         // For now, passing "Chat" as placeholder name if needed, or changing ChatScreen signature.
+                         // ChatScreen already updated to take ID.
+                         currentScreen = AuthorizedScreen.Chat(conversationId, "Chat") 
+                    },
+                    onNavigateBack = { currentScreen = AuthorizedScreen.Dashboard }
                 )
-                // Need a way to go back to Dashboard? 
-                // ConversationListScreen could have a BackHandler or TopBar.
-                // For now, assuming system back or adding a back button.
             }
             is AuthorizedScreen.Chat -> {
                 ChatScreen(
                     conversationId = screen.conversationId,
-                    conversationName = screen.name,
-                    userId = authDetails.profile.id,
-                    onBack = { currentScreen = AuthorizedScreen.ConversationList }
+                    onNavigateBack = { currentScreen = AuthorizedScreen.ConversationList }
                 )
             }
         }

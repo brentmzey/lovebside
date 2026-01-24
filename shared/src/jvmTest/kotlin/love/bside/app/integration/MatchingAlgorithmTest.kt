@@ -20,7 +20,7 @@ import kotlin.test.fail
  */
 class MatchingAlgorithmTest {
 
-    private val pocketBaseURL = System.getenv("TEST_PB_URL") ?: "https://bside.pockethost.io/"
+    private val pocketBaseURL = System.getenv("TEST_PB_URL") ?: "http://localhost:8091"
     private val adminEmail = "test@example.com" 
     private val adminPassword = "test12345"
 

@@ -59,6 +59,14 @@ tasks.named<Sync>("installDist") {
     doFirst {
         destinationDir.deleteRecursively()
     }
+    doFirst {
+        destinationDir.deleteRecursively()
+    }
+}
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    archiveFileName.set("server-all.jar")
+    mergeServiceFiles()
 }
 
 dependencies {

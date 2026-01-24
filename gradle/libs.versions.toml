@@ -33,6 +33,7 @@ arrow = "1.2.4"
 uuid = "0.8.4"
 kotest = "5.8.0"
 coil3 = "3.0.4"
+filekit = "0.8.8"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -92,10 +93,13 @@ androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "a
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "androidx-security-crypto" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version = "4.3.3" }
 google-play-services-maps = { module = "com.google.android.gms:play-services-maps", version = "18.2.0" }
+google-play-services-location = { module = "com.google.android.gms:play-services-location", version = "21.0.1" }
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
 coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil3" }
+filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekit" }
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

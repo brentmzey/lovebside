@@ -43,7 +43,7 @@ interface MessagingRepository {
         attachments: List<AttachmentData>? = null
     ): Result<Message>
     suspend fun deleteMessage(messageId: String): Result<Unit>
-    suspend fun markAsRead(conversationId: String): Result<Unit>
+    suspend fun markAsRead(messageId: String): Result<Unit>
     
     // Threading
     suspend fun getReplies(messageId: String): Result<List<Message>>

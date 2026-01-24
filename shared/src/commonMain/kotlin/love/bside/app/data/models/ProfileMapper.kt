@@ -9,8 +9,8 @@ fun Profile.toDomain(): DomainProfile {
     return DomainProfile(
         id = this.id,
         // Date parsing is now handled by the Serializer
-        created = this.created,
-        updated = this.updated,
+        created = this.created ?: Instant.fromEpochMilliseconds(0),
+        updated = this.updated ?: Instant.fromEpochMilliseconds(0),
         userId = this.userId,
         firstName = this.firstName,
         lastName = this.lastName,

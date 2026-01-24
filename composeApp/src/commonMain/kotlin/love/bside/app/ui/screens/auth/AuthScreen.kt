@@ -12,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -43,19 +42,17 @@ import love.bside.app.security.SecurePromptText
 import love.bside.app.security.usecase.BiometricLoginUseCase
 import love.bside.app.security.usecase.EnableBiometricLoginUseCase
 import love.bside.app.security.usecase.ObserveSecureEnrollmentsUseCase
-import love.bside.app.ui.theme.BsideBrand
-import love.bside.app.ui.theme.glassEffect
+import love.bside.app.ui.theme.BsideBackground
+import love.bside.app.ui.design.tokens.BsideColors
 import love.bside.app.domain.usecase.GetDiscoveryUsersUseCase
 import love.bside.app.domain.models.Profile
+import love.bside.app.ui.design.tokens.BsideShapes
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AuthScreen(
     modifier: Modifier = Modifier,
     viewModel: AuthViewModel = org.koin.compose.viewmodel.koinViewModel(),
-    // Use cases for Biometric still needed here if not moved to VM?
-    // The previous implementation had biometric logic in AuthScreen.
-    // For now, let's keep biometric logic here but delegate auth form to VM.
     biometricLoginUseCase: BiometricLoginUseCase,
     enableBiometricLoginUseCase: EnableBiometricLoginUseCase,
     observeSecureEnrollmentsUseCase: ObserveSecureEnrollmentsUseCase,
@@ -71,57 +68,55 @@ fun AuthScreen(
     var biometricError by remember { mutableStateOf<String?>(null) }
     var isBiometricLoading by remember { mutableStateOf(false) }
     
-    // Initial Side Effect
     LaunchedEffect(Unit) {
         biometricAvailability = biometricLoginUseCase.availability()
     }
 
-    fun describeAvailability(availability: BiometricAvailability): String = when (availability) {
-        BiometricAvailability.Available -> "Ready to use"
-        BiometricAvailability.NoHardware -> "This device lacks biometric hardware"
-        BiometricAvailability.NotEnrolled -> "Enroll Face ID or Touch ID in system settings"
-        is BiometricAvailability.Unavailable -> availability.reason
-        BiometricAvailability.Unknown -> "Biometric status unknown"
+    val describeAvailability = remember(biometricAvailability) {
+        when (biometricAvailability) {
+            BiometricAvailability.Available -> "Ready to use"
+            BiometricAvailability.NoHardware -> "This device lacks biometric hardware"
+            BiometricAvailability.NotEnrolled -> "Enroll Face ID or Touch ID in system settings"
+            is BiometricAvailability.Unavailable -> (biometricAvailability as BiometricAvailability.Unavailable).reason
+            BiometricAvailability.Unknown -> "Biometric status unknown"
+        }
     }
 
-    // Biometric Login Logic (Separate from VM for now as it needs Activity Context sometimes or specific UI flow)
-    fun attemptBiometricLogin() {
-        if (!hasBiometricEnrollment) return
-        scope.launch {
-            isBiometricLoading = true
-            val result = biometricLoginUseCase(SecurePromptText.default())
-            isBiometricLoading = false
-            when (result) {
-                is SecureAuthResult.Success -> onAuthenticated(result.details)
-                SecureAuthResult.Canceled -> Unit
-                SecureAuthResult.NoEnrollment -> biometricError = "No biometric enrollment found"
-                is SecureAuthResult.Error -> biometricError = result.message
-                is SecureAuthResult.Unavailable -> biometricError = describeAvailability(result.availability)
+    val attemptBiometricLogin = remember {
+        {
+            if (hasBiometricEnrollment) {
+                scope.launch {
+                    isBiometricLoading = true
+                    val result = biometricLoginUseCase(SecurePromptText.default())
+                    isBiometricLoading = false
+                    when (result) {
+                        is SecureAuthResult.Success -> onAuthenticated(result.details)
+                        SecureAuthResult.Canceled -> Unit
+                        SecureAuthResult.NoEnrollment -> biometricError = "No biometric enrollment found"
+                        is SecureAuthResult.Error -> biometricError = result.message
+                        is SecureAuthResult.Unavailable -> biometricError =
+                            describeAvailability
+                    }
+                }
             }
         }
     }
 
-    // Handle ViewModel Events manually or just observe state?
-    // We need to trigger navigation on success.
-    // Ideally VM exposes specific event channel. 
-    // For now, let's modify submit to take callback OR observe success state if we add it.
-    // The previous implementation passed `handleResult` to VM? No, VM didn't exist.
-    // Let's wrap submit in a lambda that handles the success callback.
-
-    fun submit() {
-        viewModel.submit { authDetails ->
-            // Success Callback
-            if (uiState.mode == AuthMode.Login && wantsBiometric &&
-                biometricAvailability is BiometricAvailability.Available
-            ) {
-                scope.launch {
-                    runCatching {
-                        enableBiometricLoginUseCase(authDetails, uiState.email.trim())
+    val submit = remember {
+        {
+            viewModel.submit { authDetails ->
+                if (uiState.mode == AuthMode.Login && wantsBiometric &&
+                    biometricAvailability is BiometricAvailability.Available
+                ) {
+                    scope.launch {
+                        runCatching {
+                            enableBiometricLoginUseCase(authDetails, uiState.email.trim())
+                        }
+                        wantsBiometric = false
                     }
-                    wantsBiometric = false
                 }
+                onAuthenticated(authDetails)
             }
-            onAuthenticated(authDetails)
         }
     }
     
@@ -144,17 +139,14 @@ fun AuthScreen(
                 onSignUp = { viewModel.onModeChange(AuthMode.SignUp) }
             )
         } else {
-            // Existing Auth Form UI (Login/SignUp)
             AuthFormContent(
                 uiState = uiState,
-                onStateChange = { 
-                    // Manual mapping back to VM methods or update generic if VM supported "update(State)" which is risky.
-                    // Better to specific methods.
-                    // But AuthFormContent takes `(AuthUiState) -> Unit`.
-                    // We need to unpack this.
+                onStateChange = {
                     if (it.email != uiState.email) viewModel.onEmailChange(it.email)
                     if (it.password != uiState.password) viewModel.onPasswordChange(it.password)
-                    if (it.confirmPassword != uiState.confirmPassword) viewModel.onConfirmPasswordChange(it.confirmPassword)
+                    if (it.confirmPassword != uiState.confirmPassword) viewModel.onConfirmPasswordChange(
+                        it.confirmPassword
+                    )
                     if (it.firstName != uiState.firstName) viewModel.onFirstNameChange(it.firstName)
                     if (it.lastName != uiState.lastName) viewModel.onLastNameChange(it.lastName)
                     if (it.birthDate != uiState.birthDate) viewModel.onBirthDateChange(it.birthDate)
@@ -162,16 +154,16 @@ fun AuthScreen(
                 },
                 onModeChange = { viewModel.onModeChange(it) },
                 onBack = { viewModel.onModeChange(AuthMode.Landing) },
-                onSubmit = { submit() },
+                onSubmit = submit,
                 hasBiometricEnrollment = hasBiometricEnrollment,
                 biometricAvailability = biometricAvailability,
                 isBiometricLoading = isBiometricLoading,
                 biometricError = biometricError,
                 wantsBiometric = wantsBiometric,
                 onWantsBiometricChange = { wantsBiometric = it },
-                onAttemptBiometric = { 
+                onAttemptBiometric = {
                     biometricError = null
-                    attemptBiometricLogin() 
+                    attemptBiometricLogin()
                 },
                 modifier = modifier
             )
@@ -196,33 +188,12 @@ private fun AuthFormContent(
     onAttemptBiometric: () -> Unit,
     modifier: Modifier
 ) {
-    // Premium Mesh Gradient Background
-    val gradient = Brush.linearGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.background,
-            BsideBrand.TealTileLight.copy(alpha=0.2f),
-            BsideBrand.PlumHeartLight.copy(alpha=0.1f)
-        )
-    )
-
     val scrollState = rememberScrollState()
-    
-    fun describeAvailability(availability: BiometricAvailability): String = when (availability) {
-        BiometricAvailability.Available -> "Ready to use"
-        BiometricAvailability.NoHardware -> "This device lacks biometric hardware"
-        BiometricAvailability.NotEnrolled -> "Enroll Face ID or Touch ID in system settings"
-        is BiometricAvailability.Unavailable -> availability.reason
-        BiometricAvailability.Unknown -> "Biometric status unknown"
-    }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(gradient)
-    ) {
+    BsideBackground {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = modifier
+                .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(vertical = 40.dp, horizontal = 24.dp)
                 .systemBarsPadding()
@@ -233,10 +204,9 @@ private fun AuthFormContent(
             
             // Header Section
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Back Button (hidden if desired, but good for UX)
-                 IconButton(onClick = onBack, modifier = Modifier.align(Alignment.Start)) {
-                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                 }
+                IconButton(onClick = onBack, modifier = Modifier.align(Alignment.Start)) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
                  
                 BrandGlyph(modifier = Modifier.size(80.dp))
                 Spacer(modifier = Modifier.height(24.dp))
@@ -255,27 +225,23 @@ private fun AuthFormContent(
                 )
             }
 
-            // Biometric Option
             if (hasBiometricEnrollment && biometricAvailability is BiometricAvailability.Available) {
                 BiometricQuickLoginCard(
                     isLoading = isBiometricLoading,
-                    availabilityLabel = describeAvailability(biometricAvailability),
+                    availabilityLabel = "Tap to use Face ID / Touch ID",
                     onClick = onAttemptBiometric
                 )
             }
 
-            // Main Form
             Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp),
                 modifier = Modifier.fillMaxWidth().widthIn(max = 480.dp)
             ) {
-                // Mode Switcher
                 AuthModeSwitcher(
                     mode = uiState.mode,
                     onModeChange = onModeChange
                 )
                 
-                // Fields
                 AuthTextField(
                     label = "Email",
                     value = uiState.email,
@@ -341,11 +307,11 @@ private fun AuthFormContent(
                                     leadingIcon = if (uiState.seeking == status) {
                                         { Icon(Icons.Default.Check, contentDescription = null) }
                                     } else null,
-                                    shape = RoundedCornerShape(50),
+                                    shape = BsideShapes.Chip,
                                     colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = BsideBrand.TealTile,
-                                        selectedLabelColor = BsideBrand.PlumHeart,
-                                        selectedLeadingIconColor = BsideBrand.PlumHeart
+                                        selectedContainerColor = BsideColors.Teal,
+                                        selectedLabelColor = Color.White,
+                                        selectedLeadingIconColor = Color.White
                                     )
                                 )
                             }
@@ -353,11 +319,9 @@ private fun AuthFormContent(
                     }
                 }
                 
-                // Errors
                 if (uiState.errorMessage != null) ErrorCard(message = uiState.errorMessage!!)
                 if (biometricError != null) ErrorCard(message = biometricError!!)
 
-                // Submit Action
                 Button(
                     onClick = onSubmit,
                     enabled = uiState.canSubmit && !uiState.isLoading,
@@ -365,17 +329,17 @@ private fun AuthFormContent(
                         .fillMaxWidth()
                         .height(56.dp)
                         .padding(top = 16.dp),
-                    shape = RoundedCornerShape(28.dp),
+                    shape = BsideShapes.Button,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = BsideBrand.TealTile,
-                        contentColor = BsideBrand.PlumHeartDark,
+                        containerColor = BsideColors.Primary,
+                        contentColor = BsideColors.OnPrimary,
                         disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 ) {
                    if (uiState.isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = BsideBrand.PlumHeartDark,
+                            color = BsideColors.OnPrimary,
                             strokeWidth = 2.dp
                         )
                     } else {
@@ -387,12 +351,10 @@ private fun AuthFormContent(
                     }
                 }
                 
-                // Biometric Opt-In (Login Only)
                 if (!hasBiometricEnrollment && biometricAvailability is BiometricAvailability.Available && uiState.mode == AuthMode.Login) {
                      BiometricOptInRow(
                          checked = wantsBiometric,
-                         onCheckedChange = onWantsBiometricChange,
-                         availabilityLabel = describeAvailability(biometricAvailability)
+                         onCheckedChange = onWantsBiometricChange
                      )
                 }
             }
@@ -408,7 +370,7 @@ private fun BrandGlyph(modifier: Modifier = Modifier) {
             .clip(CircleShape)
             .background(
                 brush = Brush.linearGradient(
-                    colors = listOf(BsideBrand.TealTile, BsideBrand.PlumHeart)
+                    colors = listOf(BsideColors.Primary, BsideColors.Secondary)
                 )
             ),
         contentAlignment = Alignment.Center
@@ -428,32 +390,36 @@ private fun BiometricQuickLoginCard(
     availabilityLabel: String,
     onClick: () -> Unit
 ) {
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .glassEffect()
-            .clickable(onClick = onClick)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .clickable(onClick = onClick),
+        shape = BsideShapes.Card,
+        elevation = CardDefaults.cardElevation(0.dp),
+        colors = CardDefaults.cardColors(containerColor = BsideColors.GlassySurface)
     ) {
-        Column {
-             Text(
-                 text = "Quick Unlock",
-                 style = MaterialTheme.typography.titleMedium,
-                 fontWeight = FontWeight.SemiBold
-             )
-             Text(
-                 text = availabilityLabel,
-                 style = MaterialTheme.typography.bodySmall,
-                 color = MaterialTheme.colorScheme.onSurfaceVariant
-             )
-        }
-        if (isLoading) {
-            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-        } else {
-            // Icon placeholder for FaceID/TouchID would go here
-             Text("Use", color = MaterialTheme.colorScheme.primary)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                 Text(
+                     text = "Quick Unlock",
+                     style = MaterialTheme.typography.titleMedium,
+                     fontWeight = FontWeight.SemiBold
+                 )
+                 Text(
+                     text = availabilityLabel,
+                     style = MaterialTheme.typography.bodySmall,
+                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                 )
+            }
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            } else {
+                Text("Use", color = MaterialTheme.colorScheme.primary)
+            }
         }
     }
 }
@@ -463,7 +429,6 @@ private fun BiometricQuickLoginCard(
 private fun BiometricOptInRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    availabilityLabel: String
 ) {
     Row(
         modifier = Modifier
@@ -488,8 +453,8 @@ private fun BiometricOptInRow(
             checked = checked, 
             onCheckedChange = onCheckedChange,
             colors = SwitchDefaults.colors(
-                checkedThumbColor = BsideBrand.PlumHeart,
-                checkedTrackColor = BsideBrand.TealTile
+                checkedThumbColor = BsideColors.Primary,
+                checkedTrackColor = BsideColors.Teal
             )
         )
     }
@@ -497,21 +462,19 @@ private fun BiometricOptInRow(
 
 @Composable
 private fun AuthModeSwitcher(mode: AuthMode, onModeChange: (AuthMode) -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(50))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.5f))
-            .padding(4.dp)
+    Card(
+        shape = BsideShapes.Full,
+        colors = CardDefaults.cardColors(containerColor = BsideColors.GlassySurface),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Row {
+        Row(modifier = Modifier.padding(4.dp)) {
              listOf(AuthMode.Login, AuthMode.SignUp).forEach { entry ->
                  val selected = entry == mode
                  Box(
                      modifier = Modifier
                          .weight(1f)
-                         .clip(RoundedCornerShape(50))
-                         .background(if (selected) MaterialTheme.colorScheme.surface else Color.Transparent)
+                         .clip(BsideShapes.Full)
+                         .background(if (selected) BsideColors.Surface else Color.Transparent)
                          .clickable { onModeChange(entry) }
                          .padding(vertical = 10.dp),
                      contentAlignment = Alignment.Center
@@ -544,26 +507,26 @@ private fun AuthTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = true,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
-        shape = RoundedCornerShape(16.dp),
+        shape = BsideShapes.TextField,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = BsideBrand.TealTile,
+            focusedBorderColor = BsideColors.Primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha=0.3f),
-            focusedLabelColor = BsideBrand.TealTile
+            focusedLabelColor = BsideColors.Primary
         )
     )
 }
 
 @Composable
 private fun ErrorCard(message: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-            .padding(16.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = BsideShapes.Card,
+        colors = CardDefaults.cardColors(containerColor = BsideColors.Error.copy(alpha = 0.2f))
     ) {
         Text(
             text = message,
-            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(16.dp),
+            color = BsideColors.Error,
             style = MaterialTheme.typography.bodyMedium
         )
     }

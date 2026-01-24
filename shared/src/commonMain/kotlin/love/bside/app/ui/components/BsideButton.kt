@@ -19,6 +19,19 @@ import love.bside.app.ui.design.tokens.*
 /**
  * BSide primary button with beautiful gradient and animations.
  * KMP-compatible, works on all platforms.
+ * 
+ * **Responsive Design:**
+ * Use `modifier = Modifier.responsiveFormWidth()` for form buttons (login, signup)
+ * to ensure proper sizing on mobile (full width) and desktop (max 480dp).
+ * 
+ * Example:
+ * ```
+ * BsideButton(
+ *     text = "Sign In",
+ *     onClick = {},
+ *     modifier = Modifier.responsiveFormWidth()  // Adapts to platform
+ * )
+ * ```
  */
 @Composable
 fun BsideButton(

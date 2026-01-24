@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -51,8 +50,9 @@ import kotlinx.datetime.toLocalDateTime
 import love.bside.app.domain.models.AuthDetails
 import love.bside.app.domain.models.Match
 import love.bside.app.domain.models.Profile
-import love.bside.app.ui.theme.BsideBrand
-import love.bside.app.ui.theme.glassEffect
+import love.bside.app.ui.design.tokens.BsideColors
+import love.bside.app.ui.design.tokens.BsideShapes
+import love.bside.app.ui.theme.BsideBackground
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -64,20 +64,12 @@ fun DashboardScreen(
     onOpenProust: () -> Unit,
     onOpenMatch: (Match) -> Unit = {}
 ) {
-    // Premium Gradient Background
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        BsideBrand.TealTileLight.copy(alpha=0.15f),
-                        BsideBrand.PlumHeartLight.copy(alpha=0.1f)
-                    )
-                )
-            )
-    ) {
+    val onLogoutRemembered = remember(onLogout) { onLogout }
+    val onOpenMessagingRemembered = remember(onOpenMessaging) { onOpenMessaging }
+    val onOpenProustRemembered = remember(onOpenProust) { onOpenProust }
+    val onOpenMatchRemembered = remember(onOpenMatch) { onOpenMatch }
+
+    BsideBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -85,7 +77,6 @@ fun DashboardScreen(
                 .padding(vertical = 32.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Top Section with Hero and Stats
             Column(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -94,14 +85,12 @@ fun DashboardScreen(
                  InsightRow(details.profile)
             }
 
-            // Matches Section (Horizontal Scroll)
             if (matches.isNotEmpty()) {
-                MatchesSection(matches, onOpenMatch)
+                MatchesSection(matches, onOpenMatchRemembered)
             } else {
-                EmptyMatchesCard(onOpenProust)
+                EmptyMatchesCard(onOpenProustRemembered)
             }
 
-            // Action Buttons Section
             Column(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -117,26 +106,25 @@ fun DashboardScreen(
                 DashboardActionButton(
                     text = "Messages",
                     icon = Icons.Default.ChatBubbleOutline,
-                    onClick = onOpenMessaging,
-                    containerColor = BsideBrand.TealTile,
-                    contentColor = BsideBrand.PlumHeartDark
+                    onClick = onOpenMessagingRemembered,
+                    containerColor = BsideColors.Primary,
+                    contentColor = BsideColors.OnPrimary
                 )
 
                 DashboardActionButton(
                     text = "Update Questionnaire",
                     icon = Icons.Default.Edit,
-                    onClick = onOpenProust,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    onClick = onOpenProustRemembered,
+                    containerColor = BsideColors.Secondary,
+                    contentColor = BsideColors.OnSecondary
                 )
                 
-                // Values / Sparkers
                 ValuesSection()
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 TextButton(
-                    onClick = onLogout,
+                    onClick = onLogoutRemembered,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Sign out", color = MaterialTheme.colorScheme.error)
@@ -150,6 +138,7 @@ fun DashboardScreen(
 
 @Composable
 fun MatchesSection(matches: List<Match>, onMatchClick: (Match) -> Unit) {
+    val onMatchClickRemembered = remember(onMatchClick) { onMatchClick }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(
             modifier = Modifier.padding(horizontal = 24.dp),
@@ -165,13 +154,13 @@ fun MatchesSection(matches: List<Match>, onMatchClick: (Match) -> Unit) {
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(BsideBrand.PlumHeart.copy(alpha=0.1f))
+                    .background(BsideColors.Primary.copy(alpha=0.1f))
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     "${matches.size}",
                     style = MaterialTheme.typography.labelMedium,
-                    color = BsideBrand.PlumHeart,
+                    color = BsideColors.Primary,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -183,7 +172,7 @@ fun MatchesSection(matches: List<Match>, onMatchClick: (Match) -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             items(matches) { match ->
-                MatchCard(match, onClick = { onMatchClick(match) })
+                MatchCard(match, onClick = { onMatchClickRemembered(match) })
             }
         }
     }
@@ -194,26 +183,26 @@ fun MatchCard(match: Match, onClick: () -> Unit) {
     val profile = match.expand?.matchedUserProfile
     val name = profile?.firstName ?: "Unknown"
     val score = match.matchScore
+    val onClickRemembered = remember(onClick) { onClick }
     
     Card(
         modifier = Modifier
             .width(160.dp)
             .height(220.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(24.dp),
+            .clickable(onClick = onClickRemembered),
+        shape = BsideShapes.Large,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Profile Image Placeholder Gradient
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.linearGradient(
                             colors = listOf(
-                                BsideBrand.TealTile.copy(alpha=0.3f),
-                                BsideBrand.PlumHeart.copy(alpha=0.3f)
+                                BsideColors.Primary.copy(alpha=0.3f),
+                                BsideColors.Secondary.copy(alpha=0.3f)
                             ),
                             start = androidx.compose.ui.geometry.Offset(0f, Float.POSITIVE_INFINITY),
                             end = androidx.compose.ui.geometry.Offset(Float.POSITIVE_INFINITY, 0f)
@@ -221,7 +210,6 @@ fun MatchCard(match: Match, onClick: () -> Unit) {
                     )
             )
             
-            // Text Avatar if no image
             Box(
                  modifier = Modifier.fillMaxSize(),
                  contentAlignment = Alignment.Center
@@ -234,7 +222,6 @@ fun MatchCard(match: Match, onClick: () -> Unit) {
                  )
             }
 
-            // Gradient Overlay for Text Readability
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -246,7 +233,6 @@ fun MatchCard(match: Match, onClick: () -> Unit) {
                     )
             )
 
-            // Info Content
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -268,13 +254,12 @@ fun MatchCard(match: Match, onClick: () -> Unit) {
                 }
             }
 
-            // Score Badge
             Surface(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(12.dp),
                 shape = CircleShape,
-                color = BsideBrand.PlumHeart,
+                color = BsideColors.Secondary,
                 contentColor = Color.White
             ) {
                 Text(
@@ -319,15 +304,16 @@ private fun getTimeOfDay(): String {
 
 @Composable
 private fun EmptyMatchesCard(onAction: () -> Unit) {
-     Box(
+    val onActionRemembered = remember(onAction) { onAction }
+     Card(
          modifier = Modifier
              .padding(horizontal = 24.dp)
              .fillMaxWidth()
-             .glassEffect()
-             .clickable(onClick = onAction)
-             .padding(24.dp)
+             .clickable(onClick = onActionRemembered),
+        shape = BsideShapes.Card,
+        colors = CardDefaults.cardColors(containerColor = BsideColors.GlassySurface)
      ) {
-          Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+          Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
               Text(
                   "No matches yet",
                   style = MaterialTheme.typography.titleMedium,
@@ -341,7 +327,7 @@ private fun EmptyMatchesCard(onAction: () -> Unit) {
               Text(
                   "Go to Questionnaire →",
                   style = MaterialTheme.typography.labelLarge,
-                  color = BsideBrand.PlumHeart,
+                  color = BsideColors.Primary,
                   fontWeight = FontWeight.Bold,
                   modifier = Modifier.padding(top = 8.dp)
               )
@@ -378,12 +364,13 @@ private fun DashboardActionButton(
     containerColor: Color,
     contentColor: Color
 ) {
+    val onClickRemembered = remember(onClick) { onClick }
     Button(
-        onClick = onClick,
+        onClick = onClickRemembered,
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp),
-        shape = RoundedCornerShape(32.dp),
+        shape = BsideShapes.Large,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor
@@ -413,13 +400,12 @@ private fun DashboardActionButton(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ValuesSection() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .glassEffect()
-            .padding(24.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = BsideShapes.Card,
+        colors = CardDefaults.cardColors(containerColor = BsideColors.GlassySurface)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
                 text = "Discover",
                 style = MaterialTheme.typography.titleMedium,
@@ -444,12 +430,12 @@ private fun DashCard(
     icon: ImageVector?,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        modifier = modifier
-            .glassEffect(shape = RoundedCornerShape(24.dp))
-            .padding(20.dp)
+    Card(
+        modifier = modifier,
+        shape = BsideShapes.Card,
+        colors = CardDefaults.cardColors(containerColor = BsideColors.GlassySurface)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(title, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(
                 text = value,
@@ -464,7 +450,7 @@ private fun DashCard(
 @Composable
 private fun Chip(text: String) {
     Surface(
-        shape = RoundedCornerShape(50),
+        shape = BsideShapes.Chip,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.5f),
         modifier = Modifier.height(32.dp),
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant

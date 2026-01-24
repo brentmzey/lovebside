@@ -80,6 +80,13 @@ class PocketBase(
     httpClient: HttpClient? = null
 ) {
     @PublishedApi
+    internal val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        prettyPrint = false
+    }
+
+    @PublishedApi
     internal val httpClient: HttpClient = httpClient ?: HttpClient {
         install(ContentNegotiation) {
             json(this@PocketBase.json)
@@ -97,13 +104,6 @@ class PocketBase(
 
     @PublishedApi
     internal val requestMutex = Mutex()
-    
-    @PublishedApi
-    internal val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        prettyPrint = false
-    }
     
     /**
      * Realtime service for SSE subscriptions.

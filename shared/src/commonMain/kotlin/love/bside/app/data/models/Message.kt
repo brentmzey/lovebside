@@ -35,10 +35,17 @@ data class Message(
     val messageType: MessageType = MessageType.TEXT,
     
     // Optional fields
-    @SerialName("attachment_url")
     val attachmentUrl: String? = null,
     @SerialName("attachment_type")
-    val attachmentType: String? = null
+    val attachmentType: String? = null,
+    
+    // Threading
+    @SerialName("reply_to_message_id") val replyToMessageId: String? = null,
+    @SerialName("thread_root_id") val threadRootId: String? = null,
+    @SerialName("thread_depth") val threadDepth: Int = 0,
+    @SerialName("attachments") val attachments: List<String> = emptyList(),
+    @SerialName("edited_at") val editedAt: String? = null,
+    @SerialName("deleted_at") val deletedAt: String? = null
 )
 
 @Serializable

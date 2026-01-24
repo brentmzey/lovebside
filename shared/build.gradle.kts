@@ -31,7 +31,7 @@ kotlin {
     }
 
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(17))
         vendor.set(JvmVendorSpec.ADOPTIUM)
     }
 
@@ -80,6 +80,8 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.materialIconsExtended)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
         }
         
         commonTest.dependencies {
@@ -99,6 +101,8 @@ kotlin {
             implementation(libs.androidx.security.crypto)
             implementation(libs.maps.compose)
             implementation(libs.google.play.services.maps)
+            implementation(libs.google.play.services.location)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
         }
         
         // iOS source set - automatically created by hierarchy template
@@ -141,9 +145,8 @@ android {
     namespace = "love.bside.app.shared"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     compileOptions {
-        val java21 = JavaVersion.toVersion("21")
-        sourceCompatibility = java21
-        targetCompatibility = java21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()

@@ -35,7 +35,7 @@ class SeedConversation {
         
         // 2. Create Conversation
         // Auth as User 1 to create
-        pocketBase.collection("t_user").authWithPassword(user1Email, pass)
+        pocketBase.collection("users").authWithPassword(user1Email, pass)
         
         val convoResult = repository.createDirectConversation(listOf(u1, u2))
         if (convoResult is Result.Error) {
@@ -87,7 +87,7 @@ class SeedConversation {
     }
 
     private suspend fun getUserId(pb: PocketBase, email: String, pass: String): String {
-        pb.collection("t_user").authWithPassword(email, pass)
+        pb.collection("users").authWithPassword(email, pass)
         val model = pb.authStore.model
         return (model as? io.pocketbase.models.RecordModel)?.id 
              ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"') 

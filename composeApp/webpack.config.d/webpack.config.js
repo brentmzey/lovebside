@@ -7,6 +7,7 @@ config.resolve.fallback = {
     "fs": false,
     "path": false,
     "crypto": false,
+    "os": false,
 };
 
 // Ignore warnings about optional dependencies

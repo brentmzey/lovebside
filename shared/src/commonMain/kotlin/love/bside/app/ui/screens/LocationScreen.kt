@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import love.bside.app.domain.models.LocationModel
 import love.bside.app.domain.services.LocationService
 import love.bside.app.ui.components.AppMap
+import love.bside.app.ui.utils.responsiveContentWidth
 import org.koin.compose.koinInject
 
 @Composable
@@ -27,7 +28,10 @@ fun LocationScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .responsiveContentWidth()
+    ) {
         when {
             location != null -> {
                 val loc = location!!

@@ -22,7 +22,7 @@ object DatabaseCollections {
     // ===== Core System Collections =====
     
     /** PocketBase built-in users collection - auth and user management */
-    const val USERS = "t_user"
+    const val USERS = "users"
 
     /** User-specific property key-value storage for distributed caching */
     const val T_USER_PROPERTY = "t_user_property"

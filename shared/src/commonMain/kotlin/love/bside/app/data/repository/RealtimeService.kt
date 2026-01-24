@@ -5,8 +5,8 @@ import love.bside.app.domain.models.Message
 import love.bside.app.domain.models.TypingStatus
 
 /**
- * Service that provides real‑time messaging capabilities.
- * It uses PocketBase's WebSocket real‑time API and falls back to smart polling when needed.
+ * Service that provides real‑time messaging capabilities. It uses PocketBase's WebSocket real‑time
+ * API and falls back to smart polling when needed.
  */
 interface RealtimeService {
     /** Subscribe to message events for a specific conversation. */
@@ -14,6 +14,11 @@ interface RealtimeService {
 
     /** Subscribe to typing‑indicator events for a specific conversation. */
     fun subscribeToTypingIndicators(conversationId: String): Flow<TypingStatus>
+
+    /** Subscribe to read receipt events for a specific conversation. */
+    fun subscribeToReadReceipts(
+            conversationId: String
+    ): Flow<Any> // Using Any for now as we don't have a ReadReceipt model
 
     /** Push a typing‑status change for the current user. */
     suspend fun setTypingStatus(conversationId: String, isTyping: Boolean)

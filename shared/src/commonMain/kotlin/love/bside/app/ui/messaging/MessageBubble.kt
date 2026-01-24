@@ -4,6 +4,10 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Reply
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +17,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Instant
 import love.bside.app.ui.design.tokens.*
+
+import coil3.compose.AsyncImage
+import love.bside.app.domain.models.Message
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.layout.ContentScale
 
 /**
  * Beautiful message bubble component with animations.
@@ -28,17 +37,19 @@ fun MessageBubble(
     modifier: Modifier = Modifier,
     showAvatar: Boolean = true,
     senderInitials: String? = null,
-    isRead: Boolean = false
+    isRead: Boolean = false,
+    mediaUrls: List<String> = emptyList(),
+    quotedReply: @Composable (() -> Unit)? = null
 ) {
     // Entrance animation
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         visible = true
     }
-    
+
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(300)) + 
+        enter = fadeIn(animationSpec = tween(300)) +
                 scaleIn(initialScale = 0.8f, animationSpec = spring(
                     dampingRatio = Spring.DampingRatioMediumBouncy
                 ))
@@ -58,11 +69,14 @@ fun MessageBubble(
                     modifier = Modifier.padding(end = BsideSpacing.Small)
                 )
             }
-            
+
             Column(
                 horizontalAlignment = if (isSent) Alignment.End else Alignment.Start,
                 modifier = Modifier.widthIn(max = 280.dp)
             ) {
+                // Quoted Reply
+                quotedReply?.invoke()
+
                 // Message bubble
                 Box(
                     modifier = Modifier
@@ -91,8 +105,25 @@ fun MessageBubble(
                         style = BsideTypography.MessageText,
                         color = if (isSent) BsideColors.OnPrimary else BsideColors.TextPrimary
                     )
+
+                    // Attachments
+                    if (mediaUrls.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        mediaUrls.forEach { url ->
+                            AsyncImage(
+                                model = url,
+                                contentDescription = "Attachment",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 200.dp)
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
                 }
-                
+
                 // Timestamp and read status
                 Row(
                     modifier = Modifier.padding(
@@ -108,7 +139,7 @@ fun MessageBubble(
                         style = BsideTypography.MessageTimestamp,
                         color = BsideColors.TextTertiary
                     )
-                    
+
                     if (isSent) {
                         Spacer(modifier = Modifier.width(BsideSpacing.ExtraSmall))
                         Text(
@@ -119,7 +150,7 @@ fun MessageBubble(
                     }
                 }
             }
-            
+
             // Avatar for sent messages (optional)
             if (isSent && showAvatar && senderInitials != null) {
                 BsideAvatar(
@@ -163,5 +194,107 @@ private fun BsideAvatar(
             style = BsideTypography.LabelSmall,
             color = BsideColors.OnPrimary
         )
+    }
+}
+
+@Composable
+private fun QuotedReply(
+    message: Message,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .padding(bottom = BsideSpacing.ExtraSmall)
+            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp, bottomStart = 8.dp, bottomEnd = 8.dp))
+            .background(BsideColors.Background)
+            .padding(BsideSpacing.Small)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Reply,
+            contentDescription = "Replied to",
+            tint = BsideColors.TextSecondary,
+            modifier = Modifier.size(16.dp).align(Alignment.CenterVertically)
+        )
+        Spacer(Modifier.width(BsideSpacing.Small))
+        Column {
+            Text(
+                text = message.senderId, // TODO: Get sender name
+                style = BsideTypography.LabelSmall,
+                color = BsideColors.Primary,
+                maxLines = 1
+            )
+            Text(
+                text = message.content,
+                style = BsideTypography.BodySmall,
+                color = BsideColors.TextSecondary,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+
+/**
+ * Overload for Message object.
+ */
+@Composable
+fun MessageBubble(
+    message: Message,
+    isMyMessage: Boolean,
+    modifier: Modifier = Modifier,
+    onReplyClick: () -> Unit = {},
+    onReplyDrag: () -> Unit = {}
+) {
+    // Construct URLs
+    // Assuming local dev: http://127.0.0.1:8090
+    // In prod, should be injected or from config
+    val baseUrl = "http://127.0.0.1:8090"
+    val mediaUrls = message.attachments.map { fileName ->
+        "$baseUrl/api/files/${message.collectionId}/${message.id}/$fileName"
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = if (isMyMessage) Arrangement.End else Arrangement.Start,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        if (!isMyMessage) {
+            IconButton(onClick = onReplyClick) {
+                Icon(
+                    imageVector = Icons.Default.Reply,
+                    contentDescription = "Reply",
+                    tint = BsideColors.TextSecondary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+
+        val quotedReply = if (message.replyToMessage != null) {
+            @Composable { QuotedReply(message.replyToMessage) }
+        } else {
+            null
+        }
+
+        MessageBubble(
+            content = message.content,
+            timestamp = message.sentAt,
+            isSent = isMyMessage,
+            modifier = modifier,
+            showAvatar = !isMyMessage, // Logic from ChatScreen
+            senderInitials = "??", // TODO: Get from sender name via repo or message expansion
+            mediaUrls = mediaUrls,
+            quotedReply = quotedReply
+        )
+
+        if (isMyMessage) {
+            IconButton(onClick = onReplyClick) {
+                Icon(
+                    imageVector = Icons.Default.Reply,
+                    contentDescription = "Reply",
+                    tint = BsideColors.TextSecondary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
     }
 }

@@ -30,7 +30,7 @@ class MessagingGroupIntegrationTest {
         @JvmStatic
         @BeforeClass
         fun setup() {
-            pocketBase = PocketBase("https://bside.pockethost.io/") 
+            pocketBase = PocketBase("http://localhost:8091") 
             repository = PocketBaseMessagingRepository(pocketBase)
 
             // Try to use the known "test" user first to debug logic
@@ -42,7 +42,7 @@ class MessagingGroupIntegrationTest {
             
             // Re-auth as primary user
             runBlocking {
-                pocketBase.collection("t_user").authWithPassword("test@example.com", "test12345")
+                pocketBase.collection("users").authWithPassword("test@example.com", "test12345")
             }
         }
 
@@ -51,7 +51,7 @@ class MessagingGroupIntegrationTest {
                 runBlocking {
                     try {
                         // 1. Try to Auth
-                        pocketBase.collection("t_user").authWithPassword(email, pass)
+                        pocketBase.collection("users").authWithPassword(email, pass)
                         val id = pocketBase.authStore.model?.let { 
                              (it as? io.pocketbase.models.RecordModel)?.id 
                              ?: (it as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')
@@ -62,7 +62,7 @@ class MessagingGroupIntegrationTest {
                         println("ℹ Auth failed, creating user $email...")
                         // 2. Create if Auth failed
                         try {
-                            pocketBase.collection("t_user").create(
+                            pocketBase.collection("users").create(
                                 mapOf(
                                     "username" to username,
                                     "email" to email,
@@ -77,7 +77,7 @@ class MessagingGroupIntegrationTest {
                         }
                         
                         // 3. Auth again
-                        pocketBase.collection("t_user").authWithPassword(email, pass)
+                        pocketBase.collection("users").authWithPassword(email, pass)
                          val id = pocketBase.authStore.model?.let { 
                              (it as? io.pocketbase.models.RecordModel)?.id 
                              ?: (it as? kotlinx.serialization.json.JsonObject)?.get("id")?.toString()?.trim('"')

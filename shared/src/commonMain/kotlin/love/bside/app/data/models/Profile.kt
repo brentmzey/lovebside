@@ -11,9 +11,9 @@ data class Profile(
     @SerialName("collectionName")
     val collectionName: String,
     @Serializable(with = love.bside.app.data.serializers.PocketBaseInstantSerializer::class)
-    val created: kotlinx.datetime.Instant,
+    val created: kotlinx.datetime.Instant? = null,
     @Serializable(with = love.bside.app.data.serializers.PocketBaseInstantSerializer::class)
-    val updated: kotlinx.datetime.Instant,
+    val updated: kotlinx.datetime.Instant? = null,
     @SerialName("userId")
     val userId: String,
     val firstName: String,
