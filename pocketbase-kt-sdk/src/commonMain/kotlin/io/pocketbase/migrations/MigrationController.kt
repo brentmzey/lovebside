@@ -28,7 +28,8 @@ class MigrationController {
         warnings: MutableList<String>
     ): List<String> {
         val columns = mutableListOf<String>()
-        val hasIdColumn = schema.fields.any { it.name.equals("id", ignoreCase = true) }
+        val hasIdColumn = schema.fields
+            .any { it.name.equals("id", ignoreCase = true) }
         if (!hasIdColumn) {
             columns += "\"id\" TEXT PRIMARY KEY"
         }
@@ -47,7 +48,11 @@ class MigrationController {
             if (trimmed.startsWith("create", ignoreCase = true)) {
                 trimmed.ensureSemicolon()
             } else {
-                val safeName = "${schema.name}_${trimmed.replace('"', '_').replace('`', '_').replace(' ', '_')}_idx"
+                val safeName = "${schema.name}_${
+                    trimmed.replace('"', '_')
+                        .replace('`', '_')
+                        .replace(' ', '_')
+                }_idx"
                 "CREATE INDEX IF NOT EXISTS \"$safeName\" ON \"${schema.name}\" (\"${trimmed}\");"
             }
         }
@@ -59,7 +64,9 @@ class MigrationController {
         schema: CollectionSchema,
         warnings: MutableList<String>
     ): List<String> {
-        val required = schema.fields.filter { it.required }.map { it.name }
+        val required = schema.fields
+            .filter { it.required }
+            .map { it.name }
         val properties = schema.fields.joinToString(",\n") { it.toMongoProperty() }
 
         val createCollection = buildString {
@@ -76,7 +83,8 @@ class MigrationController {
             append("\n      }\n    }\n  }\n});")
         }
 
-        val indexStatements = schema.indexes.mapNotNull { toMongoIndex(schema.name, it) }
+        val indexStatements = schema.indexes
+            .mapNotNull { toMongoIndex(schema.name, it) }
             .ifEmpty {
                 emptyList()
             }

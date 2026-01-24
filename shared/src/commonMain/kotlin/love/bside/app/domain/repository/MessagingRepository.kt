@@ -44,6 +44,10 @@ interface MessagingRepository {
     ): Result<Message>
     suspend fun deleteMessage(messageId: String): Result<Unit>
     suspend fun markAsRead(messageId: String): Result<Unit>
+
+    // Reactions
+    suspend fun addReaction(messageId: String, reaction: String): Result<Unit>
+    suspend fun removeReaction(messageId: String, reaction: String): Result<Unit>
     
     // Threading
     suspend fun getReplies(messageId: String): Result<List<Message>>

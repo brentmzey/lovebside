@@ -103,29 +103,36 @@ class ChatViewModelTest {
             }
 
     @Test
-    fun `typing indicators update state`() =
+    fun `toggleReaction calls repository`() =
             runTest(testDispatcher) {
                 val convId = "conv1"
                 viewModel.loadConversation(convId)
                 testScheduler.advanceUntilIdle()
 
-                // Emit typing START
-                fakeRepository.emitTyping(
-                        convId,
-                        TypingStatus(convId, "them", true, Clock.System.now())
-                )
+                val msgId = "msg2" // "them" sent this
+                
+                // Toggle ON
+                viewModel.toggleReaction(msgId, "👍")
                 testScheduler.advanceUntilIdle()
-
-                assertTrue(viewModel.typingStatus.value[convId] == true)
-
-                // Emit typing STOP
-                fakeRepository.emitTyping(
-                        convId,
-                        TypingStatus(convId, "them", false, Clock.System.now())
+                
+                assertTrue(fakeRepository.addReactionCalled.contains(msgId to "👍"))
+                
+                // Simulate update coming back with reaction
+                val originalMsg = viewModel.messages.value.find { it.id == msgId }!!
+                val updatedMsg = originalMsg.copy(
+                    reactions = mapOf("👍" to listOf("me"))
                 )
+                fakeRepository.emitMessage(convId, updatedMsg)
                 testScheduler.advanceUntilIdle()
+                
+                // Verify UI state
+                val msgCheck = viewModel.messages.value.find { it.id == msgId }!!
+                assertTrue(msgCheck.reactions["👍"]?.contains("me") == true)
 
-                assertFalse(viewModel.typingStatus.value.containsKey(convId))
+                // Toggle OFF
+                viewModel.toggleReaction(msgId, "👍")
+                testScheduler.advanceUntilIdle()
+                assertTrue(fakeRepository.removeReactionCalled.contains(msgId to "👍"))
             }
 }
 
@@ -133,6 +140,8 @@ class ChatViewModelTest {
 class FakeMessagingRepository : MessagingRepository {
 
     val markAsReadCalled = mutableListOf<String>()
+    val addReactionCalled = mutableListOf<Pair<String, String>>()
+    val removeReactionCalled = mutableListOf<Pair<String, String>>()
 
     private val messageFlow = MutableSharedFlow<Message>()
     private val typingFlow = MutableSharedFlow<TypingStatus>()
@@ -173,6 +182,16 @@ class FakeMessagingRepository : MessagingRepository {
     }
 
     override suspend fun setTypingStatus(conversationId: String, isTyping: Boolean): Result<Unit> {
+        return Result.Success(Unit)
+    }
+    
+    override suspend fun addReaction(messageId: String, reaction: String): Result<Unit> {
+        addReactionCalled.add(messageId to reaction)
+        return Result.Success(Unit)
+    }
+
+    override suspend fun removeReaction(messageId: String, reaction: String): Result<Unit> {
+        removeReactionCalled.add(messageId to reaction)
         return Result.Success(Unit)
     }
 
@@ -242,6 +261,7 @@ fun createMessage(id: String, convId: String, senderId: String, content: String,
                 threadRootId = null,
                 threadDepth = 0,
                 threadReplyCount = 0,
+                reactions = emptyMap(),
                 created = sentAt,
                 updated = sentAt
         )

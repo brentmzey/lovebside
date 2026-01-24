@@ -1013,6 +1013,31 @@ class PocketBaseMessagingRepository(
                 )
             }
 
+    override suspend fun addReaction(messageId: String, reaction: String): Result<Unit> =
+        writeMutex.withLock {
+            rateLimiter.acquireToken()
+            runCatching {
+                // TODO: Implement actual reaction logic (likely a m_reactions collection)
+                // For now, we stub it to allow compilation
+                Unit
+            }.fold(
+                onSuccess = { Result.Success(Unit) },
+                onFailure = { Result.Error(mapPocketBaseError("add reaction", it as Exception)) }
+            )
+        }
+
+    override suspend fun removeReaction(messageId: String, reaction: String): Result<Unit> =
+        writeMutex.withLock {
+            rateLimiter.acquireToken()
+            runCatching {
+                // TODO: Implement actual reaction removal logic
+                Unit
+            }.fold(
+                onSuccess = { Result.Success(Unit) },
+                onFailure = { Result.Error(mapPocketBaseError("remove reaction", it as Exception)) }
+            )
+        }
+
         // ============================= Real‑time placeholders =============================
         override fun subscribeToConversation(conversationId: String): Flow<Message> =
                 realtimeService.subscribeToConversation(conversationId)
@@ -1517,6 +1542,7 @@ class PocketBaseMessagingRepository(
                         threadRootId = getString("thread_root_id").takeIf { it.isNotEmpty() },
                         threadDepth = getInt("thread_depth"),
                         threadReplyCount = 0,
+                        reactions = emptyMap(), // TODO: Populate from expand or separate query
                         created = getString("created").parsePocketBaseInstantOr(),
                         updated = getString("updated").parsePocketBaseInstantOr()
                 )

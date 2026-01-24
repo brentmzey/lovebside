@@ -29,6 +29,8 @@ data class Message(
         val threadRootId: String?,
         val threadDepth: Int?,
         val threadReplyCount: Int?,
+        // Reactions
+        val reactions: Map<String, List<String>> = emptyMap(),
         // Metadata
         val created: Instant,
         val updated: Instant

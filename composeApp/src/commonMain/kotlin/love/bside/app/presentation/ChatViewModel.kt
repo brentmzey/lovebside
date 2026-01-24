@@ -164,6 +164,30 @@ class ChatViewModel(
         }
     }
 
+    fun toggleReaction(messageId: String, reaction: String) {
+        // Optimistically update local state? 
+        // For now, just fire and forget, rely on realtime update
+        viewModelScope.launch {
+            try {
+                // Logic: if I already reacted, remove it. If not, add it.
+                // But here we might just need explicit add/remove or check current state
+                val message = _messages.value
+                    .find { it.id == messageId }
+                
+                if (message != null) {
+                    val myReactions = message.reactions[reaction] ?: emptyList()
+                    if (myReactions.contains(userId)) {
+                        repository.removeReaction(messageId, reaction)
+                    } else {
+                        repository.addReaction(messageId, reaction)
+                    }
+                }
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         subscriptionJob?.cancel()
