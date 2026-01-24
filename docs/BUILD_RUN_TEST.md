@@ -2,11 +2,16 @@
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+*   **Java 17** (Required for building)
+*   **High Memory**: The iOS build process requires significant memory. Ensure your `gradle.properties` has `org.gradle.jvmargs=-Xmx8192m` (or at least 8GB).
+
 ### Build Everything
 
 ```bash
-# Build all platforms
-./gradlew build
+# Build all platforms (may take time)
+./gradlew clean assemble
 
 # Build specific platforms
 ./gradlew :shared:build              # Shared KMP code
@@ -25,6 +30,36 @@
 ./gradlew :shared:jvmTest
 ./gradlew :composeApp:testDebugUnitTest  # Android unit tests
 ```
+
+### Run Backend
+
+```bash
+just up
+# Starts PocketBase at http://127.0.0.1:8090 and Server at http://127.0.0.1:8080
+```
+
+## 📱 Build Artifacts Locations
+
+After running `./gradlew assemble` or platform-specific tasks, artifacts are found here:
+
+### 🖥️ Desktop (macOS)
+*   **Command:** `./gradlew :composeApp:packageDistributionForCurrentOS`
+*   **DMG Installer:** `composeApp/build/compose/binaries/main/dmg/love.bside.app-1.0.0.dmg`
+*   **App Bundle:** `composeApp/build/compose/binaries/main/app/love.bside.app.app`
+
+### 🤖 Android
+*   **Command:** `./gradlew :composeApp:assembleDebug`
+*   **Debug APK:** `composeApp/build/outputs/apk/debug/composeApp-debug.apk`
+*   **Release APK:** `composeApp/build/outputs/apk/release/composeApp-release-unsigned.apk`
+
+### 🌐 Web (JS/Wasm)
+*   **Command:** `./gradlew :composeApp:jsBrowserProductionWebpack`
+*   **Production Files:** `composeApp/build/dist/js/productionExecutable/`
+    *   Contains `index.html`, `composeApp.js`, `skiko.wasm`
+
+### 🍎 iOS
+*   **Command:** `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64` (or `IosArm64`)
+*   **Workflow:** Open `iosApp/iosApp.xcodeproj` in Xcode to build and run on Simulator or Device. The Gradle build generates the necessary frameworks that Xcode consumes.
 
 ## 📱 Android Studio - Launch Emulators
 

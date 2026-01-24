@@ -16,28 +16,32 @@
 ## Current Focus
 
 ### Phase 3: Messaging & Offline Support (Active)
+
 - **Real-time Messaging**: Implemented with PocketBase SSE, threading, read receipts.
+  - [ ] **Optimization**: Ensure efficient handling of `m_typing_status` and `m_read_receipts` (debounce, batching).
 - **Offline Cache & Sync**: (In Progress)
-    - [x] OfflineCacheManager with LRU cache and TTL support
-    - [x] Platform-specific NetworkMonitor (Android, iOS, JVM, JS)
-    - [x] Integrated into MessagingRepository with auto-sync queue
-    - [x] Optimistic UI updates for offline message sends
-    - [ ] Fix iOS compilation issues
-    - [ ] Multi-platform demo with screen recordings
+  - [x] OfflineCacheManager with LRU cache and TTL support
+  - [x] Platform-specific NetworkMonitor (Android, iOS, JVM, JS)
+  - [x] Integrated into MessagingRepository with auto-sync queue
+  - [x] Optimistic UI updates for offline message sends
+  - [ ] Fix iOS compilation issues
+  - [ ] Multi-platform demo with screen recordings
 
 ### Phase 3: Premium UX & Intelligence (Completed)
+
 - **UI/UX Overhaul**: Implemented "Apple-Style" aesthetic.
-    - [x] **Landing Screen**: Orbit Animation with real profile data hooks.
-    - [x] **Auth Flow**: Seamless transitions, biometric integration, glassmorphism.
-    - [x] **Dashboard**: Match Carousel, Hero sections.
+  - [x] **Landing Screen**: Orbit Animation with real profile data hooks.
+  - [x] **Auth Flow**: Seamless transitions, biometric integration, glassmorphism.
+  - [x] **Dashboard**: Match Carousel, Hero sections.
 - **Backend Intelligence**:
-    - [x] **Matching Engine**: Jaccard + Proust + Location algorithm implemented in `cron_matching.ts`.
-    - [ ] **Discovery**: Geolocation support (Lat/Lng added to Schema, need client implementation).
+  - [x] **Matching Engine**: Jaccard + Proust + Location algorithm implemented in `cron_matching.ts`.
+  - [ ] **Discovery**: Geolocation support (Lat/Lng added to Schema, need client implementation).
 
 ### Immediate Priorities
-1.  **Offline Demo**: Build multi-platform apps and demo offline→online message sync.
-2.  **Geolocation**: Implement client-side location fetching for "People Around You".
-3.  **Screen Recordings**: Capture real-time messaging across Android, iOS, Web, Desktop.
+
+1. **Offline Demo**: Build multi-platform apps and demo offline→online message sync.
+2. **Geolocation**: Implement client-side location fetching for "People Around You".
+3. **Screen Recordings**: Capture real-time messaging across Android, iOS, Web, Desktop.
 
 ## Project Stats
 
