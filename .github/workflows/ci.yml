@@ -56,13 +56,26 @@ jobs:
         run: |
           ./gradlew \
             :pocketbase-kt-sdk:jvmTest \
-            :shared:jvmTest \
             :composeApp:jvmTest \
             --parallel \
             --build-cache \
             --configuration-cache \
             --no-daemon \
             --stacktrace
+        continue-on-error: false
+      
+      - name: Run shared unit tests (exclude integration)
+        run: |
+          ./gradlew :shared:jvmTest \
+            --tests 'love.bside.app.unit.*' \
+            --tests 'love.bside.app.data.serialization.*' \
+            --tests 'love.bside.app.domain.models.*' \
+            --tests 'love.bside.app.domain.validation.*' \
+            --parallel \
+            --build-cache \
+            --no-daemon \
+            --stacktrace
+        continue-on-error: false
       
       - name: Upload test reports
         if: failure()  # Only upload on failure to save storage
