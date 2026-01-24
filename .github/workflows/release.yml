@@ -14,9 +14,15 @@ on:
         type: boolean
         default: false
 
+# Prevent concurrent releases
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'temurin'
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true
 
 jobs:
   # ================== Create Release ==================
@@ -101,11 +107,13 @@ jobs:
     name: Release Android
     runs-on: ubuntu-latest
     needs: create-release
-    timeout-minutes: 60
+    timeout-minutes: 45
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -114,8 +122,8 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: gradle
       
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
       
       - name: Decode Keystore
         if: github.event_name != 'workflow_dispatch'
@@ -135,6 +143,9 @@ jobs:
             -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
             -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
             -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
             --no-daemon \
             --stacktrace
       
@@ -181,13 +192,15 @@ jobs:
   # ================== Build iOS Release ==================
   release-ios:
     name: Release iOS
-    runs-on: macos-latest
+    runs-on: macos-14  # M1 runner (faster & cheaper)
     needs: create-release
-    timeout-minutes: 60
+    timeout-minutes: 45
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -201,13 +214,16 @@ jobs:
         with:
           xcode-version: latest-stable
       
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
       
       - name: Build iOS Framework
         run: |
           ./gradlew \
             :composeApp:linkReleaseFrameworkIosArm64 \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
             --no-daemon \
             --stacktrace
       
@@ -239,12 +255,13 @@ jobs:
   release-desktop:
     name: Release Desktop (${{ matrix.os }})
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             artifact: deb
             name: Linux
-          - os: macos-latest
+          - os: macos-14  # M1 runner
             artifact: dmg
             name: macOS
           - os: windows-latest
@@ -252,11 +269,13 @@ jobs:
             name: Windows
     runs-on: ${{ matrix.os }}
     needs: create-release
-    timeout-minutes: 60
+    timeout-minutes: 45
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -265,13 +284,17 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: gradle
       
-      - name: Grant execute permission for gradlew (Unix)
-        if: runner.os != 'Windows'
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
       
       - name: Build Desktop Package
         run: |
-          ./gradlew :composeApp:package${{ matrix.artifact }} --no-daemon --stacktrace
+          ./gradlew :composeApp:package${{ matrix.artifact }} \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
+            --no-daemon \
+            --stacktrace
       
       - name: Find package
         id: find_package

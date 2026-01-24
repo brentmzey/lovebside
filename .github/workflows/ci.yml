@@ -3,26 +3,42 @@ name: CI - Build & Test
 on:
   push:
     branches: [ main, development ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
   pull_request:
     branches: [ main, development ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
   workflow_dispatch:
+
+# Cancel in-progress runs for same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   JAVA_VERSION: '21'
   JAVA_DISTRIBUTION: 'temurin'
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true
 
 jobs:
   # ================== Unit Tests ==================
   test-unit:
     name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1  # Shallow clone for speed
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -31,8 +47,10 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: gradle
       
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       
       - name: Run unit tests
         run: |
@@ -40,29 +58,35 @@ jobs:
             :pocketbase-kt-sdk:jvmTest \
             :shared:jvmTest \
             :composeApp:jvmTest \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
             --no-daemon \
             --stacktrace
       
       - name: Upload test reports
-        if: always()
+        if: failure()  # Only upload on failure to save storage
         uses: actions/upload-artifact@v4
         with:
           name: test-reports-unit
           path: |
             **/build/reports/tests/
             **/build/test-results/
-          retention-days: 7
+          retention-days: 3  # Reduced from 7 days
 
   # ================== Android Build ==================
   build-android:
     name: Build Android
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     needs: test-unit
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -71,13 +95,18 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: gradle
       
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       
       - name: Build Android APK (Debug)
         run: |
           ./gradlew \
             :composeApp:assembleDebug \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
             --no-daemon \
             --stacktrace
       
@@ -86,7 +115,8 @@ jobs:
         with:
           name: android-apk-debug
           path: composeApp/build/outputs/apk/debug/*.apk
-          retention-days: 30
+          retention-days: 14  # Reduced from 30 days
+          compression-level: 0  # APKs are already compressed
       
       - name: Generate APK checksums
         run: |
@@ -99,18 +129,21 @@ jobs:
         with:
           name: android-checksums
           path: composeApp/build/outputs/apk/debug/checksums.txt
-          retention-days: 30
+          retention-days: 14
 
   # ================== iOS Build (macOS only) ==================
   build-ios:
     name: Build iOS
-    runs-on: macos-latest
-    timeout-minutes: 45
+    runs-on: macos-14  # M1 runner (faster & cheaper than macos-latest)
+    timeout-minutes: 30
     needs: test-unit
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -119,13 +152,18 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: gradle
       
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       
       - name: Build iOS Framework
         run: |
           ./gradlew \
             :composeApp:linkDebugFrameworkIosSimulatorArm64 \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
             --no-daemon \
             --stacktrace
       
@@ -134,21 +172,26 @@ jobs:
         with:
           name: ios-framework-debug
           path: composeApp/build/bin/iosSimulatorArm64/debugFramework/
-          retention-days: 30
+          retention-days: 14
 
   # ================== Desktop Build ==================
   build-desktop:
     name: Build Desktop
     strategy:
+      fail-fast: false  # Continue other OS builds if one fails
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-14, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 30
     needs: test-unit
+    # Only build desktop on main branch or explicit request
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -157,14 +200,18 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: gradle
       
-      - name: Grant execute permission for gradlew (Unix)
-        if: runner.os != 'Windows'
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       
       - name: Build Desktop JAR
         run: |
           ./gradlew \
             :composeApp:createDistributable \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
             --no-daemon \
             --stacktrace
       
@@ -173,18 +220,22 @@ jobs:
         with:
           name: desktop-${{ runner.os }}
           path: composeApp/build/compose/binaries/main/app/
-          retention-days: 30
+          retention-days: 14
+          compression-level: 6  # Good balance for binaries
 
   # ================== Web Build ==================
   build-web:
     name: Build Web
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 30
     needs: test-unit
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -199,13 +250,18 @@ jobs:
           node-version: '20'
           cache: 'npm'
       
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       
       - name: Build Web
         run: |
           ./gradlew \
             :composeApp:jsBrowserProductionWebpack \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
             --no-daemon \
             --stacktrace
       
@@ -214,17 +270,21 @@ jobs:
         with:
           name: web-production
           path: composeApp/build/dist/js/productionExecutable/
-          retention-days: 30
+          retention-days: 14
+          compression-level: 9  # Max compression for web assets
 
   # ================== Code Quality ==================
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
+    # Run in parallel with builds, don't wait for tests
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       
       - name: Setup JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
@@ -233,25 +293,30 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           cache: gradle
       
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: true  # Read-only for lint
       
       - name: Run Lint
         run: |
           ./gradlew \
             :pocketbase-kt-sdk:lintDebug \
             :shared:lintDebug \
+            --parallel \
+            --build-cache \
+            --configuration-cache \
             --no-daemon \
             --continue
       
       - name: Upload Lint Reports
-        if: always()
+        if: failure()  # Only upload on failure
         uses: actions/upload-artifact@v4
         with:
           name: lint-reports
           path: |
             **/build/reports/lint-results*.html
-          retention-days: 7
+          retention-days: 3
 
   # ================== Summary ==================
   ci-summary:
