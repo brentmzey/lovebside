@@ -13,6 +13,14 @@ default:
 start:
     node scripts/start.js
 
+# Stop all B-Side processes and Docker containers
+stop:
+    ./scripts/stop-all.sh
+
+# Open project in Android Studio
+android-studio:
+    ./scripts/open-android-studio.sh
+
 # --- Backend Stack ---
 
 # Start backend services (PocketBase + Server) in Docker
