@@ -1,0 +1,282 @@
+name: CI - Build & Test
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  # ================== Unit Tests ==================
+  test-unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Run unit tests
+        run: |
+          ./gradlew \
+            :pocketbase-kt-sdk:jvmTest \
+            :shared:jvmTest \
+            :composeApp:jvmTest \
+            --no-daemon \
+            --stacktrace
+      
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-unit
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
+          retention-days: 7
+
+  # ================== Android Build ==================
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: test-unit
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build Android APK (Debug)
+        run: |
+          ./gradlew \
+            :composeApp:assembleDebug \
+            --no-daemon \
+            --stacktrace
+      
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-debug
+          path: composeApp/build/outputs/apk/debug/*.apk
+          retention-days: 30
+      
+      - name: Generate APK checksums
+        run: |
+          cd composeApp/build/outputs/apk/debug
+          sha256sum *.apk > checksums.txt
+          cat checksums.txt
+      
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-checksums
+          path: composeApp/build/outputs/apk/debug/checksums.txt
+          retention-days: 30
+
+  # ================== iOS Build (macOS only) ==================
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    timeout-minutes: 45
+    needs: test-unit
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build iOS Framework
+        run: |
+          ./gradlew \
+            :composeApp:linkDebugFrameworkIosSimulatorArm64 \
+            --no-daemon \
+            --stacktrace
+      
+      - name: Upload iOS Framework
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-framework-debug
+          path: composeApp/build/bin/iosSimulatorArm64/debugFramework/
+          retention-days: 30
+
+  # ================== Desktop Build ==================
+  build-desktop:
+    name: Build Desktop
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    needs: test-unit
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew (Unix)
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+      
+      - name: Build Desktop JAR
+        run: |
+          ./gradlew \
+            :composeApp:createDistributable \
+            --no-daemon \
+            --stacktrace
+      
+      - name: Upload Desktop Distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ runner.os }}
+          path: composeApp/build/compose/binaries/main/app/
+          retention-days: 30
+
+  # ================== Web Build ==================
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: test-unit
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build Web
+        run: |
+          ./gradlew \
+            :composeApp:jsBrowserProductionWebpack \
+            --no-daemon \
+            --stacktrace
+      
+      - name: Upload Web Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-production
+          path: composeApp/build/dist/js/productionExecutable/
+          retention-days: 30
+
+  # ================== Code Quality ==================
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Run Lint
+        run: |
+          ./gradlew \
+            :pocketbase-kt-sdk:lintDebug \
+            :shared:lintDebug \
+            --no-daemon \
+            --continue
+      
+      - name: Upload Lint Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: |
+            **/build/reports/lint-results*.html
+          retention-days: 7
+
+  # ================== Summary ==================
+  ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [test-unit, build-android, build-ios, build-desktop, build-web, code-quality]
+    if: always()
+    
+    steps:
+      - name: Check all jobs
+        run: |
+          echo "Unit Tests: ${{ needs.test-unit.result }}"
+          echo "Android Build: ${{ needs.build-android.result }}"
+          echo "iOS Build: ${{ needs.build-ios.result }}"
+          echo "Desktop Build: ${{ needs.build-desktop.result }}"
+          echo "Web Build: ${{ needs.build-web.result }}"
+          echo "Code Quality: ${{ needs.code-quality.result }}"
+          
+          if [[ "${{ needs.test-unit.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-android.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-ios.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-desktop.result }}" == "failure" ]] || \
+             [[ "${{ needs.build-web.result }}" == "failure" ]]; then
+            echo "❌ CI pipeline failed"
+            exit 1
+          else
+            echo "✅ CI pipeline passed"
+          fi

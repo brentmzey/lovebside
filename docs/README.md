@@ -28,7 +28,8 @@
 - **[Database Collections Examples](DATABASE_COLLECTIONS_EXAMPLES.md)** - Sample data
 - **[Migrations Manager](migrations-manager.md)** - Database migrations
 
-### 🚢 Deployment
+### 🚢 Deployment & CI/CD
+- **[CI/CD Pipeline](CI_CD.md)** - GitHub Actions automation ⭐ NEW
 - **[Deployment Workflow](DEPLOYMENT_WORKFLOW.md)** - Production deployment
 - **[Distribution Guide](DISTRIBUTION.md)** - App distribution
 - **[AWS CDN Setup](AWS_CDN_SETUP.md)** - CDN configuration

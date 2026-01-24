@@ -1,0 +1,535 @@
+name: CD - Release & Deploy
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
+        required: true
+      prerelease:
+        description: 'Mark as pre-release'
+        type: boolean
+        default: false
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  # ================== Create Release ==================
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get version
+        id: get_version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get commits since last tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: BSide v${{ steps.get_version.outputs.version }}
+          body: |
+            ## BSide v${{ steps.get_version.outputs.version }}
+            
+            ### Changes
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ### Downloads
+            - **Android APK**: `bside-${{ steps.get_version.outputs.version }}.apk`
+            - **iOS IPA**: `bside-${{ steps.get_version.outputs.version }}.ipa`
+            - **macOS DMG**: `bside-${{ steps.get_version.outputs.version }}.dmg`
+            - **Windows EXE**: `bside-${{ steps.get_version.outputs.version }}.exe`
+            - **Linux DEB**: `bside-${{ steps.get_version.outputs.version }}.deb`
+            - **Web Archive**: `bside-web-${{ steps.get_version.outputs.version }}.tar.gz`
+            
+            ### Installation
+            
+            **Homebrew (macOS/Linux)**:
+            ```bash
+            brew tap brentmzey/bside
+            brew install bside
+            ```
+            
+            **Script Install**:
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/brentmzey/lovebside/main/scripts/install.sh | bash
+            ```
+            
+            ### Checksums
+            See `checksums.txt` for SHA256 verification.
+          draft: false
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+
+  # ================== Build Android Release ==================
+  release-android:
+    name: Release Android
+    runs-on: ubuntu-latest
+    needs: create-release
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Decode Keystore
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
+      
+      - name: Build Android Release APK
+        env:
+          KEYSTORE_PATH: ${{ github.workspace }}/keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          ./gradlew \
+            :composeApp:assembleRelease \
+            -Pandroid.injected.signing.store.file=$KEYSTORE_PATH \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD \
+            --no-daemon \
+            --stacktrace
+      
+      - name: Rename APK
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          cp composeApp/build/outputs/apk/release/composeApp-release.apk \
+             bside-${VERSION}.apk
+      
+      - name: Generate checksums
+        run: |
+          sha256sum bside-*.apk > checksums-android.txt
+          cat checksums-android.txt
+      
+      - name: Upload Release Asset - APK
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./bside-${{ needs.create-release.outputs.version }}.apk
+          asset_name: bside-${{ needs.create-release.outputs.version }}.apk
+          asset_content_type: application/vnd.android.package-archive
+      
+      - name: Upload Release Asset - Checksums
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./checksums-android.txt
+          asset_name: checksums-android.txt
+          asset_content_type: text/plain
+      
+      # TODO: Add Google Play Store deployment
+      # - name: Deploy to Google Play
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      #     packageName: love.bside.app
+      #     releaseFiles: bside-${{ needs.create-release.outputs.version }}.apk
+      #     track: production
+
+  # ================== Build iOS Release ==================
+  release-ios:
+    name: Release iOS
+    runs-on: macos-latest
+    needs: create-release
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build iOS Framework
+        run: |
+          ./gradlew \
+            :composeApp:linkReleaseFrameworkIosArm64 \
+            --no-daemon \
+            --stacktrace
+      
+      # TODO: Add iOS Archive & IPA generation
+      # - name: Build IPA
+      #   run: |
+      #     cd iosApp
+      #     xcodebuild archive \
+      #       -workspace iosApp.xcworkspace \
+      #       -scheme iosApp \
+      #       -configuration Release \
+      #       -archivePath build/iosApp.xcarchive
+      #     
+      #     xcodebuild -exportArchive \
+      #       -archivePath build/iosApp.xcarchive \
+      #       -exportPath build \
+      #       -exportOptionsPlist exportOptions.plist
+      
+      # TODO: Add TestFlight/App Store deployment
+      # - name: Upload to TestFlight
+      #   uses: apple-actions/upload-testflight-build@v1
+      #   with:
+      #     app-path: build/iosApp.ipa
+      #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+      #     api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+      #     api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+
+  # ================== Build Desktop Releases ==================
+  release-desktop:
+    name: Release Desktop (${{ matrix.os }})
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: deb
+            name: Linux
+          - os: macos-latest
+            artifact: dmg
+            name: macOS
+          - os: windows-latest
+            artifact: msi
+            name: Windows
+    runs-on: ${{ matrix.os }}
+    needs: create-release
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Grant execute permission for gradlew (Unix)
+        if: runner.os != 'Windows'
+        run: chmod +x gradlew
+      
+      - name: Build Desktop Package
+        run: |
+          ./gradlew :composeApp:package${{ matrix.artifact }} --no-daemon --stacktrace
+      
+      - name: Find package
+        id: find_package
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            PACKAGE=$(find composeApp/build/compose/binaries/main -name "*.deb" | head -1)
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            PACKAGE=$(find composeApp/build/compose/binaries/main -name "*.dmg" | head -1)
+          else
+            PACKAGE=$(find composeApp/build/compose/binaries/main -name "*.msi" | head -1)
+          fi
+          echo "package=$PACKAGE" >> $GITHUB_OUTPUT
+      
+      - name: Rename package
+        shell: bash
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          EXT="${{ matrix.artifact }}"
+          PACKAGE="${{ steps.find_package.outputs.package }}"
+          cp "$PACKAGE" "bside-${VERSION}-${{ matrix.name }}.${EXT}"
+      
+      - name: Generate checksums
+        shell: bash
+        run: |
+          sha256sum bside-*.* > checksums-${{ matrix.name }}.txt
+          cat checksums-${{ matrix.name }}.txt
+      
+      - name: Upload Release Asset - Package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./bside-${{ needs.create-release.outputs.version }}-${{ matrix.name }}.${{ matrix.artifact }}
+          asset_name: bside-${{ needs.create-release.outputs.version }}-${{ matrix.name }}.${{ matrix.artifact }}
+          asset_content_type: application/octet-stream
+      
+      - name: Upload Release Asset - Checksums
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./checksums-${{ matrix.name }}.txt
+          asset_name: checksums-${{ matrix.name }}.txt
+          asset_content_type: text/plain
+
+  # ================== Build Web Release ==================
+  release-web:
+    name: Release Web
+    runs-on: ubuntu-latest
+    needs: create-release
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: gradle
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      
+      - name: Build Web Production
+        run: |
+          ./gradlew \
+            :composeApp:jsBrowserProductionWebpack \
+            --no-daemon \
+            --stacktrace
+      
+      - name: Create Web Archive
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          cd composeApp/build/dist/js/productionExecutable
+          tar -czf ../../../../../bside-web-${VERSION}.tar.gz *
+          cd ../../../../../
+      
+      - name: Generate checksums
+        run: |
+          sha256sum bside-web-*.tar.gz > checksums-web.txt
+          cat checksums-web.txt
+      
+      - name: Upload Release Asset - Web Archive
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./bside-web-${{ needs.create-release.outputs.version }}.tar.gz
+          asset_name: bside-web-${{ needs.create-release.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
+      
+      - name: Upload Release Asset - Checksums
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./checksums-web.txt
+          asset_name: checksums-web.txt
+          asset_content_type: text/plain
+      
+      # TODO: Deploy to hosting (Netlify/Vercel)
+      # - name: Deploy to Netlify
+      #   uses: nwtgck/actions-netlify@v2
+      #   with:
+      #     publish-dir: './composeApp/build/dist/js/productionExecutable'
+      #     production-deploy: true
+      #   env:
+      #     NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      #     NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  # ================== Homebrew Formula ==================
+  update-homebrew:
+    name: Update Homebrew Formula
+    runs-on: ubuntu-latest
+    needs: [create-release, release-desktop]
+    
+    steps:
+      - name: Checkout Homebrew Tap
+        uses: actions/checkout@v4
+        with:
+          repository: brentmzey/homebrew-bside
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+      
+      - name: Update Formula
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          
+          # Download artifacts to calculate SHA256
+          curl -L -o bside.dmg \
+            "https://github.com/brentmzey/lovebside/releases/download/v${VERSION}/bside-${VERSION}-macOS.dmg"
+          
+          SHA256=$(shasum -a 256 bside.dmg | cut -d' ' -f1)
+          
+          cat > homebrew-tap/Formula/bside.rb << EOF
+          class Bside < Formula
+            desc "BSide - Kotlin Multiplatform Messaging App"
+            homepage "https://github.com/brentmzey/lovebside"
+            version "${VERSION}"
+            
+            if OS.mac?
+              url "https://github.com/brentmzey/lovebside/releases/download/v${VERSION}/bside-${VERSION}-macOS.dmg"
+              sha256 "${SHA256}"
+            end
+            
+            def install
+              prefix.install Dir["*"]
+              bin.install_symlink prefix/"BSide.app/Contents/MacOS/BSide" => "bside"
+            end
+            
+            test do
+              assert_match version.to_s, shell_output("#{bin}/bside --version")
+            end
+          end
+          EOF
+      
+      - name: Commit and Push
+        run: |
+          cd homebrew-tap
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add Formula/bside.rb
+          git commit -m "Update to version ${{ needs.create-release.outputs.version }}"
+          git push
+
+  # ================== Generate Install Script ==================
+  update-install-script:
+    name: Update Install Script
+    runs-on: ubuntu-latest
+    needs: [create-release, release-desktop]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Update install script
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          
+          cat > scripts/install.sh << 'EOF'
+          #!/usr/bin/env bash
+          set -e
+          
+          VERSION="$VERSION"
+          REPO="brentmzey/lovebside"
+          INSTALL_DIR="$HOME/.local/bin"
+          
+          echo "🚀 Installing BSide v${VERSION}..."
+          
+          # Detect OS
+          OS="$(uname -s)"
+          case "${OS}" in
+            Linux*)     PLATFORM=Linux;;
+            Darwin*)    PLATFORM=macOS;;
+            CYGWIN*|MINGW*|MSYS*) PLATFORM=Windows;;
+            *)          echo "❌ Unsupported OS: ${OS}"; exit 1;;
+          esac
+          
+          echo "📦 Detected platform: ${PLATFORM}"
+          
+          # Download appropriate package
+          if [[ "$PLATFORM" == "Linux" ]]; then
+            URL="https://github.com/${REPO}/releases/download/v${VERSION}/bside-${VERSION}-Linux.deb"
+            echo "⬇️  Downloading ${URL}..."
+            curl -L -o bside.deb "${URL}"
+            echo "📦 Installing DEB package..."
+            sudo dpkg -i bside.deb || sudo apt-get install -f -y
+            rm bside.deb
+          elif [[ "$PLATFORM" == "macOS" ]]; then
+            if command -v brew &> /dev/null; then
+              echo "🍺 Installing via Homebrew..."
+              brew tap brentmzey/bside
+              brew install bside
+            else
+              URL="https://github.com/${REPO}/releases/download/v${VERSION}/bside-${VERSION}-macOS.dmg"
+              echo "⬇️  Downloading ${URL}..."
+              curl -L -o bside.dmg "${URL}"
+              echo "📦 Mounting DMG..."
+              hdiutil attach bside.dmg
+              echo "📦 Copying app..."
+              cp -R /Volumes/BSide/BSide.app /Applications/
+              hdiutil detach /Volumes/BSide
+              rm bside.dmg
+            fi
+          elif [[ "$PLATFORM" == "Windows" ]]; then
+            URL="https://github.com/${REPO}/releases/download/v${VERSION}/bside-${VERSION}-Windows.msi"
+            echo "⬇️  Downloading ${URL}..."
+            curl -L -o bside.msi "${URL}"
+            echo "📦 Installing MSI package..."
+            msiexec /i bside.msi /quiet
+            rm bside.msi
+          fi
+          
+          echo "✅ BSide v${VERSION} installed successfully!"
+          echo "🚀 Run: bside"
+          EOF
+          
+          # Replace VERSION placeholder
+          sed -i "s/\$VERSION/${VERSION}/g" scripts/install.sh
+      
+      - name: Commit and Push
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add scripts/install.sh
+          git commit -m "Update install script for version ${{ needs.create-release.outputs.version }}" || true
+          git push
