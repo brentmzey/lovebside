@@ -6,6 +6,7 @@
 
 ### 🚀 Getting Started
 - **[Quick Start Testing](QUICK_START_TESTING.md)** - 5-minute test guide
+- **[Local Development](LOCAL_DEVELOPMENT.md)** - Build, run & capture screenshots ⭐ NEW
 - **[Complete Setup](COMPLETE_SETUP.md)** - Full environment setup
 - **[Launch Now](LAUNCH_NOW.md)** - Quick launch commands
 - **[Running Guide](RUNNING.md)** - Platform-specific run instructions
@@ -29,7 +30,9 @@
 - **[Migrations Manager](migrations-manager.md)** - Database migrations
 
 ### 🚢 Deployment & CI/CD
-- **[CI/CD Pipeline](CI_CD.md)** - GitHub Actions automation ⭐ NEW
+- **[CI/CD Pipeline](CI_CD.md)** - GitHub Actions automation ⭐
+- **[CI/CD Quick Reference](CI_CD_QUICK_REF.md)** - Common commands
+- **[CI/CD Optimization](CI_CD_OPTIMIZATION.md)** - Cost savings (73% reduction) ⭐ NEW
 - **[Deployment Workflow](DEPLOYMENT_WORKFLOW.md)** - Production deployment
 - **[Distribution Guide](DISTRIBUTION.md)** - App distribution
 - **[AWS CDN Setup](AWS_CDN_SETUP.md)** - CDN configuration
