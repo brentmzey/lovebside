@@ -1,0 +1,24 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  const collection = app.findCollectionByNameOrId("pbc_3138845570")
+
+  // update collection data
+  unmarshal({
+    "indexes": [
+      "CREATE INDEX `idx_conversation_archived` ON `m_conversations` (\n  `is_archived`,\n  `last_message_at` DESC\n)",
+      "CREATE INDEX idx_conversation_lastMessage ON m_conversations (last_message_at DESC);",
+      "CREATE INDEX idx_conversation_type ON m_conversations (type);"
+    ]
+  }, collection)
+
+  return app.save(collection)
+}, (app) => {
+  const collection = app.findCollectionByNameOrId("pbc_3138845570")
+
+  // update collection data
+  unmarshal({
+    "indexes": []
+  }, collection)
+
+  return app.save(collection)
+})

@@ -61,7 +61,9 @@ routerAdd("POST", "/api/seed", (c) => {
             for (const u of dummyUsers) {
                 try {
                     const existing = txDao.findAuthRecordByEmail(usersCollection.id, u.email);
-                    if (existing) continue;
+                    if (existing) {
+                        continue;
+                    }
                 } catch (_) { }
 
                 const record = new Record(usersCollection);

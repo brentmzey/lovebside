@@ -1,0 +1,90 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((db) => {
+  const collection = new Collection({
+    "id": "pbc_sw_swipes",
+    "name": "sw_swipes",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "swipe_user_id",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": ["email", "username"]
+        }
+      },
+      {
+        "system": false,
+        "id": "swipe_target_id",
+        "name": "target_id",
+        "type": "relation",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "minSelect": null,
+          "maxSelect": 1,
+          "displayFields": ["email", "username"]
+        }
+      },
+      {
+        "system": false,
+        "id": "swipe_action",
+        "name": "action",
+        "type": "select",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "maxSelect": 1,
+          "values": ["like", "pass", "superlike"]
+        }
+      },
+      {
+        "system": false,
+        "id": "swipe_version",
+        "name": "version",
+        "type": "number",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "options": {
+          "min": 1,
+          "max": null,
+          "noDecimal": true
+        }
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_swipe_user_target` ON `sw_swipes` (`user_id`, `target_id`)",
+      "CREATE INDEX `idx_swipe_user` ON `sw_swipes` (`user_id`)",
+      "CREATE INDEX `idx_swipe_target` ON `sw_swipes` (`target_id`)",
+      "CREATE INDEX `idx_swipe_action` ON `sw_swipes` (`action`)",
+      "CREATE INDEX `idx_swipe_created` ON `sw_swipes` (`created` DESC)"
+    ],
+    "listRule": "@request.auth.id != '' && (user_id = @request.auth.id || target_id = @request.auth.id)",
+    "viewRule": "@request.auth.id != '' && (user_id = @request.auth.id || target_id = @request.auth.id)",
+    "createRule": "@request.auth.id != '' && user_id = @request.auth.id",
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  });
+
+  return new Dao(db).saveCollection(collection);
+}, (db) => {
+  const dao = new Dao(db);
+  const collection = dao.findCollectionByNameOrId("pbc_sw_swipes");
+
+  return dao.deleteCollection(collection);
+});

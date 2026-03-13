@@ -6,6 +6,7 @@
 [![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.7.0-4285F4?logo=jetpackcompose&logoColor=white)](https://www.jetbrains.com/lp/compose-multiplatform/)
 [![Platform](https://img.shields.io/badge/Platform-Android_|_iOS_|_Desktop_|_Web-orange)](https://kotlinlang.org/docs/multiplatform.html)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/brentmzey)
 
 **B-Side** is a production-ready messaging application built with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform**. It demonstrates a "Supercharged" architecture sharing **100% of business logic** and **99% of UI code** across Android, iOS, Desktop, and Web.
 
@@ -119,6 +120,20 @@ The Ktor server acts as the API Gateway and Auth/Validation layer.
 
 ---
 
+## ✨ Key Messaging Features
+
+B-Side features a robust, real-time communication engine powered by **Server-Sent Events (SSE)** and a state-driven **Representative UI** architecture.
+
+- **🚀 Instant Delivery**: Zero-latency message syncing across all platforms.
+- **💬 Real-time Typing**: Live "typing..." indicators for active conversations.
+- **✅ Read Receipts**: Visual status tracking for message delivery and viewing (✓/✓✓).
+- **🧵 Threaded Replies**: Contextual message threading for organized discussions.
+- **🎭 Expressive Reactions**: Tap-to-react emoji support on every message.
+
+![Messaging Demo](docs/videos/realtime_messaging.gif)
+
+---
+
 ## 🏗️ Architecture Overview
 
 B-Side uses a centralized architecture where **Shared Code** drives specific **UI implementations**.
@@ -173,12 +188,50 @@ graph TD
 
 ---
 
+## 🧩 Project Management
+
+We track project progress, stories, and tasks using a hybrid approach:
+
+- **Code-First Tracking**: High-level epics, stories, and architectural decisions are documented directly in the codebase under the [`.code_hq`](.code_hq) directory. This ensures that documentation lives alongside the code.
+- **Task Execution**: Detailed task tracking and sprint planning are managed via **Notion / JIRA**.
+- **Agent Handoff**: We use `.code_hq/CONTEXT.md` and `.code_hq/STORIES.md` to maintain context for AI agents and human developers alike.
+
+Check [`.code_hq/PROJECT_MANAGEMENT.md`](.code_hq/PROJECT_MANAGEMENT.md) for a comprehensive overview of the project status.
+
+---
+
 ## 📚 Documentation & Resources
 
-- **[Setup Guide](docs/setup/PLATFORM_SETUP_GUIDE.md)** - Detailed environment setup.
-- **[Build & Test Guide](docs/BUILD_AND_TEST_GUIDE.md)** - Deep dive into build artifacts and testing.
-- **[Design System](docs/reference/DESIGN_SYSTEM.md)** - UI components and styling.
-- **[PocketBase Schema](docs/reference/POCKETBASE_SCHEMA.md)** - Database structure.
+### 🚀 Getting Started
+- **[⚡ Quick Start (Backend & UIs)](docs/QUICK_START_BACKEND.md)** - **START HERE!** Get everything running in 2 minutes
+- **[📄 Cheatsheet](docs/CHEATSHEET.txt)** - Single-page command reference
+- **[📊 Startup Flowchart](docs/STARTUP_FLOWCHART.md)** - Visual architecture and flow diagrams
+
+### 🔧 Development
+- **[Local Development Guide](docs/LOCAL_DEVELOPMENT.md)** - Complete development workflow
+- **[Setup Guide](docs/setup/PLATFORM_SETUP_GUIDE.md)** - Detailed environment setup
+- **[Build & Test Guide](docs/BUILD_AND_TEST_GUIDE.md)** - Deep dive into build artifacts and testing
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+
+### 📖 Reference
+- **[Design System](docs/reference/DESIGN_SYSTEM.md)** - UI components and styling
+- **[PocketBase Schema](docs/reference/POCKETBASE_SCHEMA.md)** - Database structure
+- **[Architecture Overview](docs/ARCHITECTURE.md)** - System design and decisions
+- **[API Documentation](docs/API.md)** - Backend API reference
+
+### 🚀 Deployment
+- **[Deployment Workflow](docs/DEPLOYMENT_WORKFLOW.md)** - Production deployment guide
+- **[AWS CDN Setup](docs/AWS_CDN_SETUP.md)** - CDN configuration
+- **[Distribution Guide](docs/DISTRIBUTION.md)** - App store and package distribution
+
+---
+
+## 💖 Support the Project
+
+If you find **B-Side** helpful and want to support its development, consider sponsoring or buying me a coffee! Your support helps maintain the project and add new features.
+
+- [**GitHub Sponsors**](https://github.com/sponsors/brentmzey)
+- [**Buy Me a Coffee**](https://buymeacoffee.com/brentmzey)
 
 ---
 

@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import love.bside.app.data.api.PocketBaseClient
 import love.bside.server.repositories.*
 import love.bside.server.services.*
+import love.bside.server.matching.*
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 
@@ -58,11 +59,22 @@ fun serverModule(config: ServerConfig) = module {
     single<PromptRepository> { PromptRepositoryImpl(get()) }
     single<MessagingRepository> { MessagingRepository(get()) }
     
+    // Matching Engine — Scorers
+    single<List<ScoreDimension>> {
+        listOf(
+            ProustAffinityScorer(get()),
+            GeolocationScorer(get()),
+            InterestOverlapScorer(get()),
+            SeekingCompatibilityScorer(get())
+        )
+    }
+    single { MatchDiscoveryService(get(), get()) }
+    
     // Services
     single { AuthService(get(), get(), get()) }
     single { UserService(get(), get()) }
     single { ValuesService(get()) }
-    single { MatchingService(get(), get(), get()) }
+    single { MatchingService(get<MatchRepository>(), get<UserRepository>(), get<ProfileRepository>(), get<MatchDiscoveryService>()) }
     single { PromptService(get()) }
     single { MessagingService(get()) }
 }

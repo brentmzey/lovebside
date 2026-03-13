@@ -19,7 +19,7 @@ import org.koin.ktor.ext.inject
 fun Route.messagingRoutes() {
     val messagingService by inject<MessagingService>()
     
-    authenticate("jwt") {
+    authenticate("auth-jwt") {
         route("/conversations") {
             // Get all conversations for current user
             get {

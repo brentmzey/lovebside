@@ -24,7 +24,9 @@ class JvmNetworkMonitor : NetworkMonitor {
     private var isMonitoring = false
     
     override fun startMonitoring() {
-        if (isMonitoring) return
+        if (isMonitoring) {
+            return
+        }
         isMonitoring = true
         
         scope.launch {

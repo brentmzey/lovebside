@@ -1,0 +1,159 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  // Check if collection already exists (idempotency)
+  try {
+    const existing = app.findCollectionByNameOrId("m_mentions");
+    if (existing) {
+      console.log("m_mentions collection already exists, skipping creation");
+      return;
+    }
+  } catch (e) {
+    // Collection doesn't exist, continue with creation
+  }
+
+  // 1. Create the collection with basic fields only
+  const collection = new Collection({
+    "id": "pbc_m_mentions",
+    "created": "2026-01-30 13:00:00.000Z",
+    "updated": "2026-01-30 13:00:00.000Z",
+    "name": "m_mentions",
+    "type": "base",
+    "system": false,
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "system": false,
+        "id": "number_position",
+        "name": "position",
+        "type": "number",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "min": 0,
+        "max": null,
+        "noDecimal": true
+      },
+      {
+        "system": false,
+        "id": "number_length",
+        "name": "length",
+        "type": "number",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "min": 1,
+        "max": null,
+        "noDecimal": true
+      },
+      {
+        "system": false,
+        "id": "bool_notified",
+        "name": "notified",
+        "type": "bool",
+        "required": false,
+        "presentable": false
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  });
+
+  app.save(collection);
+
+  // 2. Add Relation Fields
+  const createdCollection = app.findCollectionByNameOrId("m_mentions");
+
+  createdCollection.fields.addAt(1, new Field({
+    "system": false,
+    "id": "relation_message",
+    "name": "message_id",
+    "type": "relation",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "collectionId": "pbc_m_messages",
+    "cascadeDelete": true,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": null
+  }));
+
+  createdCollection.fields.addAt(2, new Field({
+    "system": false,
+    "id": "relation_mentioned_user",
+    "name": "mentioned_user_id",
+    "type": "relation",
+    "required": true,
+    "presentable": true,
+    "unique": false,
+    "collectionId": "_pb_users_auth_",
+    "cascadeDelete": false,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": ["username", "name"]
+  }));
+
+  // 3. Add Indexes
+  createdCollection.indexes = [
+    "CREATE INDEX `idx_mention_message` ON `m_mentions` (`message_id`)",
+    "CREATE INDEX `idx_mention_user` ON `m_mentions` (`mentioned_user_id`)",
+    "CREATE INDEX `idx_mention_notified` ON `m_mentions` (`notified`, `created`)",
+    "CREATE UNIQUE INDEX `idx_mention_unique` ON `m_mentions` (`message_id`, `mentioned_user_id`, `position`)"
+  ];
+
+  // 4. Add Rules
+  createdCollection.listRule = "@request.auth.id != ''";
+  createdCollection.viewRule = "@request.auth.id != ''";
+  createdCollection.createRule = "@request.auth.id != '' && message_id.sender_id = @request.auth.id";
+  createdCollection.updateRule = null; // Mentions shouldn't be updated
+  createdCollection.deleteRule = "@request.auth.id != '' && message_id.sender_id = @request.auth.id";
+
+  return app.save(createdCollection);
+
+}, (app) => {
+  // Rollback: delete collection if it exists
+  try {
+    const collection = app.findCollectionByNameOrId("m_mentions");
+    return app.delete(collection);
+  } catch (e) {
+    console.log("m_mentions collection doesn't exist, nothing to rollback");
+  }
+})

@@ -10,17 +10,23 @@ interface MatchProfile {
 }
 
 function calculateProustSimilarity(ansA: string, ansB: string): number {
-    if (!ansA || !ansB) return 0;
+    if (!ansA || !ansB) {
+        return 0;
+    }
     const tokensA = new Set(ansA.toLowerCase().split(/\s+/));
     const tokensB = new Set(ansB.toLowerCase().split(/\s+/));
 
     let intersectionCount = 0;
     tokensA.forEach(t => {
-        if (tokensB.has(t)) intersectionCount++;
+        if (tokensB.has(t)) {
+            intersectionCount++;
+        }
     });
 
     const unionCount = new Set([...tokensA, ...tokensB]).size;
-    if (unionCount === 0) return 0;
+    if (unionCount === 0) {
+        return 0;
+    }
     return intersectionCount / unionCount;
 }
 
@@ -53,7 +59,9 @@ function runMatchingAlgorithm() {
             const qId = r.get("question_id");
             const txt = r.get("response");
 
-            if (!userAnswers[uId]) userAnswers[uId] = {};
+            if (!userAnswers[uId]) {
+                userAnswers[uId] = {};
+            }
             userAnswers[uId][qId] = txt;
         });
 
@@ -65,20 +73,27 @@ function runMatchingAlgorithm() {
                 const u1 = p1.userId;
                 const u2 = p2.userId;
 
-                if (u1 === u2) continue;
+                if (u1 === u2) {
+                    continue;
+                }
 
                 // Seeking Compatibility
                 const s1 = p1.seeking;
                 const s2 = p2.seeking;
                 let isCompatible = false;
 
-                if (s1 === "Both" || s2 === "Both") isCompatible = true;
-                else if (s1 === s2) isCompatible = true;
+                if (s1 === "Both" || s2 === "Both") {
+                    isCompatible = true;
+                } else if (s1 === s2) {
+                    isCompatible = true;
+                }
 
                 // Allow Friendship/Relationship cross-match if one implies friend? No, seeking is distinct.
                 // Assuming "Friendship" seekers only match "Friendship" or "Both".
 
-                if (!isCompatible) continue;
+                if (!isCompatible) {
+                    continue;
+                }
 
                 // Scoring
                 let score = 0;

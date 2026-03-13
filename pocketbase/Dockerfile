@@ -1,4 +1,4 @@
-FROM ghcr.io/muchobien/pocketbase:latest
+FROM ghcr.io/muchobien/pocketbase:0.22.27
 
 # Copy local migrations to the image to ensure schema reproducibility
 COPY ./pb_migrations /pb_migrations

@@ -60,13 +60,23 @@ export async function up(pbUrl: string, token: string) {
             const weightA = weights[a.name] ?? 50;
             const weightB = weights[b.name] ?? 50;
 
-            if (weightA !== weightB) return weightA - weightB;
+            if (weightA !== weightB) {
+                return weightA - weightB;
+            }
 
             // Fallback to existing logic
-            if (a.type === 'auth' && b.type !== 'auth') return -1;
-            if (a.type !== 'auth' && b.type === 'auth') return 1;
-            if (a.name.startsWith('t_') && !b.name.startsWith('t_')) return -1;
-            if (!a.name.startsWith('t_') && b.name.startsWith('t_')) return 1;
+            if (a.type === 'auth' && b.type !== 'auth') {
+                return -1;
+            }
+            if (a.type !== 'auth' && b.type === 'auth') {
+                return 1;
+            }
+            if (a.name.startsWith('t_') && !b.name.startsWith('t_')) {
+                return -1;
+            }
+            if (!a.name.startsWith('t_') && b.name.startsWith('t_')) {
+                return 1;
+            }
             return a.name.localeCompare(b.name);
         });
 

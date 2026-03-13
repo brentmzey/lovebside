@@ -12,6 +12,11 @@ import kotlinx.datetime.LocalDate
  * - Domain ↔ API (DTOs for clients)
  */
 
+fun String.toInstant(): Instant {
+    // PocketBase uses ' ' instead of 'T' for ISO-8601
+    return Instant.parse(this.replace(' ', 'T'))
+}
+
 // ===== Database to Domain =====
 
 fun PBUser.toDomain(): User = User(
@@ -19,21 +24,21 @@ fun PBUser.toDomain(): User = User(
     email = email,
     emailVisibility = emailVisibility,
     verified = verified,
-    createdAt = Instant.parse(created),
-    updatedAt = Instant.parse(updated)
+    createdAt = created.toInstant(),
+    updatedAt = updated.toInstant()
 )
 
 fun PBProfile.toDomain(): Profile = Profile(
     id = id,
-    userId = userId,
+    userId = user,
     firstName = firstName,
     lastName = lastName,
     birthDate = LocalDate.parse(birthDate),
     bio = bio,
     location = location,
     seeking = SeekingType.fromString(seeking),
-    createdAt = Instant.parse(created),
-    updatedAt = Instant.parse(updated)
+    createdAt = created.toInstant(),
+    updatedAt = updated.toInstant()
 )
 
 fun PBKeyValue.toDomain(): KeyValue = KeyValue(
@@ -42,8 +47,8 @@ fun PBKeyValue.toDomain(): KeyValue = KeyValue(
     category = CategoryType.fromString(category),
     description = description,
     displayOrder = displayOrder,
-    createdAt = Instant.parse(created),
-    updatedAt = Instant.parse(updated)
+    createdAt = created.toInstant(),
+    updatedAt = updated.toInstant()
 )
 
 fun PBUserValue.toDomain(): UserValue = UserValue(
@@ -59,8 +64,8 @@ fun PBUserValue.toDomain(): UserValue = UserValue(
         updatedAt = Instant.parse(updated)
     ),
     importance = importance,
-    createdAt = Instant.parse(created),
-    updatedAt = Instant.parse(updated)
+    createdAt = created.toInstant(),
+    updatedAt = updated.toInstant()
 )
 
 fun PBMatch.toDomain(): Match = Match(
@@ -69,8 +74,8 @@ fun PBMatch.toDomain(): Match = Match(
     matchedUserId = matchedUserId,
     compatibilityScore = compatibilityScore,
     status = MatchStatus.fromString(status),
-    createdAt = Instant.parse(created),
-    updatedAt = Instant.parse(updated)
+    createdAt = created.toInstant(),
+    updatedAt = updated.toInstant()
 )
 
 fun PBPrompt.toDomain(): Prompt = Prompt(
@@ -78,8 +83,8 @@ fun PBPrompt.toDomain(): Prompt = Prompt(
     text = text,
     category = category,
     displayOrder = displayOrder,
-    createdAt = Instant.parse(created),
-    updatedAt = Instant.parse(updated)
+    createdAt = created.toInstant(),
+    updatedAt = updated.toInstant()
 )
 
 fun PBUserAnswer.toDomain(): UserAnswer = UserAnswer(
@@ -87,8 +92,8 @@ fun PBUserAnswer.toDomain(): UserAnswer = UserAnswer(
     userId = userId,
     promptId = promptId,
     answer = answer,
-    createdAt = Instant.parse(created),
-    updatedAt = Instant.parse(updated)
+    createdAt = created.toInstant(),
+    updatedAt = updated.toInstant()
 )
 
 // ===== Domain to API =====

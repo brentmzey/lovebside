@@ -138,7 +138,9 @@ internal class SmartPollingEngine(
         val iterator = snapshot.records.iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()
-            if (entry.key in seen) continue
+            if (entry.key in seen) {
+                continue
+            }
 
             val misses = entry.value.misses + 1
             if (misses >= config.deleteAfterMisses) {
@@ -166,7 +168,11 @@ internal class SmartPollingEngine(
         val record = try {
             service.getOne(recordId, subscription.options)
         } catch (error: ClientResponseException) {
-            if (error.statusCode == 404) null else throw error
+            if (error.statusCode == 404) {
+                null
+            } else {
+                throw error
+            }
         }
 
         val cached = snapshot.records[recordId]
@@ -187,7 +193,11 @@ internal class SmartPollingEngine(
                 val updated = record["updated"]?.jsonPrimitive?.contentOrNull
                 val changed = updated != null && updated != cached.updated
                 snapshot.records[recordId] = RecordShadow(record, updated ?: cached.updated, 0)
-                if (changed) emit(subscription.key, RealtimeAction.update, record) else false
+                if (changed) {
+                    emit(subscription.key, RealtimeAction.update, record)
+                } else {
+                    false
+                }
             }
             else -> false
         }
@@ -204,13 +214,17 @@ internal class SmartPollingEngine(
     }
 
     private fun nextDelay(current: Long, emitted: Boolean): Long {
-        if (emitted) return config.minDelayMs
+        if (emitted) {
+            return config.minDelayMs
+        }
         val doubled = if (current <= 0) config.minDelayMs else current * 2
         return min(max(doubled, config.minDelayMs), config.maxDelayMs)
     }
 
     private fun withJitter(delay: Long): Long {
-        if (config.jitterRatio <= 0.0) return delay
+        if (config.jitterRatio <= 0.0) {
+            return delay
+        }
         val jitter = max(1L, (delay * config.jitterRatio).toLong())
         return delay - jitter + Random.nextLong(jitter * 2)
     }

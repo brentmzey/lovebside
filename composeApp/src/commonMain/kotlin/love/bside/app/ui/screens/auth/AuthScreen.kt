@@ -142,15 +142,27 @@ fun AuthScreen(
             AuthFormContent(
                 uiState = uiState,
                 onStateChange = {
-                    if (it.email != uiState.email) viewModel.onEmailChange(it.email)
-                    if (it.password != uiState.password) viewModel.onPasswordChange(it.password)
-                    if (it.confirmPassword != uiState.confirmPassword) viewModel.onConfirmPasswordChange(
-                        it.confirmPassword
-                    )
-                    if (it.firstName != uiState.firstName) viewModel.onFirstNameChange(it.firstName)
-                    if (it.lastName != uiState.lastName) viewModel.onLastNameChange(it.lastName)
-                    if (it.birthDate != uiState.birthDate) viewModel.onBirthDateChange(it.birthDate)
-                    if (it.seeking != uiState.seeking) viewModel.onSeekingChange(it.seeking)
+                    if (it.email != uiState.email) {
+                        viewModel.onEmailChange(it.email)
+                    }
+                    if (it.password != uiState.password) {
+                        viewModel.onPasswordChange(it.password)
+                    }
+                    if (it.confirmPassword != uiState.confirmPassword) {
+                        viewModel.onConfirmPasswordChange(it.confirmPassword)
+                    }
+                    if (it.firstName != uiState.firstName) {
+                        viewModel.onFirstNameChange(it.firstName)
+                    }
+                    if (it.lastName != uiState.lastName) {
+                        viewModel.onLastNameChange(it.lastName)
+                    }
+                    if (it.birthDate != uiState.birthDate) {
+                        viewModel.onBirthDateChange(it.birthDate)
+                    }
+                    if (it.seeking != uiState.seeking) {
+                        viewModel.onSeekingChange(it.seeking)
+                    }
                 },
                 onModeChange = { viewModel.onModeChange(it) },
                 onBack = { viewModel.onModeChange(AuthMode.Landing) },
@@ -319,8 +331,12 @@ private fun AuthFormContent(
                     }
                 }
                 
-                if (uiState.errorMessage != null) ErrorCard(message = uiState.errorMessage!!)
-                if (biometricError != null) ErrorCard(message = biometricError!!)
+                if (uiState.errorMessage != null) {
+                    ErrorCard(message = uiState.errorMessage!!)
+                }
+                if (biometricError != null) {
+                    ErrorCard(message = biometricError!!)
+                }
 
                 Button(
                     onClick = onSubmit,

@@ -21,7 +21,9 @@ class IosNetworkMonitor : NetworkMonitor {
     private var isMonitoring = false
     
     override fun startMonitoring() {
-        if (isMonitoring) return
+        if (isMonitoring) {
+            return
+        }
         isMonitoring = true
         
         // In production, this would monitor actual network state

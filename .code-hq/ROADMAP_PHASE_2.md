@@ -31,6 +31,41 @@ This roadmap focuses on enriching the backend, finalizing core features (Matchin
 - [/] **Threading**: Verify and polish the threaded reply interface.
 - [/] **Testing**: `MessagingThreadIntegrationTest` stabilization and broad device verification.
 
+### Expanded Messaging Features (New)
+- [X] **Reactions** (Schema Complete): 
+  - Backend: `m_reactions` collection ✅ DONE
+  - Frontend: UI for adding/removing/viewing reactions ⏳ TODO
+  - API: REST endpoints for CRUD ⏳ TODO
+- [/] **Typing Indicators**: Real-time typing status (`m_typing_status`).
+  - Backend: Schema ✅ COMPLETE
+  - API: WebSocket events ⏳ TODO
+  - Frontend: UI indicators ⏳ TODO
+- [X] **Presence** (Schema Complete): Online/Activity status (`m_presence`).
+  - Backend: Schema ✅ DONE (migration 1769810000)
+  - API: Real-time updates ⏳ TODO
+  - Frontend: Status display ⏳ TODO
+- [ ] **Mentions**: `@user` support in messages.
+  - Backend: Schema needed ⏳ TODO
+  - API: Parse and notify ⏳ TODO
+  - Frontend: Autocomplete UI ⏳ TODO
+- [ ] **Polls**: Create and vote on polls.
+  - Backend: Schema needed ⏳ TODO
+  - Frontend: Poll creation/voting UI ⏳ TODO
+- [ ] **Rich Link Previews**: OpenGraph parsing for links.
+  - Backend: URL metadata extraction ⏳ TODO
+  - Frontend: Preview cards ⏳ TODO
+- [ ] **Disappearing Messages**: Ephemeral messages.
+  - Backend: TTL logic ⏳ TODO
+  - Frontend: Timer UI ⏳ TODO
+- [ ] **E2E Encryption**: (Planned for Phase 3).
+- [/] **Read Receipts**: Track message read status.
+  - Backend: `m_read_receipts` ✅ COMPLETE
+  - API: Update endpoints ⏳ TODO
+  - Frontend: Read indicators ⏳ TODO
+- [ ] **Voice Messages**: Record and playback audio.
+  - Backend: Audio storage ⏳ TODO
+  - Frontend: Recorder/player UI ⏳ TODO
+
 ## 3. Premium UI/UX (Apple Guidelines)
 
 **Goal**: "Wow" the user with dynamic, fluid, and beautiful interfaces.

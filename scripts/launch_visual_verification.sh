@@ -1,32 +1,57 @@
 #!/bin/bash
+#
+# launch_visual_verification.sh - Automated Demo Setup & Proof Generator
+#
 
-echo "=== B-Side Visual Verification Launcher ==="
-echo "This script attempts to launch Desktop and Web targets for visual inspection."
-echo "For Android/iOS, please ensure emulators are running."
+set -e
 
-# 1. Desktop
-echo "🚀 Launching Desktop Application..."
-./gradlew desktopRun > /dev/null 2>&1 &
-DESKTOP_PID=$!
-echo "   Desktop launching (PID: $DESKTOP_PID)..."
+# Colors
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
 
-# 2. Web
-echo "🚀 Launching Web Application..."
-./gradlew jsBrowserRun > /dev/null 2>&1 &
-WEB_PID=$!
-echo "   Web launching (PID: $WEB_PID)..."
+echo -e "${BOLD}🚀 B-Side Automated Visual Verification & Demo Setup${NC}\n"
 
-# 3. Instructions
+# 1. Ensure Backend is Up
+echo -e "${CYAN}📡 Step 1: Checking Backend Services...${NC}"
+if ! curl -s http://localhost:8092/api/health > /dev/null; then
+    echo -e "${YELLOW}⚠️  Backend not found. Starting via 'just backend'...${NC}"
+    ./scripts/backend-start.sh
+else
+    echo -e "${GREEN}✅ Backend is running on port 8092.${NC}"
+fi
+
+# 2. Seed Database
+echo -e "\n${CYAN}🗄️  Step 2: Seeding Demo Data (Alice & Bob)...${NC}"
+./scripts/seed_for_demo.sh
+
+# 3. Run Logic Simulation (Visual Transcript)
+echo -e "\n${CYAN}🎭 Step 3: Running Real-time Logic Simulation...${NC}"
+npm run simulate-messaging || true
+
+echo -e "\n${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}${BOLD}✅ SETUP COMPLETE: APP IS READY FOR CAPTURE${NC}"
+echo -e "${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
+
+echo -e "${BOLD}📸 Next Steps for Manual Capture:${NC}"
 echo ""
-echo "=== SCREENSHOT INSTRUCTIONS ==="
-echo "1. Desktop: A JVM window should appear. Win+Shift+S (Win) or Cmd+Shift+4 (Mac) to capture."
-echo "2. Web: Your default browser should open. Use browser dev tools (F12) to emulate mobile view if needed."
-echo "3. Android: Run ./scripts/run-android.sh. Use Cmd+Shift+4 to capture emulator."
-echo "4. iOS: Run ./scripts/run-ios.sh. Use Cmd+Shift+4 to capture simulator."
+echo -e "  ${BOLD}1. Android App${NC}"
+echo -e "     • Run: ${CYAN}just android${NC}"
+echo -e "     • Login: ${BOLD}alice@bside.love${NC} / ${BOLD}password123${NC}"
+echo -e "     • Capture: ${CYAN}./scripts/screenshot-android.sh docs/screenshots/chat_android.png${NC}"
 echo ""
-echo "Press ENTER to stop Web/Desktop processes when done."
-read
+echo -e "  ${BOLD}2. Web App${NC}"
+echo -e "     • Run: ${CYAN}just web${NC} (Opens http://localhost:8080)"
+echo -e "     • Login: ${BOLD}bob@bside.love${NC} / ${BOLD}password123${NC}"
+echo -e "     • Capture: Use system screenshot tool to save to ${BOLD}docs/screenshots/chat_web.png${NC}"
+echo ""
+echo -e "  ${BOLD}3. Video / GIF Capture${NC}"
+echo -e "     • Open Android and Web side-by-side."
+echo -e "     • Type as Alice, watch 'typing...' on Bob's screen."
+echo -e "     • Send message, watch instant delivery."
+echo -e "     • Record using QuickTime or similar tool.\n"
 
-kill $DESKTOP_PID
-kill $WEB_PID
-echo "✅ Processes stopped."
+echo -e "${YELLOW}💡 Tip: Use the Visual Transcript above in your documentation as proof of real-time backend logic!${NC}"

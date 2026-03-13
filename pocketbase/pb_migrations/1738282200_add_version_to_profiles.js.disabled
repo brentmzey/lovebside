@@ -1,0 +1,31 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((db) => {
+  const dao = new Dao(db);
+  const collection = dao.findCollectionByNameOrId("pbc_1136505475");
+
+  // Add version field for optimistic locking on profiles
+  collection.schema.addField(new SchemaField({
+    "system": false,
+    "id": "profile_version",
+    "name": "version",
+    "type": "number",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "options": {
+      "min": 1,
+      "max": null,
+      "noDecimal": true
+    }
+  }));
+
+  return dao.saveCollection(collection);
+}, (db) => {
+  const dao = new Dao(db);
+  const collection = dao.findCollectionByNameOrId("pbc_1136505475");
+
+  // Remove version field
+  collection.schema.removeField("profile_version");
+
+  return dao.saveCollection(collection);
+});

@@ -1,0 +1,156 @@
+┌────────────────────────────────────────────────────────────────────┐
+│                  🚀 B-SIDE QUICK START CHEATSHEET                  │
+└────────────────────────────────────────────────────────────────────┘
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                      ⚡ ONE COMMAND START                          ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  just start        # Start everything (backend + all UIs)
+  just stop         # Stop everything
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                         🐳 BACKEND ONLY                            ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+┌─────────────────────┬──────────────────────────────────────────────┐
+│ Docker (Recommended)│ docker-compose up --build                    │
+│                     │ # Runs on ports 8092 (PB), 8081 (API)        │
+├─────────────────────┼──────────────────────────────────────────────┤
+│ Local Binary        │ Terminal 1: ./scripts/setup_dev_env.sh       │
+│                     │ Terminal 2: ./gradlew :server:run            │
+└─────────────────────┴──────────────────────────────────────────────┘
+
+  📍 PocketBase Admin:  http://localhost:8092/_/
+  📍 PocketBase API:    http://localhost:8092/api/
+  📍 Ktor Server:       http://localhost:8081/
+
+  🔑 Default Login:
+     Email:    tester_admin@bside.love
+     Password: password123
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                      💻 FRONTEND TARGETS                           ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+┌─────────────────────┬──────────────────────────────────────────────┐
+│ 🌐 Web              │ just web                                     │
+│                     │ # Opens http://localhost:8080 (hot reload)   │
+├─────────────────────┼──────────────────────────────────────────────┤
+│ 🖥️  Desktop         │ just desktop         # Standard              │
+│                     │ just desktop-hot     # With hot reload       │
+├─────────────────────┼──────────────────────────────────────────────┤
+│ 🤖 Android          │ just android-studio  # Open in AS            │
+│                     │ just android         # Install APK           │
+├─────────────────────┼──────────────────────────────────────────────┤
+│ 🍎 iOS              │ just ios             # Open Xcode            │
+│                     │ # macOS only                                 │
+└─────────────────────┴──────────────────────────────────────────────┘
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                    📱 ANDROID STUDIO WORKFLOW                      ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  1. Open Android Studio → Open Project → bside/
+  2. Wait for Gradle sync
+  3. Device Manager → Create Virtual Device (Pixel 6 Pro, API 34)
+  4. Start emulator ▶️
+  5. Select device from dropdown (top toolbar)
+  6. Click Run ▶️ (green play button)
+
+  OR from terminal:
+    ./gradlew :composeApp:installDebug
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                       🗄️  DATABASE COMMANDS                        ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  just migrate              # Apply migrations
+  just migrate-status       # Check status
+  just schema-validate      # Validate schema
+  just test-migrations      # Test locally (⚠️  destroys data)
+  
+  ./scripts/seed_data.sh    # Seed test data
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                         🧪 TESTING                                 ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  ./gradlew check                    # All tests
+  ./gradlew :shared:jvmTest          # Shared module
+  ./gradlew :composeApp:jvmTest      # App tests
+  ./scripts/test-full-stack.sh       # Integration tests
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                      🔧 TROUBLESHOOTING                            ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+┌────────────────────────────┬───────────────────────────────────────┐
+│ Port already in use        │ ./scripts/stop-all.sh                 │
+├────────────────────────────┼───────────────────────────────────────┤
+│ Gradle build failed        │ ./gradlew clean                       │
+├────────────────────────────┼───────────────────────────────────────┤
+│ Docker won't start         │ docker-compose down -v                │
+│                            │ docker system prune -a                │
+├────────────────────────────┼───────────────────────────────────────┤
+│ Android Studio won't sync │ File → Invalidate Caches → Restart    │
+├────────────────────────────┼───────────────────────────────────────┤
+│ Can't reach backend        │ Android: Use 10.0.2.2 not localhost   │
+│                            │ iOS: localhost works                  │
+│                            │ Physical: Use computer's IP           │
+└────────────────────────────┴───────────────────────────────────────┘
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                      📊 HEALTH CHECKS                              ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  curl http://localhost:8092/api/health    # PocketBase
+  curl http://localhost:8081/health        # Ktor Server
+  
+  ./scripts/verify-targets.sh              # Check all services
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                       🚦 STATUS INDICATORS                         ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  ✅ Backend Ready:    docker ps shows 3 containers running
+  ✅ Web Ready:        Browser opened to http://localhost:8080
+  ✅ Desktop Ready:    Native window appears
+  ✅ Android Ready:    App installed on emulator
+  ✅ iOS Ready:        App installed on simulator
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                      💡 PRO TIPS                                   ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  • Keep Docker running in background for faster starts
+  • Use 'just' commands - they're shorter and handle dependencies
+  • Enable hot reload for faster iteration (desktop-hot, web)
+  • Start emulators before building to save time
+  • Run tests frequently to catch issues early
+  • Check logs: docker-compose logs -f
+
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                      📚 MORE INFO                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  docs/QUICK_START_BACKEND.md    # Detailed backend guide
+  docs/LOCAL_DEVELOPMENT.md       # Complete development guide
+  docs/STARTUP_FLOWCHART.md       # Visual architecture
+  docs/TESTING.md                 # Testing guide
+  docs/TROUBLESHOOTING.md         # Common issues
+
+
+┌────────────────────────────────────────────────────────────────────┐
+│                    🎉 HAPPY CODING! 🚀                             │
+└────────────────────────────────────────────────────────────────────┘

@@ -60,6 +60,19 @@ private data class ParticipantCreateRequest(
         @kotlinx.serialization.SerialName("is_pinned") val isPinned: Boolean
 )
 
+/**
+ * PocketBase-backed messaging repository.
+ * 
+ * **Real-time Philosophy:**
+ * Real-time subscriptions are ALWAYS enabled. We never disable them for synchronicity.
+ * Instead, we use:
+ * - Optimistic updates: UI updates immediately on writes
+ * - Eventual consistency: Real-time updates reconcile any discrepancies
+ * - Rate limiting: Prevent overwhelming the backend
+ * - Write serialization: Single-writer mutex prevents conflicts
+ * 
+ * This ensures the best UX while maintaining data consistency.
+ */
 class PocketBaseMessagingRepository(
         private val pocketBase: PocketBase,
         realtimeService: RealtimeService? = null,

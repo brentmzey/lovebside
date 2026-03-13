@@ -72,7 +72,7 @@ object BsideSchema {
         type = CollectionType.BASE,
         fields = listOf(
             FieldSchema("userId", FieldType.RELATION, required = true, unique = true,
-                options = FieldOptions(collectionId = "t_user", cascadeDelete = true)),
+                options = FieldOptions(collectionId = "users", cascadeDelete = true)),
             FieldSchema("firstName", FieldType.TEXT, required = true,
                 options = FieldOptions(min = 1, max = 50)),
             FieldSchema("lastName", FieldType.TEXT, required = true,
@@ -125,7 +125,7 @@ object BsideSchema {
         type = CollectionType.BASE,
         fields = listOf(
             FieldSchema("userId", FieldType.RELATION, required = true,
-                options = FieldOptions(collectionId = "t_user", cascadeDelete = true)),
+                options = FieldOptions(collectionId = "users", cascadeDelete = true)),
             FieldSchema("keyValueId", FieldType.RELATION, required = true,
                 options = FieldOptions(collectionId = "s_key_values")),
             FieldSchema("importance", FieldType.NUMBER, required = true,
@@ -173,7 +173,7 @@ object BsideSchema {
         type = CollectionType.BASE,
         fields = listOf(
             FieldSchema("userId", FieldType.RELATION, required = true,
-                options = FieldOptions(collectionId = "t_user", cascadeDelete = true)),
+                options = FieldOptions(collectionId = "users", cascadeDelete = true)),
             FieldSchema("promptId", FieldType.RELATION, required = true,
                 options = FieldOptions(collectionId = "s_prompts")),
             FieldSchema("answer", FieldType.TEXT, required = true,
@@ -198,9 +198,9 @@ object BsideSchema {
         type = CollectionType.BASE,
         fields = listOf(
             FieldSchema("userId", FieldType.RELATION, required = true,
-                options = FieldOptions(collectionId = "t_user")),
+                options = FieldOptions(collectionId = "users")),
             FieldSchema("matchedUserId", FieldType.RELATION, required = true,
-                options = FieldOptions(collectionId = "t_user")),
+                options = FieldOptions(collectionId = "users")),
             FieldSchema("compatibilityScore", FieldType.NUMBER, required = true,
                 options = FieldOptions(min = 0, max = 100)),
             FieldSchema("sharedValues", FieldType.JSON),

@@ -19,7 +19,8 @@ import kotlinx.datetime.Instant
 import love.bside.app.ui.design.tokens.*
 
 import coil3.compose.AsyncImage
-import love.bside.app.domain.models.Message
+import love.bside.app.data.models.Message
+import love.bside.app.data.models.Reaction
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.layout.ContentScale
 
@@ -32,14 +33,16 @@ import androidx.compose.ui.layout.ContentScale
 @Composable
 fun MessageBubble(
     content: String,
-    timestamp: Instant,
+    timestamp: String,
     isSent: Boolean,
     modifier: Modifier = Modifier,
     showAvatar: Boolean = true,
     senderInitials: String? = null,
     isRead: Boolean = false,
     mediaUrls: List<String> = emptyList(),
-    quotedReply: @Composable (() -> Unit)? = null
+    quotedReply: @Composable (() -> Unit)? = null,
+    reactions: Map<String, Int> = emptyMap(), // Emoji -> Count
+    onReactionClick: (String) -> Unit = {}
 ) {
     // Entrance animation
     var visible by remember { mutableStateOf(false) }
@@ -124,6 +127,31 @@ fun MessageBubble(
                     }
                 }
 
+                // Reactions
+                if (reactions.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        horizontalArrangement = if (isSent) Arrangement.End else Arrangement.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        reactions.forEach { (emoji, count) ->
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 4.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(BsideColors.Neutral100)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "$emoji $count",
+                                    style = BsideTypography.LabelSmall,
+                                    color = BsideColors.TextSecondary
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // Timestamp and read status
                 Row(
                     modifier = Modifier.padding(
@@ -167,9 +195,17 @@ fun MessageBubble(
 /**
  * Format timestamp for display (e.g., "2:30 PM")
  */
-private fun formatTimestamp(timestamp: Instant): String {
-    // TODO: Use kotlinx-datetime to format properly across platforms
-    return "2:30 PM" // Placeholder
+private fun formatTimestamp(timestamp: String): String {
+    return try {
+        val instant = Instant.parse(timestamp)
+        // Simple manual formatting until we have full DateTimeFormatter support
+        // This is a quick approximation
+        val iso = instant.toString() // 2024-01-30T14:30:00Z
+        val timePart = iso.substringAfter("T").substringBefore("Z").take(5) // 14:30
+        timePart
+    } catch (e: Exception) {
+        ""
+    }
 }
 
 /**
@@ -274,6 +310,11 @@ fun MessageBubble(
         } else {
             null
         }
+        
+        // Group reactions by emoji
+        val reactionCounts = message.reactions
+            .groupingBy { it.reaction }
+            .eachCount()
 
         MessageBubble(
             content = message.content,
@@ -283,7 +324,8 @@ fun MessageBubble(
             showAvatar = !isMyMessage, // Logic from ChatScreen
             senderInitials = "??", // TODO: Get from sender name via repo or message expansion
             mediaUrls = mediaUrls,
-            quotedReply = quotedReply
+            quotedReply = quotedReply,
+            reactions = reactionCounts
         )
 
         if (isMyMessage) {

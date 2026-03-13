@@ -4,6 +4,12 @@ This guide covers how to run the backend services and valid client targets.
 
 ## Quick Start (Using Just)
 
+### Workflow Streamlined 🚀⚡️
+
+### Prerequisites
+
+- `just` installed
+
 If you have `just` installed, you can use the following commands:
 
 ```bash

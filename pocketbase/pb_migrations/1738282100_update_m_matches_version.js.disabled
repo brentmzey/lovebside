@@ -1,0 +1,60 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((db) => {
+  const dao = new Dao(db);
+  const collection = dao.findCollectionByNameOrId("pbc_943898475");
+
+  // Add version field for optimistic locking
+  collection.schema.addField(new SchemaField({
+    "system": false,
+    "id": "match_version",
+    "name": "version",
+    "type": "number",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "options": {
+      "min": 1,
+      "max": null,
+      "noDecimal": true
+    }
+  }));
+
+  // Add conversation_id to link matches to conversations
+  collection.schema.addField(new SchemaField({
+    "system": false,
+    "id": "match_conversation",
+    "name": "conversation_id",
+    "type": "relation",
+    "required": false,
+    "presentable": false,
+    "unique": false,
+    "options": {
+      "collectionId": "pbc_3138845570",
+      "cascadeDelete": false,
+      "minSelect": null,
+      "maxSelect": 1,
+      "displayFields": ["name"]
+    }
+  }));
+
+  // Update status values to match our needs
+  const statusField = collection.schema.getFieldById("select2063623452");
+  statusField.options.values = ["active", "archived", "blocked", "unmatched"];
+
+  return dao.saveCollection(collection);
+}, (db) => {
+  const dao = new Dao(db);
+  const collection = dao.findCollectionByNameOrId("pbc_943898475");
+
+  // Remove version field
+  collection.schema.removeField("match_version");
+  
+  // Remove conversation_id field
+  collection.schema.removeField("match_conversation");
+
+  // Revert status values
+  const statusField = collection.schema.getFieldById("select2063623452");
+  statusField.options.values = ["pending", "accepted", "rejected"];
+
+  return dao.saveCollection(collection);
+});

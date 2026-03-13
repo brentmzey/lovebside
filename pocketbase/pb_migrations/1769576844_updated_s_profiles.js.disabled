@@ -1,0 +1,350 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  const collection = app.findCollectionByNameOrId("pbc_1136505475")
+
+  // update collection data
+  unmarshal({
+    "createRule": "@request.auth.id != \"\"",
+    "deleteRule": "@request.auth.id != \"\"",
+    "listRule": "@request.auth.id != \"\"",
+    "updateRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id != \"\""
+  }, collection)
+
+  // add field
+  collection.fields.addAt(1, new Field({
+    "cascadeDelete": true,
+    "collectionId": "_pb_users_auth_",
+    "hidden": false,
+    "id": "relation1689669068",
+    "maxSelect": 1,
+    "minSelect": 0,
+    "name": "user_id",
+    "presentable": false,
+    "required": false,
+    "system": false,
+    "type": "relation"
+  }))
+
+  // add field
+  collection.fields.addAt(2, new Field({
+    "autogeneratePattern": "",
+    "hidden": false,
+    "id": "text596812118",
+    "max": 0,
+    "min": 0,
+    "name": "first_name",
+    "pattern": "",
+    "presentable": false,
+    "primaryKey": false,
+    "required": true,
+    "system": false,
+    "type": "text"
+  }))
+
+  // add field
+  collection.fields.addAt(3, new Field({
+    "autogeneratePattern": "",
+    "hidden": false,
+    "id": "text2659195599",
+    "max": 0,
+    "min": 0,
+    "name": "middle",
+    "pattern": "",
+    "presentable": false,
+    "primaryKey": false,
+    "required": false,
+    "system": false,
+    "type": "text"
+  }))
+
+  // add field
+  collection.fields.addAt(4, new Field({
+    "autogeneratePattern": "",
+    "hidden": false,
+    "id": "text2434144904",
+    "max": 0,
+    "min": 0,
+    "name": "last_name",
+    "pattern": "",
+    "presentable": false,
+    "primaryKey": false,
+    "required": true,
+    "system": false,
+    "type": "text"
+  }))
+
+  // add field
+  collection.fields.addAt(5, new Field({
+    "hidden": false,
+    "id": "date852947741",
+    "max": "",
+    "min": "",
+    "name": "birth_date",
+    "presentable": false,
+    "required": true,
+    "system": false,
+    "type": "date"
+  }))
+
+  // add field
+  collection.fields.addAt(6, new Field({
+    "convertURLs": false,
+    "hidden": false,
+    "id": "editor3709889147",
+    "maxSize": 0,
+    "name": "bio",
+    "presentable": false,
+    "required": false,
+    "system": false,
+    "type": "editor"
+  }))
+
+  // add field
+  collection.fields.addAt(7, new Field({
+    "autogeneratePattern": "",
+    "hidden": false,
+    "id": "text1587448267",
+    "max": 0,
+    "min": 0,
+    "name": "location",
+    "pattern": "",
+    "presentable": false,
+    "primaryKey": false,
+    "required": false,
+    "system": false,
+    "type": "text"
+  }))
+
+  // add field
+  collection.fields.addAt(8, new Field({
+    "hidden": false,
+    "id": "select3398320483",
+    "maxSelect": 1,
+    "name": "seeking",
+    "presentable": false,
+    "required": true,
+    "system": false,
+    "type": "select",
+    "values": [
+      "friendship",
+      "relationship",
+      "both"
+    ]
+  }))
+
+  // add field
+  collection.fields.addAt(9, new Field({
+    "hidden": false,
+    "id": "file1216345841",
+    "maxSelect": 1,
+    "maxSize": 0,
+    "mimeTypes": [],
+    "name": "profile_picture",
+    "presentable": false,
+    "protected": false,
+    "required": false,
+    "system": false,
+    "thumbs": [],
+    "type": "file"
+  }))
+
+  // add field
+  collection.fields.addAt(10, new Field({
+    "hidden": false,
+    "id": "file142008537",
+    "maxSelect": 15,
+    "maxSize": 10485760,
+    "mimeTypes": [],
+    "name": "photos",
+    "presentable": false,
+    "protected": false,
+    "required": false,
+    "system": false,
+    "thumbs": [],
+    "type": "file"
+  }))
+
+  // add field
+  collection.fields.addAt(11, new Field({
+    "convertURLs": false,
+    "hidden": false,
+    "id": "editor2581979743",
+    "maxSize": 0,
+    "name": "about_me",
+    "presentable": false,
+    "required": false,
+    "system": false,
+    "type": "editor"
+  }))
+
+  // add field
+  collection.fields.addAt(12, new Field({
+    "hidden": false,
+    "id": "number4115522831",
+    "max": 250,
+    "min": 120,
+    "name": "height",
+    "onlyInt": false,
+    "presentable": false,
+    "required": false,
+    "system": false,
+    "type": "number"
+  }))
+
+  // add field
+  collection.fields.addAt(13, new Field({
+    "autogeneratePattern": "",
+    "hidden": false,
+    "id": "text49839441",
+    "max": 100,
+    "min": 0,
+    "name": "occupation",
+    "pattern": "",
+    "presentable": false,
+    "primaryKey": false,
+    "required": false,
+    "system": false,
+    "type": "text"
+  }))
+
+  // add field
+  collection.fields.addAt(14, new Field({
+    "autogeneratePattern": "",
+    "hidden": false,
+    "id": "text3674889938",
+    "max": 200,
+    "min": 0,
+    "name": "education",
+    "pattern": "",
+    "presentable": false,
+    "primaryKey": false,
+    "required": false,
+    "system": false,
+    "type": "text"
+  }))
+
+  // add field
+  collection.fields.addAt(15, new Field({
+    "hidden": false,
+    "id": "select3367241194",
+    "maxSelect": 2,
+    "name": "interests",
+    "presentable": false,
+    "required": false,
+    "system": false,
+    "type": "select",
+    "values": [
+      "art",
+      "music",
+      "sports",
+      "travel",
+      "cooking",
+      "reading",
+      "photography",
+      "gaming",
+      "fitness",
+      "technology",
+      "nature",
+      "movies",
+      "theater",
+      "dancing",
+      "writing",
+      "volunteering",
+      "pets",
+      "fashion",
+      "food",
+      "science"
+    ]
+  }))
+
+  // add field
+  collection.fields.addAt(16, new Field({
+    "hidden": false,
+    "id": "autodate2990389176",
+    "name": "created",
+    "onCreate": true,
+    "onUpdate": false,
+    "presentable": false,
+    "system": false,
+    "type": "autodate"
+  }))
+
+  // add field
+  collection.fields.addAt(17, new Field({
+    "hidden": false,
+    "id": "autodate3332085495",
+    "name": "updated",
+    "onCreate": true,
+    "onUpdate": true,
+    "presentable": false,
+    "system": false,
+    "type": "autodate"
+  }))
+
+  return app.save(collection)
+}, (app) => {
+  const collection = app.findCollectionByNameOrId("pbc_1136505475")
+
+  // update collection data
+  unmarshal({
+    "createRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''",
+    "listRule": "",
+    "updateRule": "@request.auth.id != ''",
+    "viewRule": ""
+  }, collection)
+
+  // remove field
+  collection.fields.removeById("relation1689669068")
+
+  // remove field
+  collection.fields.removeById("text596812118")
+
+  // remove field
+  collection.fields.removeById("text2659195599")
+
+  // remove field
+  collection.fields.removeById("text2434144904")
+
+  // remove field
+  collection.fields.removeById("date852947741")
+
+  // remove field
+  collection.fields.removeById("editor3709889147")
+
+  // remove field
+  collection.fields.removeById("text1587448267")
+
+  // remove field
+  collection.fields.removeById("select3398320483")
+
+  // remove field
+  collection.fields.removeById("file1216345841")
+
+  // remove field
+  collection.fields.removeById("file142008537")
+
+  // remove field
+  collection.fields.removeById("editor2581979743")
+
+  // remove field
+  collection.fields.removeById("number4115522831")
+
+  // remove field
+  collection.fields.removeById("text49839441")
+
+  // remove field
+  collection.fields.removeById("text3674889938")
+
+  // remove field
+  collection.fields.removeById("select3367241194")
+
+  // remove field
+  collection.fields.removeById("autodate2990389176")
+
+  // remove field
+  collection.fields.removeById("autodate3332085495")
+
+  return app.save(collection)
+})

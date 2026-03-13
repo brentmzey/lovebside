@@ -1,0 +1,124 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  // 1. Create the collection with basic fields
+  const collection = new Collection({
+    "id": "pbc_m_reactions",
+    "created": "2026-01-30 10:00:00.000Z",
+    "updated": "2026-01-30 10:00:00.000Z",
+    "name": "m_reactions",
+    "type": "base",
+    "system": false,
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "system": false,
+        "id": "pb_field_reaction",
+        "name": "reaction",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "unique": false,
+        "min": 1,
+        "max": 10,
+        "pattern": ""
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    // Start with empty indexes and no rules to ensure creation
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  });
+
+  app.save(collection);
+
+  // 2. Add Relation Fields
+  // We need to fetch the collection again to modify it
+  const createdCollection = app.findCollectionByNameOrId("m_reactions");
+
+  createdCollection.fields.addAt(1, new Field({
+    "system": false,
+    "id": "pb_field_message",
+    "name": "message_id",
+    "type": "relation",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "collectionId": "pbc_719886462",
+    "cascadeDelete": true,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": null
+  }));
+
+  createdCollection.fields.addAt(2, new Field({
+    "system": false,
+    "id": "pb_field_user",
+    "name": "user_id",
+    "type": "relation",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "collectionId": "_pb_users_auth_",
+    "cascadeDelete": true,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": null
+  }));
+
+  // 3. Add Indexes
+  createdCollection.indexes = [
+      "CREATE INDEX `idx_reactions_message` ON `m_reactions` (`message_id`)",
+      "CREATE INDEX `idx_reactions_user` ON `m_reactions` (`user_id`)",
+      "CREATE UNIQUE INDEX `idx_reactions_unique` ON `m_reactions` (`message_id`, `user_id`, `reaction`)"
+  ];
+
+  // 4. Add Rules
+  createdCollection.listRule = "@request.auth.id != ''";
+  createdCollection.viewRule = "@request.auth.id != ''";
+  createdCollection.createRule = "@request.auth.id != '' && @request.auth.id = user_id";
+  createdCollection.updateRule = "@request.auth.id != '' && @request.auth.id = user_id";
+  createdCollection.deleteRule = "@request.auth.id != '' && @request.auth.id = user_id";
+
+  return app.save(createdCollection);
+
+}, (app) => {
+  const collection = app.findCollectionByNameOrId("m_reactions");
+  return app.delete(collection);
+})

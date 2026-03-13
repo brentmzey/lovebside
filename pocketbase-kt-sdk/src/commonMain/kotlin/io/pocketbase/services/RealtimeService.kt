@@ -174,7 +174,9 @@ class RealtimeService(client: PocketBase) : BaseService(client) {
     }
 
     private fun buildSubscriptionKey(topic: String, options: QueryOptions?): String {
-        if (options == null) return topic
+        if (options == null) {
+            return topic
+        }
 
         val queryParams = buildMap {
             options.filter?.let { put("filter", it) }
@@ -182,7 +184,9 @@ class RealtimeService(client: PocketBase) : BaseService(client) {
             options.fields?.let { put("fields", it) }
         }
 
-        if (queryParams.isEmpty()) return topic
+        if (queryParams.isEmpty()) {
+            return topic
+        }
 
         val optionsJson = json.encodeToString(
             JsonObject.serializer(),
@@ -341,7 +345,9 @@ class RealtimeService(client: PocketBase) : BaseService(client) {
 
     private fun hasUnsentSubscriptions(): Boolean {
         val latestTopics = getNonEmptySubscriptionKeys()
-        if (latestTopics.size != lastSentSubscriptions.size) return true
+        if (latestTopics.size != lastSentSubscriptions.size) {
+            return true
+        }
         return latestTopics.any { it !in lastSentSubscriptions }
     }
 
@@ -396,7 +402,9 @@ class RealtimeService(client: PocketBase) : BaseService(client) {
     }
 
     private fun activatePolling() {
-        if (!usePolling) return
+        if (!usePolling) {
+            return
+        }
         pollingActive = true
         updatePollingSubscriptions()
         if (subscriptions.values.any { it.callbacks.isNotEmpty() }) {
@@ -405,7 +413,9 @@ class RealtimeService(client: PocketBase) : BaseService(client) {
     }
 
     private fun deactivatePolling() {
-        if (!usePolling || config.mode == RealtimeMode.SMART_POLLING_ONLY) return
+        if (!usePolling || config.mode == RealtimeMode.SMART_POLLING_ONLY) {
+            return
+        }
         pollingActive = false
         pollingEngine?.stop()
         if (!_isConnected.value) {

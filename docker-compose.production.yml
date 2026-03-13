@@ -1,0 +1,309 @@
+# Production-Ready Scalable Architecture
+# 
+# Components:
+# - 4x PocketBase instances (1 master, 3 read replicas)
+# - 2x Ktor backend servers
+# - Redis cluster (queue + cache)
+# - Nginx load balancer
+# - Bull workers for background jobs
+#
+# See: .code-hq/SCALABILITY_ARCHITECTURE.md
+
+version: '3.9'
+
+services:
+  # ==========================================
+  # REDIS CLUSTER (Queue + Cache)
+  # ==========================================
+  
+  redis-master:
+    image: redis:7-alpine
+    container_name: bside-redis-master
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server 
+      --maxmemory 2gb 
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --save 60 1000
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - bside-network
+
+  redis-replica:
+    image: redis:7-alpine
+    container_name: bside-redis-replica
+    restart: unless-stopped
+    command: redis-server --slaveof redis-master 6379
+    depends_on:
+      - redis-master
+    networks:
+      - bside-network
+
+  # ==========================================
+  # POCKETBASE INSTANCES
+  # ==========================================
+  
+  # Master (Write operations)
+  pocketbase-master:
+    build:
+      context: ./pocketbase
+      dockerfile: Dockerfile
+    image: bside-pocketbase:latest
+    container_name: bside-pb-master
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./pocketbase/pb_data:/pb_data
+    environment:
+      - ADMIN_EMAIL=${POCKETBASE_ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${POCKETBASE_ADMIN_PASSWORD}
+      - PB_PUBLIC_URL=${PB_PUBLIC_URL}
+      - ROLE=master
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8090/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bside-network
+
+  # Read Replica 1
+  pocketbase-1:
+    image: bside-pocketbase:latest
+    container_name: bside-pb-1
+    restart: unless-stopped
+    ports:
+      - "8091:8090"
+    volumes:
+      - ./pocketbase/pb_data:/pb_data:ro  # Read-only
+    environment:
+      - ROLE=replica
+      - READ_ONLY=true
+    depends_on:
+      - pocketbase-master
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8090/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bside-network
+
+  # Read Replica 2
+  pocketbase-2:
+    image: bside-pocketbase:latest
+    container_name: bside-pb-2
+    restart: unless-stopped
+    ports:
+      - "8092:8090"
+    volumes:
+      - ./pocketbase/pb_data:/pb_data:ro
+    environment:
+      - ROLE=replica
+      - READ_ONLY=true
+    depends_on:
+      - pocketbase-master
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8090/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bside-network
+
+  # Read Replica 3
+  pocketbase-3:
+    image: bside-pocketbase:latest
+    container_name: bside-pb-3
+    restart: unless-stopped
+    ports:
+      - "8093:8090"
+    volumes:
+      - ./pocketbase/pb_data:/pb_data:ro
+    environment:
+      - ROLE=replica
+      - READ_ONLY=true
+    depends_on:
+      - pocketbase-master
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8090/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bside-network
+
+  # ==========================================
+  # KTOR BACKEND SERVERS
+  # ==========================================
+  
+  server-1:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: bside-server:latest
+    container_name: bside-server-1
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - POCKETBASE_URL=http://pocketbase-master:8090
+      - REDIS_URL=redis://redis-master:6379
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - CDN_BASE_URL=${CDN_BASE_URL}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      - pocketbase-master
+      - redis-master
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bside-network
+
+  server-2:
+    image: bside-server:latest
+    container_name: bside-server-2
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      - POCKETBASE_URL=http://pocketbase-master:8090
+      - REDIS_URL=redis://redis-master:6379
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - CDN_BASE_URL=${CDN_BASE_URL}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      - pocketbase-master
+      - redis-master
+      - server-1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bside-network
+
+  # ==========================================
+  # BACKGROUND WORKERS (BullMQ)
+  # ==========================================
+  
+  worker-matching:
+    build:
+      context: ./workers
+      dockerfile: Dockerfile.worker
+    image: bside-worker:latest
+    container_name: bside-worker-matching
+    restart: unless-stopped
+    environment:
+      - WORKER_TYPE=matching
+      - REDIS_URL=redis://redis-master:6379
+      - POCKETBASE_URL=http://pocketbase-master:8090
+    depends_on:
+      - redis-master
+      - pocketbase-master
+    networks:
+      - bside-network
+
+  worker-notifications:
+    image: bside-worker:latest
+    container_name: bside-worker-notifications
+    restart: unless-stopped
+    environment:
+      - WORKER_TYPE=notifications
+      - REDIS_URL=redis://redis-master:6379
+      - POCKETBASE_URL=http://pocketbase-master:8090
+    depends_on:
+      - redis-master
+      - pocketbase-master
+    networks:
+      - bside-network
+
+  # ==========================================
+  # NGINX LOAD BALANCER
+  # ==========================================
+  
+  nginx:
+    image: nginx:alpine
+    container_name: bside-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx-production.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - nginx-cache:/var/cache/nginx
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - pocketbase-master
+      - pocketbase-1
+      - pocketbase-2
+      - pocketbase-3
+      - server-1
+      - server-2
+    networks:
+      - bside-network
+
+  # ==========================================
+  # MONITORING (Optional)
+  # ==========================================
+  
+  # Redis Commander (Redis UI)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: bside-redis-ui
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      - REDIS_HOSTS=local:redis-master:6379
+    depends_on:
+      - redis-master
+    networks:
+      - bside-network
+
+  # GoAccess (Log Analyzer)
+  goaccess:
+    image: allinurl/goaccess
+    container_name: bside-goaccess
+    restart: unless-stopped
+    ports:
+      - "7817:7817"
+    volumes:
+      - nginx-logs:/opt/goaccess/logs:ro
+    command:
+      - /opt/goaccess/logs/access.log
+      - --log-format=%h - %u [%d:%t %^] "%r" %s %b "%R" "%u" "%^" rt=%T uct=%^ uht=%^ urt=%^ gz=%^ vhost=%v
+      - --date-format=%d/%b/%Y
+      - --time-format=%H:%M:%S
+      - --real-time-html
+      - --port=7817
+    networks:
+      - bside-network
+
+networks:
+  bside-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  nginx-cache:
+  nginx-logs:

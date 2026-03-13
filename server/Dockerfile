@@ -11,8 +11,8 @@ LABEL description="B-Side Dating App Backend Server"
 # Set working directory
 WORKDIR /app
 
-# Copy the JAR file
-COPY build/libs/server-all.jar app.jar
+# Copy the JAR file from the build context root
+COPY server/build/libs/server-all.jar app.jar
 
 # Expose port
 EXPOSE 8080

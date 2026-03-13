@@ -41,17 +41,24 @@ class AndroidBiometricPromptBridge(
         val executor = ContextCompat.getMainExecutor(host)
         val biometricPrompt = BiometricPrompt(host, executor, object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                if (continuation.isActive) continuation.resume(BiometricAuthResult.Success)
+                if (continuation.isActive) {
+                    continuation.resume(BiometricAuthResult.Success)
+                }
             }
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                if (!continuation.isActive) return
+                if (!continuation.isActive) {
+                    return
+                }
                 val cancelled = errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON ||
                     errorCode == BiometricPrompt.ERROR_USER_CANCELED ||
                     errorCode == BiometricPrompt.ERROR_CANCELED
                 continuation.resume(
-                    if (cancelled) BiometricAuthResult.Canceled
-                    else BiometricAuthResult.Error(errString.toString())
+                    if (cancelled) {
+                        BiometricAuthResult.Canceled
+                    } else {
+                        BiometricAuthResult.Error(errString.toString())
+                    }
                 )
             }
 

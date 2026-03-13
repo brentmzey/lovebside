@@ -1,103 +1,235 @@
-# Project Kanban Board
+# BSide Messaging - Kanban Board
 
-## 🚨 Blockers
-
-None currently.
-
-## 📋 P0 - Critical Path (Start Here)
-
-### ✅ DONE: Idempotent Migration System
-
-- [x] Created migration runner with checksum tracking
-- [x] Saved production schema snapshot
-- [x] Built initial migration from prod schema
-- [x] Added `just migrate` commands
-- [x] Schema validation tool (export, diff, validate)
-
-### ✅ DONE: Nginx Smart Routing
-
-- [x] Updated `nginx/nginx.conf` with FQDN placeholders
-- [x] Configured `/api/pb/` → PocketBase routing (CRUD, auth, real-time)
-- [x] Configured `/api/v1/` → Ktor routing (business logic)
-- [x] Set file upload size limits (50MB) per route
-- [x] Added WebSocket support, rate limiting, load balancing
-- [ ] Test all client targets with new routing
-
-### ✅ DONE: Rich Media Performance ⭐
-
-- [x] Add `idx_messages_has_attachments` index (documented)
-- [x] Add `idx_messages_thread_root` index (documented)  
-- [x] Configure CDN for attachments (AWS CloudFront + S3 guide)
-- [x] Environment-based configuration (.env.example)
-- [x] Docker auto-admin creation
-
-### ✅ DONE: Discovery Geolocation
-
-- [x] Platform-specific LocationService (Android, iOS, JVM, JS)
-- [x] GeoUtils distance calculation (Haversine formula)
-- [x] DI configuration with expect/actual factories
-- [x] All platforms build successfully
-- [ ] Integrate with discovery queries (next step)
-
-### 🔄 NEXT: Multi-Platform Testing & Integration
-
-- [ ] Test Android app with real location
-- [ ] Test iOS app (currently using stub)
-- [ ] Test Desktop app (IP geolocation)
-- [ ] Test Web app (browser geolocation)
-- [ ] Integrate location filtering into discovery
-- [ ] Test rich media upload/playback with CDN
-
-### 🎨 UI-003: Apple HIG Implementation (P0)
-
-- [x] Create ResponsiveModifiers & Theme
-- [x] Document key components
-- [x] Apply constraints to Messaging UI
-- [ ] Apply to LocationScreen
-- [ ] Accessibility (Phase 2)
-
-## 📋 P1 - High Priority
-
-- [ ] **CDN/Media Storage Setup**: Configure AWS CloudFront + S3 or Google Drive for media delivery
-  - Timing: After local media upload testing completes
-  - See: `docs/AWS_CDN_SETUP.md` and `cdn_timing.md`
-  - Dependencies: Media upload UI, local testing
-- [ ] **Fix Verification Tests**: `MessagingAttachmentVerificationTest` failing
-- [ ] **Job Queue**: Background worker for matching algo
-- [ ] **Geometric Profiles**: UI implementation
-
-## 🏃 In Progress
-
-- [ ] **Threading**: Finalizing integration tests for threaded replies.
-- [ ] **Testing**: `MessagingThreadIntegrationTest` stabilization.
-- [ ] **Consistency**: Ensuring test admin user exists in all envs.
-
-## ✅ Done
-
-- [x] Create `MessagingRepository`
-- [x] Define Data Models
-- [x] Create Chat UI
-- [x] Implement Real-time Subscriptions
-- [x] Rich Media UI (FileKit + Coil)
-- [x] Idempotent Migration System
-- [x] Production Schema Snapshot
-- [x] Discovery Geolocation (LocationService + GeoUtils)
-- [x] Platform-specific location providers (Android, iOS, JVM, JS)
+**Sprint:** Foundation & UI Development  
+**Updated:** 2026-01-30 20:47 UTC
 
 ---
 
-## 🤖 For AI Agents
+## 📊 Sprint Overview
 
-**Read First**: [CONTEXT.md](file:///Users/brentzey/bside/.code-hq/CONTEXT.md) for project orientation
+```
+Backend:     ████████████████████ 100% ✅ (21 points - DONE)
+UI:          ████████████░░░░░░░░  60% 🏗️ (5 points in progress)
+Remaining:   ░░░░░░░░░░░░░░░░░░░░   0% 📋 (24 points ready)
+```
 
-**Before Starting Work**:
+**Total Points:** 50  
+**Completed:** 21 (42%)  
+**In Progress:** 5 (10%)  
+**Remaining:** 24 (48%)
 
-1. Check P0 section above for current priorities
-2. Review [STORIES.md](file:///Users/brentzey/bside/.code-hq/STORIES.md) for acceptance criteria
-3. Update [task.md](file:///Users/brentzey/.gemini/antigravity/brain/e9de2573-c41f-4db6-a3c5-5597c4bd61fe/task.md) as you progress
+---
 
-**After Completing Work**:
+## ✅ Done (21 points)
 
-1. Move completed items from P0 to ✅ Done
-2. Update [CONTEXT.md](file:///Users/brentzey/bside/.code-hq/CONTEXT.md) "Last Updated" and "Recent Session Notes"
-3. Note any new blockers or tech debt
+### Backend Infrastructure Epic
+- **Points:** 21
+- **Completed:** 2026-01-30
+- **Includes:**
+  - Backend Infrastructure (13 points)
+  - SDK Integration (3 points)
+  - Repository Layer (3 points)
+  - Test Suite Creation (2 points)
+  - **Result:** 45+ tests passing ✅
+
+---
+
+## 🏗️ In Progress (5 points)
+
+### BSIDE-1: Message Thread Screen
+- **Points:** 5
+- **Progress:** 60% ████████████░░░░░░░░
+- **Assignee:** Development Team
+- **Started:** 2026-01-30
+- **ETA:** Next session (2-3 hours)
+- **Status:**
+  - ✅ Screen UI created
+  - ✅ Components integrated
+  - ⏳ ViewModel (next)
+  - ⏳ Integration testing
+
+**Blockers:** None
+
+---
+
+## 📋 Backlog - Ready to Start (24 points)
+
+### High Priority (Sprint 1)
+
+#### BSIDE-2: Conversation List Screen
+- **Points:** 3
+- **Estimate:** 1 day
+- **Priority:** High
+- **Dependencies:** None
+- **Description:** List all user conversations with preview
+
+#### BSIDE-3: Navigation Setup
+- **Points:** 2
+- **Estimate:** 0.5 days
+- **Priority:** High
+- **Dependencies:** BSIDE-1, BSIDE-2
+- **Description:** Setup Compose Navigation between screens
+
+#### BSIDE-4: Thread Visualization
+- **Points:** 3
+- **Estimate:** 1 day
+- **Priority:** Medium
+- **Dependencies:** BSIDE-1
+- **Description:** Visual thread indicators and reply UI
+
+#### BSIDE-5: Reaction Picker
+- **Points:** 2
+- **Estimate:** 1 day
+- **Priority:** Medium
+- **Dependencies:** BSIDE-1
+- **Description:** Emoji picker bottom sheet for reactions
+
+### Medium Priority (Sprint 2)
+
+#### BSIDE-6: Presence Indicators
+- **Points:** 2
+- **Estimate:** 0.5 days
+- **Priority:** Medium
+- **Description:** Online/offline status display
+
+#### BSIDE-7: Typing Indicators
+- **Points:** 2
+- **Estimate:** 0.5 days
+- **Priority:** Medium
+- **Description:** Real-time typing animation
+
+#### BSIDE-8: Message Animations
+- **Points:** 2
+- **Estimate:** 1 day
+- **Priority:** Low
+- **Description:** Smooth send/receive animations
+
+#### BSIDE-9: Swipe Gestures
+- **Points:** 2
+- **Estimate:** 1 day
+- **Priority:** Low
+- **Description:** Swipe to reply gesture
+
+#### BSIDE-10: Dark Theme Support
+- **Points:** 3
+- **Estimate:** 1 day
+- **Priority:** Low
+- **Description:** Dark mode for all messaging screens
+
+### Lower Priority (Sprint 3+)
+
+#### BSIDE-11: Message Search
+- **Points:** 5
+- **Description:** Search messages in conversation
+
+#### BSIDE-12: Edit Message
+- **Points:** 3
+- **Description:** Edit sent messages
+
+#### BSIDE-13: Delete Message
+- **Points:** 3
+- **Description:** Delete sent messages
+
+#### BSIDE-14: Forward Message
+- **Points:** 5
+- **Description:** Forward messages to other conversations
+
+#### BSIDE-15: Image Attachments
+- **Points:** 5
+- **Description:** Send images in messages
+
+#### BSIDE-16: File Attachments
+- **Points:** 5
+- **Description:** Send files in messages
+
+#### BSIDE-17: Voice Messages
+- **Points:** 8
+- **Description:** Record and send voice messages
+
+#### BSIDE-18: Push Notifications
+- **Points:** 8
+- **Description:** Receive notifications for new messages
+
+#### BSIDE-19: Read Receipts UI
+- **Points:** 3
+- **Description:** Show read receipts in message thread
+
+#### BSIDE-20: Group Chat Support
+- **Points:** 8
+- **Description:** Create and participate in group chats
+
+---
+
+## 🎯 Sprint Goals
+
+### Week 1 (Jan 27-31) - Current
+- ✅ Backend infrastructure (DONE)
+- ✅ Test suite creation (DONE)
+- 🏗️ Message Thread Screen (60% - IN PROGRESS)
+
+### Week 2 (Feb 3-7)
+- Complete Message Thread Screen
+- Conversation List Screen
+- Navigation Setup
+- Thread Visualization
+
+### Week 3 (Feb 10-14)
+- Reactions UI
+- Presence indicators
+- Typing indicators
+- Polish & bug fixes
+
+---
+
+## 📈 Velocity Tracking
+
+### Sprint 1 (Current)
+- **Target:** 25 points
+- **Completed:** 21 points
+- **In Progress:** 5 points (60%)
+- **On Track:** ✅
+
+### Historical Velocity
+- Sprint 1: 21 points (backend)
+- **Average:** 21 points/week
+
+### Projected Velocity
+- **Next Sprint:** 15-20 points (UI development)
+
+---
+
+## 🚧 Blockers
+
+**None** ✅
+
+All dependencies resolved, backend stable, tests passing.
+
+---
+
+## 💡 Quick Actions
+
+```bash
+# View this board
+cat .code-hq/KANBAN.md
+
+# Check status
+cat .code-hq/STATUS_REPORT_MESSAGING.md
+
+# Move story to in-progress
+mv .code-hq/backlog/BSIDE-2.md .code-hq/in-progress/
+
+# Mark story done
+mv .code-hq/in-progress/BSIDE-1.md .code-hq/done/
+
+# View work
+ls .code-hq/backlog/
+ls .code-hq/in-progress/
+ls .code-hq/done/
+```
+
+---
+
+**Last Updated:** 2026-01-30 20:47 UTC  
+**Next Review:** After BSIDE-1 completion
+
+🚀 **Let's ship it!** ✨

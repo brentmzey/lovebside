@@ -29,7 +29,7 @@ class UserRepositoryTest {
 
         assertTrue(result is Result.Success)
         assertEquals(listOf("bside.pockethost.io"), hosts)
-        assertEquals(listOf("/api/collections/t_user/auth-with-password"), paths)
+        assertEquals(listOf("/api/collections/users/auth-with-password"), paths)
     }
 
     @Test
@@ -42,7 +42,7 @@ class UserRepositoryTest {
 
         assertTrue(result is Result.Success)
         assertEquals(listOf("bside.pockethost.io"), hosts)
-        assertEquals(listOf("/api/collections/t_user/records"), paths)
+        assertEquals(listOf("/api/collections/users/records"), paths)
     }
 
     private fun repository(
@@ -74,7 +74,7 @@ class UserRepositoryTest {
             {
               "id": "user1",
               "collectionId": "_pb_users_auth_",
-              "collectionName": "t_user",
+              "collectionName": "users",
               "email": "test@example.com",
               "emailVisibility": false,
               "verified": true,

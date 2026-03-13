@@ -132,7 +132,9 @@ class ApiClient(
         block: HttpRequestBuilder.() -> Unit = {}
     ): Result<HttpResponse> = execute {
         post(path) {
-            if (body != null) setBody(body)
+            if (body != null) {
+                setBody(body)
+            }
             block()
         }
     }
@@ -146,7 +148,9 @@ class ApiClient(
         block: HttpRequestBuilder.() -> Unit = {}
     ): Result<HttpResponse> = execute {
         put(path) {
-            if (body != null) setBody(body)
+            if (body != null) {
+                setBody(body)
+            }
             block()
         }
     }

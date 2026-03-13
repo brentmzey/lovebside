@@ -56,7 +56,9 @@ class RealtimeServiceImpl(
     private val startMutex = Mutex()
 
     private suspend fun ensureStarted() {
-        if (isStarted) return
+        if (isStarted) {
+            return
+        }
         startMutex.withLock {
             if (isStarted) {
                 // return // 'return' is allowed here as withLock is inline, but let's be safe if
@@ -183,7 +185,9 @@ class RealtimeServiceImpl(
         val topic = DatabaseCollections.M_MESSAGES
         subscriptions.add(topic)
         // Trigger subscription update
-        if (clientId != null) resubmitSubscriptions()
+        if (clientId != null) {
+            resubmitSubscriptions()
+        }
 
         eventFlow.collect { sseEvent ->
             if (sseEvent.event == topic || sseEvent.event == "*") {
@@ -192,7 +196,9 @@ class RealtimeServiceImpl(
                     val actionStr = data["action"]?.jsonPrimitive?.content ?: "create"
                     val record = data["record"]?.jsonObject
 
-                    if (record == null) return@collect
+                    if (record == null) {
+                        return@collect
+                    }
 
                     val rConvId = record["conversationId"]?.jsonPrimitive?.content
                     if (rConvId == conversationId &&
@@ -213,7 +219,9 @@ class RealtimeServiceImpl(
         ensureStarted()
         val topic = DatabaseCollections.M_TYPING_STATUS
         subscriptions.add(topic)
-        if (clientId != null) resubmitSubscriptions()
+        if (clientId != null) {
+            resubmitSubscriptions()
+        }
 
         eventFlow.collect { sseEvent ->
             if (sseEvent.event == topic || sseEvent.event == "*") {
@@ -241,7 +249,9 @@ class RealtimeServiceImpl(
         ensureStarted()
         val topic = DatabaseCollections.M_READ_RECEIPTS
         subscriptions.add(topic)
-        if (clientId != null) resubmitSubscriptions()
+        if (clientId != null) {
+            resubmitSubscriptions()
+        }
 
         eventFlow.collect { sseEvent ->
             if (sseEvent.event == topic || sseEvent.event == "*") {

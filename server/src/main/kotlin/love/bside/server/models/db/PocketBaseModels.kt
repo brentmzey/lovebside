@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 data class PBUser(
     val id: String,
     val collectionId: String = "",
-    val collectionName: String = "t_user",
+    val collectionName: String = "users",
     val email: String,
     val emailVisibility: Boolean = false,
     val verified: Boolean = false,
@@ -24,13 +24,13 @@ data class PBProfile(
     val id: String,
     val collectionId: String = "",
     val collectionName: String = "s_profiles",
-    val userId: String,
-    val firstName: String,
-    val lastName: String,
-    val birthDate: String,
+    val user: String,
+    val firstName: String = "",
+    val lastName: String = "",
+    val birthDate: String = "2000-01-01",
     val bio: String? = null,
     val location: String? = null,
-    val seeking: String,
+    val seeking: String = "both",
     val created: String,
     val updated: String
 )

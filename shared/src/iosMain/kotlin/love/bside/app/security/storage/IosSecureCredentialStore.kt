@@ -132,7 +132,9 @@ internal class IosSecureCredentialStore : SecureCredentialStore {
             CFDictionarySetValue(query, kSecMatchLimit, kSecMatchLimitOne)
             val result = alloc<CFTypeRefVar>()
             val status = SecItemCopyMatching(query, result.ptr)
-            if (status != errSecSuccess) return@withBaseQuery null
+            if (status != errSecSuccess) {
+                return@withBaseQuery null
+            }
             val valueRef = result.value
             try {
                 valueRef.toUtf8String()
@@ -195,7 +197,9 @@ internal class IosSecureCredentialStore : SecureCredentialStore {
     private fun CFDataRef?.toUtf8String(): String? {
         val dataRef = this ?: return null
         val length = CFDataGetLength(dataRef).toInt()
-        if (length == 0) return ""
+        if (length == 0) {
+            return ""
+        }
         val source = CFDataGetBytePtr(dataRef) ?: return null
         val bytes = ByteArray(length)
         for (index in 0 until length) {

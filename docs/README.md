@@ -2,11 +2,25 @@
 
 **Last Updated:** 2026-01-24
 
+## 🧩 Project Management
+
+Project progress, roadmap, and tasks are tracked via:
+
+- **`.code_hq/`**: High-level tracking, architectural decisions, and stories residing in the codebase.
+    - [Project Management](../.code_hq/PROJECT_MANAGEMENT.md)
+    - [Stories](../.code_hq/STORIES.md) (if available)
+- **Notion / JIRA**: Detailed task management and sprint planning.
+
+---
+
 ## 📖 Documentation Index
 
 ### 🚀 Getting Started
+- **[How to Run Locally](HOW_TO_RUN_LOCALLY.md)** - ⭐ **START HERE** - Complete guide to run all platforms
+- **[Local Development Guide](LOCAL_DEVELOPMENT_GUIDE.md)** - In-depth development setup & workflow
+- **[Session Summary](LOCAL_DEV_SESSION_SUMMARY.md)** - Latest changes & current state
 - **[Quick Start Testing](QUICK_START_TESTING.md)** - 5-minute test guide
-- **[Local Development](LOCAL_DEVELOPMENT.md)** - Build, run & capture screenshots ⭐ NEW
+- **[Local Development](LOCAL_DEVELOPMENT.md)** - Build, run & capture screenshots
 - **[Complete Setup](COMPLETE_SETUP.md)** - Full environment setup
 - **[Launch Now](LAUNCH_NOW.md)** - Quick launch commands
 - **[Running Guide](RUNNING.md)** - Platform-specific run instructions

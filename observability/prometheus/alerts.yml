@@ -1,0 +1,213 @@
+# Prometheus Alert Rules
+# Universal alerts for all environments
+
+groups:
+  - name: bside_application_alerts
+    interval: 30s
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) 
+            / 
+            sum(rate(http_server_requests_seconds_count[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+      
+      # High Response Time
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_server_requests_seconds_bucket[5m])) by (le)
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: backend
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s (threshold: 2s)"
+      
+      # Service Down
+      - alert: ServiceDown
+        expr: up{job=~"backend|pocketbase"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: infrastructure
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute"
+
+  - name: bside_database_alerts
+    interval: 30s
+    rules:
+      # High Database Connection Usage
+      - alert: HighDatabaseConnections
+        expr: |
+          (
+            sum(sqlite_connections_active) 
+            / 
+            sum(sqlite_connections_max)
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High database connection usage"
+          description: "Database connections at {{ $value | humanizePercentage }} capacity"
+      
+      # Slow Queries
+      - alert: SlowDatabaseQueries
+        expr: |
+          rate(sqlite_query_duration_seconds_sum[5m])
+          /
+          rate(sqlite_query_duration_seconds_count[5m])
+          > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Average query time is {{ $value }}s (threshold: 1s)"
+
+  - name: bside_redis_alerts
+    interval: 30s
+    rules:
+      # High Memory Usage
+      - alert: RedisHighMemoryUsage
+        expr: |
+          (
+            redis_memory_used_bytes 
+            / 
+            redis_memory_max_bytes
+          ) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Redis memory usage high"
+          description: "Redis memory at {{ $value | humanizePercentage }} capacity"
+      
+      # Redis Down
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 1 minute"
+      
+      # High Eviction Rate
+      - alert: HighRedisEvictionRate
+        expr: rate(redis_evicted_keys_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "High Redis eviction rate"
+          description: "{{ $value | humanize }} keys/sec being evicted"
+
+  - name: bside_system_alerts
+    interval: 30s
+    rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: |
+          (
+            1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value | humanizePercentage }}"
+      
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+          ) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+      
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: |
+          (
+            node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.*"} 
+            / 
+            node_filesystem_size_bytes{fstype!~"tmpfs|fuse.*"}
+          ) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining on {{ $labels.mountpoint }}"
+
+  - name: bside_container_alerts
+    interval: 30s
+    rules:
+      # Container Restarting
+      - alert: ContainerRestarting
+        expr: rate(container_last_seen{name!=""}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: containers
+        annotations:
+          summary: "Container {{ $labels.name }} restarting"
+          description: "Container has restarted {{ $value }} times in the last 5 minutes"
+      
+      # High Container CPU
+      - alert: HighContainerCPU
+        expr: |
+          (
+            rate(container_cpu_usage_seconds_total{name!=""}[5m])
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: containers
+        annotations:
+          summary: "High CPU usage in container {{ $labels.name }}"
+          description: "CPU usage is {{ $value | humanizePercentage }}"
+      
+      # High Container Memory
+      - alert: HighContainerMemory
+        expr: |
+          (
+            container_memory_usage_bytes{name!=""} 
+            / 
+            container_spec_memory_limit_bytes{name!=""} 
+          ) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: containers
+        annotations:
+          summary: "High memory usage in container {{ $labels.name }}"
+          description: "Memory usage is {{ $value | humanizePercentage }}"

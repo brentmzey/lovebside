@@ -163,14 +163,24 @@ data class ImageUpload(
     val mimeType: String = "image/jpeg"
 ) {
     override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
+        if (this === other) {
+            return true
+        }
+        if (other == null || this::class != other::class) {
+            return false
+        }
 
         other as ImageUpload
 
-        if (!data.contentEquals(other.data)) return false
-        if (filename != other.filename) return false
-        if (mimeType != other.mimeType) return false
+        if (!data.contentEquals(other.data)) {
+            return false
+        }
+        if (filename != other.filename) {
+            return false
+        }
+        if (mimeType != other.mimeType) {
+            return false
+        }
 
         return true
     }

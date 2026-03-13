@@ -9,7 +9,15 @@ default:
 
 # --- Golden Path ---
 
-# Run all possible targets and the backend
+# Interactive development startup (recommended)
+dev:
+    ./scripts/dev-start.sh
+
+# Start just the backend services (PocketBase + Ktor)
+backend:
+    ./scripts/backend-start.sh
+
+# Run all possible targets and the backend (automated)
 start:
     node scripts/start.js
 
@@ -29,7 +37,7 @@ up:
     @echo "Building Server JAR..."
     ./gradlew :server:shadowJar
     @echo "Starting Docker Stack..."
-    docker-compose up --build
+    bash -c 'trap "docker-compose down" EXIT INT TERM; docker-compose up --build'
 
 # Stop backend services
 
@@ -121,26 +129,12 @@ schema-diff SNAPSHOT:
 # Test migrations on fresh local DB (SAFE - destroys only local data)
 
 test-migrations:
-    @echo "⚠️  WARNING: This will DESTROY local PocketBase data!"
-    @echo "Press Ctrl+C to cancel, or Enter to continue..."
-    @read confirmation
-    docker-compose down -v
-    @echo "Starting fresh PocketBase..."
-    docker-compose up -d pocketbase
-    @echo "Waiting for PocketBase to start..."
-    sleep 10
-    @echo "Applying migrations..."
-    cd pocketbase && npm run migrate:up
-    @echo "Validating schema..."
-    cd pocketbase && npm run schema:validate
-    @echo "✅ Test complete!"
+    ./scripts/test-migrations.sh
 
 # Quick test: Check current migration status
 
 test-migration-status:
-    docker-compose up -d pocketbase
-    sleep 5
-    cd pocketbase && npm run migrate:status
+    bash -c 'trap "docker-compose stop pocketbase" EXIT; docker-compose up -d pocketbase; sleep 5; cd pocketbase && npm run migrate:status'
 
 # Apply migrations to PROD (DANGER - requires confirmation)
 
@@ -159,14 +153,62 @@ migrate-prod:
 # Full validation workflow (recommended before PROD deploy)
 
 validate-all:
-    @echo "🔍 Running full validation workflow..."
-    @echo "1. Starting PocketBase..."
-    docker-compose up -d pocketbase
-    sleep 5
-    @echo "2. Checking migration status..."
-    cd pocketbase && npm run migrate:status
-    @echo "3. Validating schema..."
-    cd pocketbase && npm run schema:validate
-    @echo "4. Exporting current schema..."
-    cd pocketbase && npm run schema:export
-    @echo "✅ Validation complete!"
+    ./scripts/validate-all.sh
+
+# --- Phase Management ---
+
+# Run Phase 0 validation (test all clients before deployment)
+
+phase-0:
+    @echo "🧪 Starting Phase 0: Pre-Deployment Validation"
+    @echo "This will test all client targets and backend services"
+    @echo ""
+    ./validate-phase-0.sh
+
+# Run complete testing walkthrough (all environments)
+
+phase-test:
+    @echo "🧪 Starting Complete Stack Testing Walkthrough"
+    @echo "Tests: dev, staging, production configs"
+    @echo ""
+    ./test-walkthrough.sh
+
+# View Phase 0 status and checklist
+
+phase-status:
+    @echo "📋 Phase 0 Status - Pre-Deployment Validation"
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo ""
+    @echo "MUST COMPLETE before deployment:"
+    @echo "  [ ] Backend validated"
+    @echo "  [ ] Desktop client tested"
+    @echo "  [ ] Web client tested"
+    @echo "  [ ] Android client tested"
+    @echo "  [ ] iOS client tested"
+    @echo "  [ ] Integration tests passed"
+    @echo ""
+    @echo "📝 Full checklist: .code-hq/PROJECT_TRACKER.md"
+    @echo "🧪 Run validation: just phase-0"
+    @echo "📖 Testing guide: TESTING_GUIDE.md"
+    @echo ""
+
+# Quick validation - just backend and one client
+
+phase-quick:
+    @echo "⚡ Quick Phase 0 Validation"
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo ""
+    @echo "1. Starting backend..."
+    just backend &
+    @sleep 10
+    @echo ""
+    @echo "2. Testing backend health..."
+    @curl -sf http://localhost:8092/api/health > /dev/null && echo "   ✅ PocketBase: OK" || echo "   ❌ PocketBase: FAIL"
+    @curl -sf http://localhost:8081/health > /dev/null && echo "   ✅ Ktor: OK" || echo "   ❌ Ktor: FAIL"
+    @echo ""
+    @echo "3. Building desktop client..."
+    @./gradlew :composeApp:jvmJar --quiet && echo "   ✅ Desktop build: OK" || echo "   ❌ Desktop build: FAIL"
+    @echo ""
+    @echo "✅ Quick validation complete!"
+    @echo "📝 Run full validation: just phase-0"
+    @echo ""

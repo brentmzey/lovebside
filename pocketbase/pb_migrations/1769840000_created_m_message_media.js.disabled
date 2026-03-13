@@ -1,0 +1,272 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  // Check if collection already exists (idempotency)
+  try {
+    const existing = app.findCollectionByNameOrId("m_message_media");
+    if (existing) {
+      console.log("m_message_media collection already exists, skipping creation");
+      return;
+    }
+  } catch (e) {
+    // Collection doesn't exist, continue with creation
+  }
+
+  // 1. Create the collection with basic fields only
+  const collection = new Collection({
+    "id": "pbc_m_message_media",
+    "created": "2026-01-30 14:00:00.000Z",
+    "updated": "2026-01-30 14:00:00.000Z",
+    "name": "m_message_media",
+    "type": "base",
+    "system": false,
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "system": false,
+        "id": "select_media_type",
+        "name": "media_type",
+        "type": "select",
+        "required": true,
+        "presentable": true,
+        "unique": false,
+        "maxSelect": 1,
+        "values": [
+          "image",
+          "video",
+          "audio",
+          "gif",
+          "document",
+          "voice_note"
+        ]
+      },
+      {
+        "system": false,
+        "id": "text_cdn_url",
+        "name": "cdn_url",
+        "type": "url",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "exceptDomains": null,
+        "onlyDomains": null
+      },
+      {
+        "system": false,
+        "id": "file_temp_file",
+        "name": "temp_file",
+        "type": "file",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "maxSelect": 1,
+        "maxSize": 52428800,
+        "mimeTypes": [
+          "image/jpeg",
+          "image/png",
+          "image/gif",
+          "image/webp",
+          "video/mp4",
+          "video/webm",
+          "audio/mpeg",
+          "audio/webm",
+          "audio/ogg",
+          "application/pdf"
+        ],
+        "protected": false,
+        "thumbs": ["100x100", "300x300", "1024x1024"]
+      },
+      {
+        "system": false,
+        "id": "text_filename",
+        "name": "filename",
+        "type": "text",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "min": 1,
+        "max": 255,
+        "pattern": ""
+      },
+      {
+        "system": false,
+        "id": "number_file_size",
+        "name": "file_size",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "min": 0,
+        "max": null,
+        "noDecimal": true
+      },
+      {
+        "system": false,
+        "id": "text_mime_type",
+        "name": "mime_type",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "min": 0,
+        "max": 100,
+        "pattern": ""
+      },
+      {
+        "system": false,
+        "id": "number_width",
+        "name": "width",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "min": null,
+        "max": null,
+        "noDecimal": true
+      },
+      {
+        "system": false,
+        "id": "number_height",
+        "name": "height",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "min": null,
+        "max": null,
+        "noDecimal": true
+      },
+      {
+        "system": false,
+        "id": "number_duration",
+        "name": "duration",
+        "type": "number",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "min": null,
+        "max": null,
+        "noDecimal": false
+      },
+      {
+        "system": false,
+        "id": "text_thumbnail_url",
+        "name": "thumbnail_url",
+        "type": "url",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "exceptDomains": null,
+        "onlyDomains": null
+      },
+      {
+        "system": false,
+        "id": "bool_uploaded_to_cdn",
+        "name": "uploaded_to_cdn",
+        "type": "bool",
+        "required": false,
+        "presentable": false
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  });
+
+  app.save(collection);
+
+  // 2. Add Relation Fields
+  const createdCollection = app.findCollectionByNameOrId("m_message_media");
+
+  createdCollection.fields.addAt(1, new Field({
+    "system": false,
+    "id": "relation_message",
+    "name": "message_id",
+    "type": "relation",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "collectionId": "pbc_m_messages",
+    "cascadeDelete": true,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": null
+  }));
+
+  createdCollection.fields.addAt(2, new Field({
+    "system": false,
+    "id": "relation_uploader",
+    "name": "uploaded_by",
+    "type": "relation",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "collectionId": "_pb_users_auth_",
+    "cascadeDelete": false,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": null
+  }));
+
+  // 3. Add Indexes
+  createdCollection.indexes = [
+    "CREATE INDEX `idx_media_message` ON `m_message_media` (`message_id`)",
+    "CREATE INDEX `idx_media_type` ON `m_message_media` (`media_type`)",
+    "CREATE INDEX `idx_media_cdn_status` ON `m_message_media` (`uploaded_to_cdn`, `created`)",
+    "CREATE INDEX `idx_media_uploader` ON `m_message_media` (`uploaded_by`)"
+  ];
+
+  // 4. Add Rules
+  createdCollection.listRule = "@request.auth.id != ''";
+  createdCollection.viewRule = "@request.auth.id != ''";
+  createdCollection.createRule = "@request.auth.id != '' && @request.auth.id = uploaded_by";
+  createdCollection.updateRule = "@request.auth.id != '' && @request.auth.id = uploaded_by";
+  createdCollection.deleteRule = "@request.auth.id != '' && (@request.auth.id = uploaded_by || @request.auth.id = message_id.sender_id)";
+
+  return app.save(createdCollection);
+
+}, (app) => {
+  // Rollback: delete collection if it exists
+  try {
+    const collection = app.findCollectionByNameOrId("m_message_media");
+    return app.delete(collection);
+  } catch (e) {
+    console.log("m_message_media collection doesn't exist, nothing to rollback");
+  }
+})

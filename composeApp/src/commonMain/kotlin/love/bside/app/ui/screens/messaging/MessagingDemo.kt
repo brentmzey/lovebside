@@ -144,7 +144,7 @@ private fun ChatDemo(
                 items(messages) { (content, isSent, isRead) ->
                     MessageBubble(
                         content = content,
-                        timestamp = Clock.System.now(),
+                        timestamp = Clock.System.now().toString(),
                         isSent = isSent,
                         showAvatar = true,
                         senderInitials = if (isSent) "ME" else "AS",

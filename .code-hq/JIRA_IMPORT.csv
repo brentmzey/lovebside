@@ -1,0 +1,22 @@
+Issue Key,Summary,Issue Type,Status,Priority,Assignee,Reporter,Description,Story Points,Sprint,Labels
+BSIDE-1,Message Thread Screen,Story,To Do,High,,,As a user I want to view and send messages in a conversation,5,Sprint 1,messaging ui
+BSIDE-2,Conversation List Screen,Story,To Do,High,,,As a user I want to see all my conversations in a list,3,Sprint 1,messaging ui
+BSIDE-3,Navigation Setup,Task,To Do,High,,,Setup Compose Navigation between messaging screens,2,Sprint 1,messaging infrastructure
+BSIDE-4,Thread Visualization UI,Story,To Do,Medium,,,As a user I want to see thread relationships visually,3,Sprint 1,messaging ui threading
+BSIDE-5,Reaction Picker Component,Story,To Do,Medium,,,As a user I want to add reactions to messages,2,Sprint 1,messaging ui
+BSIDE-6,Presence Indicators,Task,To Do,Medium,,,Show online/offline status in conversation list and message screen,2,Sprint 1,messaging ui
+BSIDE-7,Typing Indicators,Task,To Do,Medium,,,Show when other users are typing,2,Sprint 1,messaging ui realtime
+BSIDE-8,Message Animations,Task,To Do,Low,,,Add smooth animations for message send/receive,2,Sprint 2,messaging ui polish
+BSIDE-9,Swipe Gestures,Task,To Do,Low,,,Implement swipe to reply gesture,2,Sprint 2,messaging ui ux
+BSIDE-10,Dark Theme Support,Task,To Do,Low,,,Ensure all messaging screens support dark theme,3,Sprint 2,messaging ui theming
+BSIDE-11,Message Search,Story,To Do,Medium,,,As a user I want to search messages in a conversation,5,Sprint 2,messaging search
+BSIDE-12,Edit Message,Story,To Do,Medium,,,As a user I want to edit my sent messages,3,Sprint 2,messaging
+BSIDE-13,Delete Message,Story,To Do,Medium,,,As a user I want to delete my sent messages,3,Sprint 2,messaging
+BSIDE-14,Forward Message,Story,To Do,Low,,,As a user I want to forward messages to other conversations,5,Sprint 3,messaging
+BSIDE-15,Image Attachments,Story,To Do,High,,,As a user I want to send images in messages,5,Sprint 3,messaging attachments
+BSIDE-16,File Attachments,Story,To Do,Medium,,,As a user I want to send files in messages,5,Sprint 3,messaging attachments
+BSIDE-17,Voice Messages,Story,To Do,Low,,,As a user I want to send voice messages,8,Sprint 3,messaging attachments audio
+BSIDE-18,Push Notifications,Story,To Do,High,,,As a user I want to receive notifications for new messages,8,Sprint 3,messaging notifications
+BSIDE-19,Read Receipts UI,Task,To Do,Low,,,Show read receipts in message thread,3,Sprint 3,messaging ui
+BSIDE-20,Group Chat Support,Story,To Do,Low,,,As a user I want to create and participate in group chats,8,Backlog,messaging group
+BSIDE-DONE-1,Backend Verification & Testing,Epic,Done,Highest,,,Complete backend infrastructure with 55+ tests,21,Sprint 1,messaging backend testing

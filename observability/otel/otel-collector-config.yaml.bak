@@ -1,0 +1,128 @@
+# OpenTelemetry Collector Configuration
+# Centralized telemetry collection for metrics, logs, and traces
+
+receivers:
+  # OTLP receivers for all telemetry types
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - "http://*"
+            - "https://*"
+
+  # Prometheus receiver for scraping
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'otel-collector'
+          scrape_interval: 30s
+          static_configs:
+            - targets: ['localhost:8888']
+
+  # Host metrics
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+      cpu:
+      disk:
+      filesystem:
+      load:
+      memory:
+      network:
+      process:
+
+processors:
+  # Batch processor for efficiency
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+    send_batch_max_size: 2048
+
+  # Memory limiter to prevent OOM
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # Resource processor to add metadata
+  resource:
+    attributes:
+      - key: service.environment
+        value: ${ENV}
+        action: upsert
+      - key: service.version
+        value: ${APP_VERSION}
+        action: upsert
+
+  # Attributes processor for enrichment
+  attributes:
+    actions:
+      - key: deployment.environment
+        value: ${ENV}
+        action: insert
+
+exporters:
+  # Prometheus - Metrics
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    tls:
+      insecure: true
+
+  # Jaeger - Traces via OTLP
+  otlp/jaeger:
+    endpoint: jaeger:4318
+    tls:
+      insecure: true
+    headers:
+      content-type: application/json
+
+  # Tempo - Traces
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # Loki - Logs via OTLP HTTP
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+
+  # Debug exporter
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+service:
+  pipelines:
+    # Traces pipeline
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, attributes, batch]
+      exporters: [otlp/jaeger, otlp/tempo, debug]
+
+    # Metrics pipeline
+    metrics:
+      receivers: [otlp, prometheus, hostmetrics]
+      processors: [memory_limiter, resource, batch]
+      exporters: [prometheusremotewrite, debug]
+
+    # Logs pipeline
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, attributes, batch]
+      exporters: [otlphttp/loki, debug]
+
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      level: detailed
+      address: ":8888"
+
+  extensions: []

@@ -1,0 +1,22 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  const collection = app.findCollectionByNameOrId("pbc_2149395384")
+
+  // update collection data
+  unmarshal({
+    "indexes": [
+      "CREATE UNIQUE INDEX idx_msg_read ON m_read_receipts (message_id, user_id)"
+    ]
+  }, collection)
+
+  return app.save(collection)
+}, (app) => {
+  const collection = app.findCollectionByNameOrId("pbc_2149395384")
+
+  // update collection data
+  unmarshal({
+    "indexes": []
+  }, collection)
+
+  return app.save(collection)
+})

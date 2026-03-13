@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import love.bside.app.core.Result
-import love.bside.app.domain.models.Message
-import love.bside.app.domain.repository.MessagingRepository
+import love.bside.app.data.models.Message
+import love.bside.app.data.repository.MessagingRepository
 
 class ChatViewModel(
         private val repository: MessagingRepository,
@@ -35,19 +35,11 @@ class ChatViewModel(
 
     private fun loadHistory(conversationId: String) {
         viewModelScope.launch {
-            when (val result = repository.getMessages(conversationId)) {
-                is Result.Success ->
-                        _messages.value =
-                                result.data
-                                        .reversed() // Oldest top, newest bottom usually? Or verify
-                // sort. Repo sorts -sentAt (newest first). So
-                // reverse for chat UI (bottom up).
-                is Result.Error -> {
-                    /* Handle error */
-                }
-                else -> {
-                    /* Handle unknown state */
-                }
+            try {
+                val result = repository.getMessages(conversationId)
+                _messages.value = result.reversed()
+            } catch (e: Exception) {
+                // Handle error
             }
         }
     }
@@ -109,16 +101,18 @@ class ChatViewModel(
         }
     }
 
-    fun sendAttachment(file: love.bside.app.domain.repository.AttachmentData) {
+    fun sendAttachment(file: love.bside.app.data.models.Attachment) {
         val convId = currentConversationId ?: return
         viewModelScope.launch {
-            repository.sendMessage(
-                            conversationId = convId,
-                            content = "",
-                            replyToMessageId = null,
-                            attachments = listOf(file)
-                    )
-                    .onError { e -> println("Failed to send attachment: ${e.message}") }
+            try {
+                repository.sendMessage(
+                    conversationId = convId,
+                    text = "",
+                    attachments = listOf(file)
+                )
+            } catch (e: Exception) {
+                println("Failed to send attachment: ${e.message}")
+            }
         }
     }
 
@@ -175,8 +169,10 @@ class ChatViewModel(
                     .find { it.id == messageId }
                 
                 if (message != null) {
-                    val myReactions = message.reactions[reaction] ?: emptyList()
-                    if (myReactions.contains(userId)) {
+                    val alreadyReacted = message.reactions.any { 
+                        it.reaction == reaction && it.userId == userId 
+                    }
+                    if (alreadyReacted) {
                         repository.removeReaction(messageId, reaction)
                     } else {
                         repository.addReaction(messageId, reaction)

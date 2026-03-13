@@ -10,6 +10,7 @@ import love.bside.server.routes.api.v1.userRoutes
 import love.bside.server.routes.api.v1.valuesRoutes
 import love.bside.server.routes.api.v1.matchRoutes
 import love.bside.server.routes.api.v1.promptRoutes
+import love.bside.server.routes.api.v1.messagingRoutes
 import kotlinx.datetime.Clock
 
 /**
@@ -33,6 +34,7 @@ fun Application.configureRouting() {
             valuesRoutes()
             matchRoutes()
             promptRoutes()
+            messagingRoutes()
         }
     }
 }

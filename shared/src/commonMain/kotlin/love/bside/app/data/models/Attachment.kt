@@ -10,14 +10,24 @@ data class Attachment(
     val mimeType: String? = null
 ) {
     override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
+        if (this === other) {
+            return true
+        }
+        if (other == null || this::class != other::class) {
+            return false
+        }
 
         other as Attachment
 
-        if (fileName != other.fileName) return false
-        if (!data.contentEquals(other.data)) return false
-        if (mimeType != other.mimeType) return false
+        if (fileName != other.fileName) {
+            return false
+        }
+        if (!data.contentEquals(other.data)) {
+            return false
+        }
+        if (mimeType != other.mimeType) {
+            return false
+        }
 
         return true
     }

@@ -24,7 +24,9 @@ class InMemorySecureCredentialStore : SecureCredentialStore {
 
     override suspend fun remove(userId: String) {
         records.remove(userId)
-        if (defaultId == userId) defaultId = records.keys.lastOrNull()
+        if (defaultId == userId) {
+            defaultId = records.keys.lastOrNull()
+        }
         publish()
     }
 

@@ -21,8 +21,12 @@ routerAdd("POST", "/api/debug/create-user", (c) => {
         try {
             const data = {};
             c.bind(data);
-            if (data.email) email = data.email;
-            if (data.password) password = data.password;
+            if (data.email) {
+                email = data.email;
+            }
+            if (data.password) {
+                password = data.password;
+            }
         } catch (e) {
             $app.logger().warn("Bind failed: " + e);
         }

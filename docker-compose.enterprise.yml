@@ -1,0 +1,469 @@
+# Enhanced Observability & Cloud Deployment Stack
+# 
+# This adds:
+# - ELK Stack (Elasticsearch, Logstash, Kibana) for log aggregation
+# - Enhanced Grafana with Loki for log queries
+# - Database performance monitoring
+# - AWS SDK integration for CDN/S3
+# - Terraform infrastructure as code
+# - Multi-cloud deployment support
+#
+# Usage:
+#   docker-compose -f docker-compose.enterprise.yml up -d
+
+version: '3.9'
+
+services:
+  # ==========================================
+  # CORE INFRASTRUCTURE (from full stack)
+  # ==========================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: bside-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server 
+      --appendonly yes 
+      --maxmemory 512mb 
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - bside-network
+
+  pocketbase:
+    build:
+      context: ./pocketbase
+      dockerfile: Dockerfile
+    image: bside-pocketbase:local
+    container_name: bside-pocketbase
+    restart: unless-stopped
+    ports:
+      - "8092:8090"
+    volumes:
+      - ./pocketbase/pb_data:/pb_data
+      - ./pocketbase/pb_migrations:/pb_migrations:ro
+      - ./pocketbase/pb_hooks:/pb_hooks:ro
+    environment:
+      - ADMIN_EMAIL=${POCKETBASE_ADMIN_EMAIL:-tester_admin@bside.love}
+      - ADMIN_PASSWORD=${POCKETBASE_ADMIN_PASSWORD:-password123}
+      - PB_PUBLIC_URL=${PB_PUBLIC_URL:-http://localhost:8090}
+      - CDN_ENABLED=${CDN_ENABLED:-false}
+      - CDN_BASE_URL=${CDN_BASE_URL}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8090/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - bside-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=pocketbase,environment=local"
+
+  server:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    image: bside-server:local
+    container_name: bside-server
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      - POCKETBASE_URL=http://pocketbase:8090
+      - REDIS_URL=redis://redis:6379
+      - SERVER_PORT=8080
+      - ENVIRONMENT=development
+      - PB_PUBLIC_URL=${PB_PUBLIC_URL:-http://localhost:8090}
+      - CDN_ENABLED=${CDN_ENABLED:-false}
+      - CDN_BASE_URL=${CDN_BASE_URL}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # Observability
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - METRICS_ENABLED=true
+      - TRACING_ENABLED=true
+    depends_on:
+      pocketbase:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - bside-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=backend,environment=local"
+
+  nginx:
+    image: nginx:alpine
+    container_name: bside-nginx
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+      - "8443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - server
+      - pocketbase
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    networks:
+      - bside-network
+
+  # ==========================================
+  # ELASTICSEARCH STACK (ELK)
+  # ==========================================
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
+    container_name: bside-elasticsearch
+    restart: unless-stopped
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - bside-network
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.1
+    container_name: bside-logstash
+    restart: unless-stopped
+    ports:
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "5044:5044"
+      - "9600:9600"
+    volumes:
+      - ./observability/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./observability/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - nginx-logs:/var/log/nginx:ro
+      - ./logs:/app/logs:ro
+    environment:
+      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
+    depends_on:
+      - elasticsearch
+    networks:
+      - bside-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.1
+    container_name: bside-kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - bside-network
+
+  # ==========================================
+  # PROMETHEUS & GRAFANA (Enhanced)
+  # ==========================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: bside-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - bside-network
+
+  # Loki for log aggregation (alternative to ELK, lighter weight)
+  loki:
+    image: grafana/loki:latest
+    container_name: bside-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - bside-network
+
+  # Promtail for log shipping to Loki
+  promtail:
+    image: grafana/promtail:latest
+    container_name: bside-promtail
+    restart: unless-stopped
+    volumes:
+      - ./observability/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - nginx-logs:/var/log/nginx:ro
+      - ./logs:/app/logs:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    networks:
+      - bside-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: bside-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-piechart-panel
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./observability/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+      - loki
+      - elasticsearch
+    networks:
+      - bside-network
+
+  # ==========================================
+  # EXPORTERS & COLLECTORS
+  # ==========================================
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: bside-redis-exporter
+    restart: unless-stopped
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - bside-network
+
+  # Node Exporter for system metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: bside-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - bside-network
+
+  # cAdvisor for container metrics
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: bside-cadvisor
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - bside-network
+
+  # OpenTelemetry Collector for traces
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: bside-otel-collector
+    restart: unless-stopped
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8888:8888"   # Metrics
+      - "8889:8889"   # Prometheus exporter
+    volumes:
+      - ./observability/otel/otel-collector-config.yml:/etc/otel-collector-config.yaml:ro
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    networks:
+      - bside-network
+
+  # ==========================================
+  # DATABASE MONITORING
+  # ==========================================
+
+  # SQLite Exporter (custom for PocketBase)
+  sqlite-exporter:
+    build:
+      context: ./observability/sqlite-exporter
+      dockerfile: Dockerfile
+    container_name: bside-sqlite-exporter
+    restart: unless-stopped
+    ports:
+      - "9199:9199"
+    volumes:
+      - ./pocketbase/pb_data:/data:ro
+    environment:
+      - DB_PATH=/data/data.db
+    networks:
+      - bside-network
+
+  # ==========================================
+  # ADDITIONAL TOOLS
+  # ==========================================
+
+  # GoAccess for real-time log analysis
+  goaccess:
+    image: allinurl/goaccess
+    container_name: bside-goaccess
+    restart: unless-stopped
+    ports:
+      - "7817:7817"
+    volumes:
+      - nginx-logs:/opt/goaccess/logs:ro
+    command: 
+      - /opt/goaccess/logs/access.log
+      - --log-format=%h - %u [%d:%t %^] "%r" %s %b "%R" "%u" "%^" rt=%T uct=%^ uht=%^ urt=%^ gz=%^ vhost=%v
+      - --date-format=%d/%b/%Y
+      - --time-format=%H:%M:%S
+      - --real-time-html
+      - --ws-url=ws://localhost:7817
+      - --port=7817
+    networks:
+      - bside-network
+
+  # Redis Commander
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: bside-redis-ui
+    restart: unless-stopped
+    ports:
+      - "8083:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - bside-network
+
+  # Jaeger for distributed tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: bside-jaeger
+    restart: unless-stopped
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"  # Jaeger UI
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - bside-network
+
+networks:
+  bside-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  redis-data:
+    driver: local
+  nginx-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  loki-data:
+    driver: local

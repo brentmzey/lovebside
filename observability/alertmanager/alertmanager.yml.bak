@@ -1,0 +1,37 @@
+# AlertManager Configuration
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: 'default'
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  
+  routes:
+    - receiver: 'slack'
+      match:
+        severity: warning
+      continue: true
+    
+    - receiver: 'pagerduty'
+      match:
+        severity: critical
+      continue: true
+
+receivers:
+  - name: 'default'
+    webhook_configs:
+      - url: 'http://localhost:8080/alerts'
+  
+  - name: 'slack'
+    slack_configs:
+      - channel: '#bside-alerts'
+        title: '{{ .GroupLabels.alertname }}'
+        text: 'Alert: {{ .Annotations.summary }}'
+  
+  - name: 'pagerduty'
+    pagerduty_configs:
+      - service_key: 'YOUR_PAGERDUTY_KEY'
+        description: '{{ .GroupLabels.alertname }}: {{ .CommonAnnotations.summary }}'

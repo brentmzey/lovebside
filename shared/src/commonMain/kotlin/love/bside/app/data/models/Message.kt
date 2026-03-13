@@ -45,7 +45,11 @@ data class Message(
     @SerialName("thread_depth") val threadDepth: Int = 0,
     @SerialName("attachments") val attachments: List<String> = emptyList(),
     @SerialName("edited_at") val editedAt: String? = null,
-    @SerialName("deleted_at") val deletedAt: String? = null
+    @SerialName("deleted_at") val deletedAt: String? = null,
+    
+    // Expanded fields
+    @SerialName("reactions") val reactions: List<Reaction> = emptyList(),
+    val replyToMessage: Message? = null // For quoted replies
 )
 
 @Serializable

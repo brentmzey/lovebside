@@ -37,7 +37,7 @@ class ProfileRepositoryImpl(
         seeking: String
     ): Result<Profile> {
         val body = buildJsonObject {
-            put("userId", userId)
+            put("user", userId)
             put("firstName", firstName)
             put("lastName", lastName)
             put("birthDate", birthDate)
@@ -52,7 +52,7 @@ class ProfileRepositoryImpl(
     }
     
     override suspend fun getProfileByUserId(userId: String): Result<Profile?> {
-        val filter = "userId = '$userId'"
+        val filter = "user = '$userId'"
         
         return when (val result = pocketBase.getList<PBProfile>(collection, filter = filter)) {
             is Result.Success -> {
@@ -66,7 +66,7 @@ class ProfileRepositoryImpl(
     
     override suspend fun updateProfile(userId: String, updates: Map<String, Any>): Result<Profile> {
         // First, get the profile ID by userId
-        val filter = "userId = '$userId'"
+        val filter = "user = '$userId'"
         val getResult = pocketBase.getList<PBProfile>(collection, filter = filter)
         
         return when (getResult) {
@@ -99,7 +99,7 @@ class ProfileRepositoryImpl(
     
     override suspend fun deleteProfile(userId: String): Result<Unit> {
         // First, get the profile ID by userId
-        val filter = "userId = '$userId'"
+        val filter = "user = '$userId'"
         val getResult = pocketBase.getList<PBProfile>(collection, filter = filter)
         
         return when (getResult) {

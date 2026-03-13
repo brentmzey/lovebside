@@ -46,6 +46,13 @@ if pgrep -f "GradleDaemon" >/dev/null 2>&1; then
     STOPPED_SOMETHING=true
 fi
 
+# Stop Docker containers
+if [ -f "docker-compose.yml" ]; then
+    echo -e "${RED}🐳 Stopping Docker services...${NC}"
+    docker-compose down > /dev/null 2>&1 || true
+    STOPPED_SOMETHING=true
+fi
+
 if [ "$STOPPED_SOMETHING" = true ]; then
     echo -e "\n${GREEN}✅ All B-Side processes have been stopped.${NC}"
 else

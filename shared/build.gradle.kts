@@ -115,6 +115,12 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.ktor.client.cio)
             implementation(libs.koin.core)
+            
+            // AWS SDK for S3 and CloudFront (JVM only - not available for iOS/JS yet)
+            implementation(libs.aws.s3)
+            implementation(libs.aws.cloudfront)
+            implementation(libs.aws.core)
+            implementation(libs.aws.config)
         }
 
         // JavaScript source set

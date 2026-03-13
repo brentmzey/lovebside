@@ -1,0 +1,99 @@
+# Enhanced Prometheus Configuration with Database & Application Metrics
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'bside-local'
+    environment: 'development'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+          # - alertmanager:9093  # Uncomment when alertmanager is added
+
+# Load rules
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+          component: 'monitoring'
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service: 'redis'
+          component: 'cache'
+
+  # Backend Server metrics (Ktor with Micrometer)
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['server:8080']
+        labels:
+          service: 'backend'
+          component: 'api'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # PocketBase/SQLite database metrics
+  - job_name: 'database'
+    static_configs:
+      - targets: ['sqlite-exporter:9199']
+        labels:
+          service: 'pocketbase'
+          component: 'database'
+    scrape_interval: 30s
+
+  # Node exporter (system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service: 'node-exporter'
+          component: 'system'
+
+  # cAdvisor (container metrics)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          service: 'cadvisor'
+          component: 'containers'
+
+  # OpenTelemetry Collector
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888']
+        labels:
+          service: 'otel-collector'
+          component: 'tracing'
+
+  # Elasticsearch metrics (if exposed)
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: ['elasticsearch:9200']
+        labels:
+          service: 'elasticsearch'
+          component: 'search'
+    metrics_path: '/_prometheus/metrics'
+    scrape_interval: 30s
+
+  # Logstash metrics
+  - job_name: 'logstash'
+    static_configs:
+      - targets: ['logstash:9600']
+        labels:
+          service: 'logstash'
+          component: 'logs'
+    metrics_path: '/_node/stats'

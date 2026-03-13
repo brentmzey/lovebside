@@ -51,7 +51,9 @@ class RecordService(
 
             allRecords.addAll(result.items)
 
-            if (result.page >= result.totalPages) break
+            if (result.page >= result.totalPages) {
+                break
+            }
             page++
         }
 

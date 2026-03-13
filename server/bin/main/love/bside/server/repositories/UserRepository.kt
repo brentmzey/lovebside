@@ -28,7 +28,7 @@ class UserRepositoryImpl(
     private val pocketBase: PocketBaseClient
 ) : UserRepository {
     
-    private val collection = "t_user"
+    private val collection = "users"
     
     override suspend fun createUser(email: String, password: String): Result<User> {
         val body = buildJsonObject {

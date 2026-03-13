@@ -143,8 +143,12 @@ class SchemaValidator {
         
         schema.fields.forEachIndexed { index, field ->
             val constraints = buildString {
-                if (field.required) append(" NOT NULL")
-                if (field.unique) append(" UNIQUE")
+                if (field.required) {
+                    append(" NOT NULL")
+                }
+                if (field.unique) {
+                    append(" UNIQUE")
+                }
                 field.options?.let { opts ->
                     opts.min?.let { append(" CHECK(LENGTH(${field.name}) >= $it)") }
                     opts.max?.let { append(" CHECK(LENGTH(${field.name}) <= $it)") }

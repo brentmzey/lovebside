@@ -22,7 +22,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import io.pocketbase.config.RealtimeTransportKind
 import androidx.compose.material3.TextButton
@@ -117,33 +116,6 @@ private fun RealtimeHeader(
         )
 
         TransportBadge(transport = uiState.activeTransport, isConnected = uiState.isRealtimeConnected)
-
-        RowWithSwitch(
-            checked = uiState.isRealtimeEnabled,
-            onCheckedChange = controller::setRealtimeEnabled
-        )
-    }
-}
-
-@Composable
-private fun RowWithSwitch(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = "Realtime updates", fontWeight = FontWeight.Medium)
-            Text(
-                text = "Live SSE with smart polling fallback",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

@@ -174,7 +174,9 @@ class OfflineCacheManager {
         sendMessageHandler: suspend (String, String, String?) -> Result<Message>,
         markAsReadHandler: suspend (String) -> Result<Unit>
     ): List<String> = mutex.withLock {
-        if (!_isOnline.value) return emptyList()
+        if (!_isOnline.value) {
+            return emptyList()
+        }
         
         val synced = mutableListOf<String>()
         val failed = mutableListOf<PendingOperation>()

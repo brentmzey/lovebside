@@ -1,0 +1,185 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  // Check if collection already exists (idempotency)
+  try {
+    const existing = app.findCollectionByNameOrId("m_polls");
+    if (existing) {
+      console.log("m_polls collection already exists, skipping creation");
+      return;
+    }
+  } catch (e) {
+    // Collection doesn't exist, continue with creation
+  }
+
+  // 1. Create the collection with basic fields only
+  const collection = new Collection({
+    "id": "pbc_m_polls",
+    "created": "2026-01-30 12:00:00.000Z",
+    "updated": "2026-01-30 12:00:00.000Z",
+    "name": "m_polls",
+    "type": "base",
+    "system": false,
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "system": false,
+        "id": "text_question",
+        "name": "question",
+        "type": "text",
+        "required": true,
+        "presentable": true,
+        "unique": false,
+        "min": 1,
+        "max": 500,
+        "pattern": ""
+      },
+      {
+        "system": false,
+        "id": "json_options",
+        "name": "options",
+        "type": "json",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "maxSize": 2000000
+      },
+      {
+        "system": false,
+        "id": "json_votes",
+        "name": "votes",
+        "type": "json",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "maxSize": 2000000
+      },
+      {
+        "system": false,
+        "id": "bool_allow_multiple",
+        "name": "allow_multiple",
+        "type": "bool",
+        "required": false,
+        "presentable": false
+      },
+      {
+        "system": false,
+        "id": "bool_anonymous",
+        "name": "anonymous",
+        "type": "bool",
+        "required": false,
+        "presentable": false
+      },
+      {
+        "system": false,
+        "id": "date_expires_at",
+        "name": "expires_at",
+        "type": "date",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "min": "",
+        "max": ""
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  });
+
+  app.save(collection);
+
+  // 2. Add Relation Fields
+  const createdCollection = app.findCollectionByNameOrId("m_polls");
+
+  createdCollection.fields.addAt(1, new Field({
+    "system": false,
+    "id": "relation_message",
+    "name": "message_id",
+    "type": "relation",
+    "required": true,
+    "presentable": false,
+    "unique": true,
+    "collectionId": "pbc_m_messages",
+    "cascadeDelete": true,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": null
+  }));
+
+  createdCollection.fields.addAt(2, new Field({
+    "system": false,
+    "id": "relation_creator",
+    "name": "created_by",
+    "type": "relation",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "collectionId": "_pb_users_auth_",
+    "cascadeDelete": false,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": null
+  }));
+
+  // 3. Add Indexes
+  createdCollection.indexes = [
+    "CREATE UNIQUE INDEX `idx_poll_message` ON `m_polls` (`message_id`)",
+    "CREATE INDEX `idx_poll_expires` ON `m_polls` (`expires_at`)",
+    "CREATE INDEX `idx_poll_created` ON `m_polls` (`created`)"
+  ];
+
+  // 4. Add Rules
+  createdCollection.listRule = "@request.auth.id != ''";
+  createdCollection.viewRule = "@request.auth.id != ''";
+  createdCollection.createRule = "@request.auth.id != '' && @request.auth.id = created_by";
+  createdCollection.updateRule = "@request.auth.id != '' && @request.auth.id = created_by";
+  createdCollection.deleteRule = "@request.auth.id != '' && @request.auth.id = created_by";
+
+  return app.save(createdCollection);
+
+}, (app) => {
+  // Rollback: delete collection if it exists
+  try {
+    const collection = app.findCollectionByNameOrId("m_polls");
+    return app.delete(collection);
+  } catch (e) {
+    console.log("m_polls collection doesn't exist, nothing to rollback");
+  }
+})

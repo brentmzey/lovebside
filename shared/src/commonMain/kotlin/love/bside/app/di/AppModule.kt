@@ -43,6 +43,9 @@ import love.bside.app.domain.services.StubLocationService
  * 
  * IMPORTANT: This module now uses API-based repositories that communicate
  * with our internal API instead of PocketBase directly!
+ * 
+ * ORCHESTRATION: Now includes professional orchestration layer with
+ * event bus, job scheduling, sync, and health monitoring.
  */
 fun appModule(settings: Settings) = module {
     // Core

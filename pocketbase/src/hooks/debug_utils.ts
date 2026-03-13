@@ -23,8 +23,12 @@ routerAdd("POST", "/api/debug/create-user", (c: pb.Context) => {
         try {
             const data: any = {};
             c.bind(data);
-            if (data.email) email = data.email;
-            if (data.password) password = data.password;
+            if (data.email) {
+                email = data.email;
+            }
+            if (data.password) {
+                password = data.password;
+            }
         } catch (e) {
             // $app.logger().warn("Bind failed: " + e);
         }

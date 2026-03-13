@@ -1,0 +1,24 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  const collection = app.findCollectionByNameOrId("pbc_943898475")
+
+  // update collection data
+  unmarshal({
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_match_pair` ON `m_matches` (\n  `user_id`,\n  `matched_user_id`\n)",
+      "CREATE INDEX idx_match_score ON m_matches (match_score DESC)",
+      "CREATE INDEX idx_matched_user ON m_matches (matched_user_id)"
+    ]
+  }, collection)
+
+  return app.save(collection)
+}, (app) => {
+  const collection = app.findCollectionByNameOrId("pbc_943898475")
+
+  // update collection data
+  unmarshal({
+    "indexes": []
+  }, collection)
+
+  return app.save(collection)
+})

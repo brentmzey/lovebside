@@ -32,7 +32,9 @@ actual fun VideoPlayer(
         }
     }
     
-    if (player == null) return
+    if (player == null) {
+        return
+    }
 
     UIKitView(
         factory = {

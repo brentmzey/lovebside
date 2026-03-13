@@ -1,0 +1,42 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  const collection = app.findCollectionByNameOrId("pbc_3015418652")
+
+  // update collection data
+  unmarshal({
+    "indexes": [
+      "CREATE INDEX idx_response_user ON t_user_questionnaire_responses (user_id)",
+      "CREATE INDEX idx_response_question ON t_user_questionnaire_responses (question_id)",
+      "CREATE UNIQUE INDEX idx_response_unique ON t_user_questionnaire_responses (user_id, question_id);"
+    ]
+  }, collection)
+
+  // add field
+  collection.fields.addAt(2, new Field({
+    "cascadeDelete": false,
+    "collectionId": "pbc_2068312597",
+    "hidden": false,
+    "id": "relation505935551",
+    "maxSelect": 1,
+    "minSelect": 0,
+    "name": "question_id",
+    "presentable": false,
+    "required": false,
+    "system": false,
+    "type": "relation"
+  }))
+
+  return app.save(collection)
+}, (app) => {
+  const collection = app.findCollectionByNameOrId("pbc_3015418652")
+
+  // update collection data
+  unmarshal({
+    "indexes": []
+  }, collection)
+
+  // remove field
+  collection.fields.removeById("relation505935551")
+
+  return app.save(collection)
+})

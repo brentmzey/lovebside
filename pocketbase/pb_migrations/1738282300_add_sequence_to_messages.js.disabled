@@ -1,0 +1,61 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((db) => {
+  const dao = new Dao(db);
+  const collection = dao.findCollectionByNameOrId("pbc_719886462");
+
+  // Add sequence number for message ordering
+  collection.schema.addField(new SchemaField({
+    "system": false,
+    "id": "message_sequence",
+    "name": "sequence",
+    "type": "number",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "options": {
+      "min": 0,
+      "max": null,
+      "noDecimal": true
+    }
+  }));
+
+  // Add version for optimistic locking
+  collection.schema.addField(new SchemaField({
+    "system": false,
+    "id": "message_version",
+    "name": "version",
+    "type": "number",
+    "required": true,
+    "presentable": false,
+    "unique": false,
+    "options": {
+      "min": 1,
+      "max": null,
+      "noDecimal": true
+    }
+  }));
+
+  // Add composite index for conversation+sequence ordering
+  collection.indexes = collection.indexes || [];
+  if (!collection.indexes.includes("CREATE INDEX idx_message_sequence ON m_messages (conversation_id, sequence DESC)")) {
+    collection.indexes.push("CREATE INDEX idx_message_sequence ON m_messages (conversation_id, sequence DESC)");
+  }
+
+  return dao.saveCollection(collection);
+}, (db) => {
+  const dao = new Dao(db);
+  const collection = dao.findCollectionByNameOrId("pbc_719886462");
+
+  // Remove sequence field
+  collection.schema.removeField("message_sequence");
+  
+  // Remove version field
+  collection.schema.removeField("message_version");
+
+  // Remove index
+  collection.indexes = collection.indexes.filter(idx => 
+    !idx.includes("idx_message_sequence")
+  );
+
+  return dao.saveCollection(collection);
+});

@@ -47,17 +47,23 @@ sealed class Result<out T> {
     }
 
     inline fun onSuccess(action: (T) -> Unit): Result<T> {
-        if (this is Success) action(data)
+        if (this is Success) {
+            action(data)
+        }
         return this
     }
 
     inline fun onError(action: (AppException) -> Unit): Result<T> {
-        if (this is Error) action(exception)
+        if (this is Error) {
+            action(exception)
+        }
         return this
     }
 
     inline fun onLoading(action: () -> Unit): Result<T> {
-        if (this is Loading) action()
+        if (this is Loading) {
+            action()
+        }
         return this
     }
 }

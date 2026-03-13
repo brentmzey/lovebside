@@ -1,0 +1,153 @@
+/// <reference path="../pb_data/types.d.ts" />
+migrate((app) => {
+  // Check if collection already exists (idempotency)
+  try {
+    const existing = app.findCollectionByNameOrId("m_presence");
+    if (existing) {
+      console.log("m_presence collection already exists, skipping creation");
+      return;
+    }
+  } catch (e) {
+    // Collection doesn't exist, continue with creation
+  }
+
+  // 1. Create the collection with basic fields only
+  const collection = new Collection({
+    "id": "pbc_m_presence",
+    "created": "2026-01-30 11:00:00.000Z",
+    "updated": "2026-01-30 11:00:00.000Z",
+    "name": "m_presence",
+    "type": "base",
+    "system": false,
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "system": false,
+        "id": "select_status",
+        "name": "status",
+        "type": "select",
+        "required": true,
+        "presentable": true,
+        "unique": false,
+        "maxSelect": 1,
+        "values": [
+          "online",
+          "away",
+          "busy",
+          "in_call",
+          "in_meeting",
+          "driving",
+          "offline"
+        ]
+      },
+      {
+        "system": false,
+        "id": "text_activity_message",
+        "name": "activity_message",
+        "type": "text",
+        "required": false,
+        "presentable": false,
+        "unique": false,
+        "min": 0,
+        "max": 100,
+        "pattern": ""
+      },
+      {
+        "system": false,
+        "id": "date_last_active",
+        "name": "last_active",
+        "type": "date",
+        "required": true,
+        "presentable": false,
+        "unique": false,
+        "min": "",
+        "max": ""
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "options": {}
+  });
+
+  app.save(collection);
+
+  // 2. Add Relation Field (user_id)
+  const createdCollection = app.findCollectionByNameOrId("m_presence");
+
+  createdCollection.fields.addAt(1, new Field({
+    "system": false,
+    "id": "relation_user",
+    "name": "user_id",
+    "type": "relation",
+    "required": true,
+    "presentable": false,
+    "unique": true,
+    "collectionId": "_pb_users_auth_",
+    "cascadeDelete": true,
+    "minSelect": null,
+    "maxSelect": 1,
+    "displayFields": null
+  }));
+
+  // 3. Add Indexes
+  createdCollection.indexes = [
+    "CREATE UNIQUE INDEX `idx_presence_user` ON `m_presence` (`user_id`)",
+    "CREATE INDEX `idx_presence_status` ON `m_presence` (`status`)",
+    "CREATE INDEX `idx_presence_last_active` ON `m_presence` (`last_active`)"
+  ];
+
+  // 4. Add Rules
+  createdCollection.listRule = "@request.auth.id != ''";
+  createdCollection.viewRule = "@request.auth.id != ''";
+  createdCollection.createRule = "@request.auth.id != '' && @request.auth.id = user_id";
+  createdCollection.updateRule = "@request.auth.id != '' && @request.auth.id = user_id";
+  createdCollection.deleteRule = "@request.auth.id != '' && @request.auth.id = user_id";
+
+  return app.save(createdCollection);
+
+}, (app) => {
+  // Rollback: delete collection if it exists
+  try {
+    const collection = app.findCollectionByNameOrId("m_presence");
+    return app.delete(collection);
+  } catch (e) {
+    console.log("m_presence collection doesn't exist, nothing to rollback");
+  }
+})

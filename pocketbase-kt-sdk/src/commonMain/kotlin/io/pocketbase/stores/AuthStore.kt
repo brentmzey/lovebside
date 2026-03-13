@@ -66,7 +66,9 @@ class MemoryAuthStore : AuthStore {
                 val exp = payload["exp"]?.toString()?.toLongOrNull()
                 
                 // If we can't parse exp (e.g. dummy implementation), assume valid
-                if (exp == null) return true
+                if (exp == null) {
+                    return true
+                }
                 
                 val now = currentTimeSeconds()
                 exp > now
@@ -97,7 +99,9 @@ class MemoryAuthStore : AuthStore {
     private fun parseJwtPayload(token: String): Map<String, Any> {
         // Basic JWT parsing - split by '.' and decode the payload
         val parts = token.split('.')
-        if (parts.size != 3) return emptyMap()
+        if (parts.size != 3) {
+            return emptyMap()
+        }
         
         // This is a simplified version - in production you'd use a proper JWT library
         // For now, we'll just return a map that always validates

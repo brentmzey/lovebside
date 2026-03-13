@@ -1,0 +1,23 @@
+{
+  "name": "bside-readme-docs",
+  "version": "1.0.0",
+  "description": "B-Side documentation for ReadMe.com",
+  "scripts": {
+    "validate": "node publish-to-readme.js --validate",
+    "generate": "node publish-to-readme.js --generate",
+    "upload": "node publish-to-readme.js --upload",
+    "preview": "npx readme-preview",
+    "deploy": "npm run validate && npm run generate && npm run upload"
+  },
+  "keywords": [
+    "documentation",
+    "readme",
+    "bside",
+    "kotlin-multiplatform"
+  ],
+  "author": "B-Side Team",
+  "license": "MIT",
+  "devDependencies": {
+    "rdme": "^8.0.0"
+  }
+}

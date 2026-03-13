@@ -41,16 +41,30 @@ sealed class ImagePickerResult {
         val height: Int? = null
     ) : ImagePickerResult() {
         override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || this::class != other::class) return false
+            if (this === other) {
+                return true
+            }
+            if (other == null || this::class != other::class) {
+                return false
+            }
 
             other as Success
 
-            if (!data.contentEquals(other.data)) return false
-            if (filename != other.filename) return false
-            if (mimeType != other.mimeType) return false
-            if (width != other.width) return false
-            if (height != other.height) return false
+            if (!data.contentEquals(other.data)) {
+                return false
+            }
+            if (filename != other.filename) {
+                return false
+            }
+            if (mimeType != other.mimeType) {
+                return false
+            }
+            if (width != other.width) {
+                return false
+            }
+            if (height != other.height) {
+                return false
+            }
 
             return true
         }

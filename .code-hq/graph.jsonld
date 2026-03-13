@@ -1,1453 +1,359 @@
 {
-  "@context": {
-    "@vocab": "https://schema.org/",
-    "code-hq": "https://code-hq.dev/schema/",
-    "Milestone": "code-hq:Milestone",
-    "Task": "code-hq:Task",
-    "Person": "code-hq:Person",
-    "dependsOn": "code-hq:dependsOn",
-    "relatedTo": "code-hq:relatedTo",
-    "targetMilestone": "code-hq:targetMilestone",
-    "estimatedHours": "code-hq:estimatedHours",
-    "actualHours": "code-hq:actualHours",
-    "priority": "code-hq:priority",
-    "status": "code-hq:status",
-    "tags": "code-hq:tags"
-  },
+  "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Milestone",
-      "@id": "milestone:m1",
-      "name": "Navigation Complete",
-      "description": "Working app navigation, complete authentication flow, onboarding wizard",
-      "dateCreated": "2025-12-05",
-      "dueDate": "2026-01-15",
+      "@type": "Epic",
+      "@id": "epic:ui-ux-excellence",
+      "name": "Beautiful Responsive UI/UX",
+      "description": "Create stunning, responsive UI with excellent UX across all platforms (Android, iOS, Desktop, Web)",
       "status": "in-progress",
-      "title": "Navigation Complete",
-      "updatedAt": "2025-12-06T04:45:57.523Z"
-    },
-    {
-      "@type": "Milestone",
-      "@id": "milestone:m2",
-      "name": "Core MVP",
-      "description": "Profile system (view/edit), Proust questionnaire, basic matching/discovery",
-      "dateCreated": "2025-12-05",
-      "dueDate": "2026-02-28",
-      "status": "todo"
-    },
-    {
-      "@type": "Milestone",
-      "@id": "milestone:m3",
-      "name": "Messaging Beta",
-      "description": "Conversations list, real-time chat, push notifications",
-      "dateCreated": "2025-12-05",
-      "dueDate": "2026-04-15",
-      "status": "todo"
-    },
-    {
-      "@type": "Milestone",
-      "@id": "milestone:m4",
-      "name": "Polish Release",
-      "description": "Animations & transitions, accessibility compliance, platform-specific polish",
-      "dateCreated": "2025-12-05",
-      "dueDate": "2026-05-31",
-      "status": "todo"
-    },
-    {
-      "@type": "Milestone",
-      "@id": "milestone:m5",
-      "name": "Beta Launch",
-      "description": "TestFlight (iOS), Internal testing track (Android), beta feedback system",
-      "dateCreated": "2025-12-05",
-      "dueDate": "2026-06-30",
-      "status": "todo"
-    },
-    {
-      "@type": "Milestone",
-      "@id": "milestone:m6",
-      "name": "Public Launch",
-      "description": "App Store release, Play Store release, production monitoring",
-      "dateCreated": "2025-12-05",
-      "dueDate": "2026-07-31",
-      "status": "todo"
-    },
-    {
-      "@type": "Task",
-      "@id": "task:nav-001",
-      "name": "Implement RootComponent Navigation",
-      "description": "Implement full Decompose navigation in RootComponent with child components for Auth, Onboarding, and Home flows. File: composeApp/src/commonMain/kotlin/love/bside/app/routing/RootComponent.kt",
-      "dateCreated": "2025-12-05",
       "priority": "critical",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "navigation",
-        "decompose",
-        "architecture"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      }
+      "createdAt": "2026-01-30T23:49:00Z"
     },
     {
-      "@type": "Task",
-      "@id": "task:nav-002",
-      "name": "Define Navigation Graph",
-      "description": "Create navigation graph defining Auth → Onboarding → Home flow with proper state management and sealed class configuration",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:responsive-layout-system",
+      "name": "Responsive Layout System",
+      "description": "Build adaptive layouts that work beautifully on mobile, tablet, desktop, and web - no flat wide canvases",
+      "status": "in-progress",
       "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "navigation",
-        "architecture"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:nav-001"
-        }
+      "epic": "epic:ui-ux-excellence",
+      "acceptanceCriteria": [
+        "Layouts adapt to screen size dynamically",
+        "Mobile: full-width, single column",
+        "Tablet: 2-column grid with max-width",
+        "Desktop/Web: max-width 1200px, centered",
+        "Components use responsiveFormWidth(), responsiveContentWidth()",
+        "Test on Android phone, iPad, Desktop, Web browser"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:nav-003",
-      "name": "Create Child Components",
-      "description": "Create AuthComponent, OnboardingComponent, HomeComponent with proper lifecycle management",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:auth-flow-polish",
+      "name": "Polish Authentication Flow",
+      "description": "Beautiful sign-up/sign-in with Google OAuth, user/password, smooth animations",
+      "status": "in-progress",
       "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "navigation",
-        "decompose",
-        "components"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:nav-002"
-        }
+      "epic": "epic:ui-ux-excellence",
+      "tasks": [
+        "Add Google sign-in button with official logo",
+        "Implement smooth transitions between login/signup",
+        "Add loading states and error handling",
+        "Biometric auth (Face ID/Touch ID) integration",
+        "Field validation with inline feedback",
+        "Password strength indicator",
+        "Test across all platforms"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:nav-004",
-      "name": "Bottom Navigation Setup",
-      "description": "Wire up bottom navigation tabs: Discover, Matches, Messages, Profile with proper state preservation",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
+      "@type": "Story",
+      "@id": "story:proust-questionnaire-ux",
+      "name": "Proust Questionnaire Experience",
+      "description": "Delightful, progressive questionnaire with smooth animations and progress tracking",
       "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "navigation",
-        "ui"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:nav-003"
-        }
+      "priority": "high",
+      "epic": "epic:ui-ux-excellence",
+      "tasks": [
+        "Progress indicator with visual feedback",
+        "Question-by-question flow with animations",
+        "Save progress automatically",
+        "Skip/comeback later option",
+        "Review answers before submit",
+        "Success celebration animation"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:nav-005",
-      "name": "Deep Link Handling",
-      "description": "Handle deep links for password reset, email verification, and shared profiles",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:profile-screens",
+      "name": "User Profile Screens",
+      "description": "Beautiful profile view/edit with photo upload, interests, values display",
+      "status": "todo",
       "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "navigation",
-        "deeplinks"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:nav-003"
-        }
+      "epic": "epic:ui-ux-excellence",
+      "tasks": [
+        "Profile view with hero image",
+        "Edit mode with inline changes",
+        "Photo upload to CDN (placeholder: base64)",
+        "Interests/values chips with animations",
+        "Age calculation and display",
+        "Location display (if provided)"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:auth-001",
-      "name": "Complete Login Integration",
-      "description": "Complete login screen integration with PocketBase authentication via the Ktor backend. Wire up LoginUseCase with proper error handling.",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:messaging-ui",
+      "name": "Real-time Messaging UI",
+      "description": "Modern chat interface with typing indicators, read receipts, rich media",
+      "status": "in-progress",
+      "priority": "high",
+      "epic": "epic:ui-ux-excellence",
+      "tasks": [
+        "Message bubbles with sender/receiver styling",
+        "Typing indicators (animated dots)",
+        "Read receipts and timestamps",
+        "Image/GIF preview and send",
+        "Smooth scrolling to new messages",
+        "Pull-to-refresh conversation list",
+        "Unread message badges"
+      ]
+    },
+    {
+      "@type": "Story",
+      "@id": "story:discovery-feed",
+      "name": "Discovery Feed",
+      "description": "Swipeable card interface for discovering potential matches",
+      "status": "todo",
+      "priority": "medium",
+      "epic": "epic:ui-ux-excellence",
+      "tasks": [
+        "Card stack with swipe gestures",
+        "Like/pass buttons with haptic feedback",
+        "Profile preview with key details",
+        "Match score display",
+        "Empty state when no more profiles",
+        "Reload/refresh action"
+      ]
+    },
+    {
+      "@type": "Epic",
+      "@id": "epic:scalable-backend",
+      "name": "Scalable Backend Architecture",
+      "description": "High-performance backend with smart Nginx routing, queue system, and race-condition prevention",
+      "status": "in-progress",
       "priority": "critical",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "auth",
-        "pocketbase",
-        "login"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      }
+      "createdAt": "2026-01-30T23:49:00Z"
     },
     {
-      "@type": "Task",
-      "@id": "task:auth-002",
-      "name": "Complete Signup Flow",
-      "description": "Multi-step signup flow with email, password, and basic profile info. Connect SignUpUseCase to PocketBase user creation.",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:pocketbase-schema",
+      "name": "PocketBase Schema Design",
+      "description": "Idempotent migrations, optimized schema with proper indices for high-traffic reads/writes",
+      "status": "in-progress",
       "priority": "critical",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "auth",
-        "signup",
-        "pocketbase"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:auth-001"
-        }
+      "epic": "epic:scalable-backend",
+      "tasks": [
+        "Create idempotent migration scripts",
+        "Users collection with auth",
+        "Profiles collection with foreign keys",
+        "Messages collection with indexes on (conversation, timestamp)",
+        "Matches collection with compound indexes",
+        "ProustAnswers collection",
+        "Add self-referencing relations in stages",
+        "Optimize indexes for common queries",
+        "Test migration rollback/replay"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:auth-003",
-      "name": "Email Verification Handling",
-      "description": "Handle email verification flow including deep link handling and verification status UI",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:nginx-load-balancing",
+      "name": "Nginx Smart Load Balancing",
+      "description": "Intelligent traffic routing to prevent PocketBase/SQLite bottlenecks",
+      "status": "in-progress",
       "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "auth",
-        "email",
-        "verification"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:auth-002"
-        }
+      "epic": "epic:scalable-backend",
+      "tasks": [
+        "Configure upstream server pool",
+        "Implement health checks",
+        "Route read-heavy traffic to read replicas",
+        "Rate limiting for write operations",
+        "Connection pooling optimization",
+        "Static asset caching",
+        "Gzip compression",
+        "Test with load testing tool (k6 or Apache Bench)"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:auth-004",
-      "name": "Password Reset Flow",
-      "description": "Implement forgot password and password reset flow with PocketBase",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
+      "@type": "Story",
+      "@id": "story:job-queue-system",
+      "name": "Background Job Queue",
+      "description": "Queue system for matching algorithms, email notifications, and heavy processing",
       "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "auth",
-        "password",
-        "reset"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:auth-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:auth-005",
-      "name": "Biometric Enrollment UI",
-      "description": "Complete biometric enrollment UI for Face ID/Touch ID opt-in during and after login",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "auth",
-        "biometric",
-        "security"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:auth-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:auth-006",
-      "name": "Session Persistence & Auto-Login",
-      "description": "Implement session persistence with secure storage and auto-login on app restart",
-      "dateCreated": "2025-12-05",
       "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "auth",
-        "session",
-        "persistence"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:auth-001"
-        }
+      "epic": "epic:scalable-backend",
+      "tasks": [
+        "Implement Redis-based queue (BullMQ or similar)",
+        "Job types: matching, notifications, analytics",
+        "Priority queue (critical > high > normal > low)",
+        "Retry logic with exponential backoff",
+        "Dead letter queue for failed jobs",
+        "Job status monitoring dashboard",
+        "Schedule jobs during off-peak hours (2-6 AM)",
+        "Test queue performance under load"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:onboard-001",
-      "name": "Profile Creation Wizard",
-      "description": "Multi-step profile creation wizard collecting: firstName, lastName, birthDate, bio, seeking status. Uses s_profiles PocketBase collection.",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:race-condition-prevention",
+      "name": "Race Condition Prevention",
+      "description": "Implement optimistic locking, transaction handling, and consistency checks",
+      "status": "todo",
       "priority": "critical",
-      "status": "todo",
-      "estimatedHours": 12,
-      "tags": [
-        "onboarding",
-        "profile",
-        "wizard"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:auth-002"
-        },
-        {
-          "@id": "task:nav-003"
-        }
+      "epic": "epic:scalable-backend",
+      "tasks": [
+        "Add version/etag fields to critical collections",
+        "Implement optimistic locking for updates",
+        "Use SQLite transactions for multi-step operations",
+        "Implement distributed locks for critical sections",
+        "Add conflict resolution strategies",
+        "Prevent stale reads with cache invalidation",
+        "Test concurrent write scenarios",
+        "Monitor for race conditions in production"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:onboard-002",
-      "name": "Photo Upload",
-      "description": "Profile photo upload with camera/gallery picker across all platforms. Store in PocketBase files.",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
+      "@type": "Story",
+      "@id": "story:cdn-media-storage",
+      "name": "CDN Media Storage (AWS CloudFront + S3)",
+      "description": "Offload media to CDN, store only URIs in PocketBase",
       "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "onboarding",
-        "photo",
-        "upload",
-        "multiplatform"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:onboard-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:onboard-003",
-      "name": "Location Permission & Selection",
-      "description": "Request location permissions and allow manual location selection for matching",
-      "dateCreated": "2025-12-05",
       "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "onboarding",
-        "location",
-        "permissions"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:onboard-001"
-        }
+      "epic": "epic:scalable-backend",
+      "tasks": [
+        "Set up AWS S3 bucket for media",
+        "Configure CloudFront distribution",
+        "Implement signed URL generation",
+        "Create upload endpoint with presigned URLs",
+        "Update schema to store CDN URIs",
+        "Image optimization (resize, compress)",
+        "Fallback to PocketBase for development",
+        "Test upload/download across all clients"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:onboard-004",
-      "name": "Key Values Selection Screen",
-      "description": "Values/interests selection screen pulling from s_key_values collection. User selects and rates importance (1-10).",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
+      "@type": "Epic",
+      "@id": "epic:matching-algorithms",
+      "name": "Intelligent Matching System",
+      "description": "Affinity matching, statistical algorithms, soft skills/vibes matching",
       "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "onboarding",
-        "values",
-        "matching"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:onboard-001"
-        }
+      "priority": "high",
+      "createdAt": "2026-01-30T23:49:00Z"
+    },
+    {
+      "@type": "Story",
+      "@id": "story:affinity-matching",
+      "name": "Affinity Score Calculation",
+      "description": "Calculate compatibility scores based on Proust questionnaire answers",
+      "status": "todo",
+      "priority": "high",
+      "epic": "epic:matching-algorithms",
+      "tasks": [
+        "Design scoring algorithm (weighted factors)",
+        "Implement answer similarity comparison",
+        "Calculate dimensional scores (values, interests, lifestyle)",
+        "Aggregate into overall affinity score (0-100)",
+        "Store scores in Matches collection",
+        "Run as background job (off-peak hours)",
+        "Test with real and synthetic data"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:onboard-005",
-      "name": "Onboarding Completion State",
-      "description": "Track and persist onboarding completion state to prevent re-showing wizard",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
+      "@type": "Story",
+      "@id": "story:statistical-matching",
+      "name": "Statistical Matching Algorithms",
+      "description": "Use clustering, collaborative filtering, and ML for better matches",
       "status": "todo",
-      "estimatedHours": 2,
-      "tags": [
-        "onboarding",
-        "state"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m1"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:onboard-004"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:proust-001",
-      "name": "Questionnaire UI",
-      "description": "Proust questionnaire card-based UI with swipe/tap interactions. Pull prompts from s_prompts collection.",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 12,
-      "tags": [
-        "proust",
-        "questionnaire",
-        "ui"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:proust-002",
-      "name": "Answer Drafting & Local State",
-      "description": "Local draft state for answers before submission. Support partial completion.",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "proust",
-        "state",
-        "draft"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:proust-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:proust-003",
-      "name": "Answer Submission",
-      "description": "Submit answers to s_user_answers PocketBase collection with proper validation",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "proust",
-        "pocketbase",
-        "submission"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:proust-002"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:proust-004",
-      "name": "Realtime Updates (SSE/Polling)",
-      "description": "Realtime prompt updates using SSE or smart polling fallback via PocketBase SDK",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "proust",
-        "realtime",
-        "sse"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:proust-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:proust-005",
-      "name": "Progress Indicator",
-      "description": "Show questionnaire completion progress with visual indicator",
-      "dateCreated": "2025-12-05",
       "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "proust",
-        "ui",
-        "progress"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:proust-001"
-        }
+      "epic": "epic:matching-algorithms",
+      "tasks": [
+        "Implement k-means clustering on user vectors",
+        "Collaborative filtering (users like you also liked...)",
+        "Feature engineering from Proust answers",
+        "Train lightweight ML model (optional)",
+        "A/B test different algorithms",
+        "Monitor match success rates"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:proust-006",
-      "name": "Review/Edit Answers",
-      "description": "Allow users to review and edit previously submitted answers",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:vibes-soft-skills",
+      "name": "Vibes & Soft Skills Matching",
+      "description": "Subjective compatibility based on communication style, humor, energy",
+      "status": "todo",
       "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "proust",
-        "edit",
-        "review"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:proust-003"
-        }
+      "epic": "epic:matching-algorithms",
+      "tasks": [
+        "Define soft skill dimensions",
+        "Sentiment analysis on text answers",
+        "Communication style detection",
+        "Humor compatibility scoring",
+        "Energy level matching",
+        "Combine with affinity scores"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:match-001",
-      "name": "Discover Screen Layout",
-      "description": "Discover screen with profile cards showing user photo, name, and compatibility score",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
+      "@type": "Story",
+      "@id": "story:geographic-matching",
+      "name": "Geographic Distance Matching",
+      "description": "Factor location proximity into match scores",
       "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "matching",
-        "discover",
-        "ui"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:match-002",
-      "name": "Profile Card Component",
-      "description": "Reusable profile card component with photo, name, age, bio preview, match score",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "matching",
-        "ui",
-        "component"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:match-003",
-      "name": "Compatibility Score Display",
-      "description": "Display compatibility percentage with shared values highlight",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "matching",
-        "compatibility",
-        "ui"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:match-002"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:match-004",
-      "name": "Swipe Gestures",
-      "description": "Implement swipe gestures for like (right) / pass (left) on profile cards with animations",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "matching",
-        "gestures",
-        "animation"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:match-002"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:match-005",
-      "name": "Match Algorithm Integration",
-      "description": "Integrate with backend match algorithm. Query s_matches collection for compatibility scores.",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 12,
-      "tags": [
-        "matching",
-        "algorithm",
-        "backend"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:match-006",
-      "name": "Shared Values Highlight",
-      "description": "Show 'You both value...' section highlighting shared key values",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "matching",
-        "values",
-        "ui"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:match-005"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:match-007",
-      "name": "Filter Preferences",
-      "description": "Filter matches by seeking status, distance, age range preferences",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "matching",
-        "filters",
-        "preferences"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:match-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:profile-001",
-      "name": "Profile View Screen (Self)",
-      "description": "Self profile view screen showing all user data, photos, values, questionnaire answers",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "profile",
-        "view",
-        "self"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:profile-002",
-      "name": "Profile View Screen (Others)",
-      "description": "View other users' profiles from discover/matches with appropriate privacy controls",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "profile",
-        "view",
-        "privacy"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:profile-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:profile-003",
-      "name": "Profile Editing Screen",
-      "description": "Edit profile screen for updating bio, photos, values, seeking status",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "profile",
-        "edit"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:profile-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:profile-004",
-      "name": "Photo Gallery Management",
-      "description": "Manage multiple profile photos with reorder, add, delete functionality",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 10,
-      "tags": [
-        "profile",
-        "photos",
-        "gallery"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:profile-003"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:profile-005",
-      "name": "Values Management",
-      "description": "Update selected values and importance ratings after onboarding",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "profile",
-        "values",
-        "edit"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:profile-003"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:profile-006",
-      "name": "Profile Completeness Indicator",
-      "description": "Show profile completeness percentage with suggestions for improvement",
-      "dateCreated": "2025-12-05",
       "priority": "low",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "profile",
-        "completeness",
-        "gamification"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:profile-001"
-        }
+      "epic": "epic:matching-algorithms",
+      "tasks": [
+        "Store lat/lng or city in profiles",
+        "Calculate haversine distance",
+        "Apply distance penalty to scores",
+        "User preference for max distance",
+        "Privacy: only show city/state, not exact location"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:graph-001",
-      "name": "Emotion Terms List UI",
-      "description": "Display g_emotion_terms from PocketBase with search/filter. Show verb, polarity, intensity range.",
-      "dateCreated": "2025-12-05",
+      "@type": "Epic",
+      "@id": "epic:testing-quality",
+      "name": "Comprehensive Testing",
+      "description": "Unit, integration, and E2E tests for all components",
+      "status": "in-progress",
       "priority": "high",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "emotion-graph",
-        "ui",
-        "terms"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      }
+      "createdAt": "2026-01-30T23:49:00Z"
     },
     {
-      "@type": "Task",
-      "@id": "task:graph-002",
-      "name": "Create Graph Item",
-      "description": "UI for creating g_items (person, place, memory, media). Link to actual profiles when applicable.",
-      "dateCreated": "2025-12-05",
+      "@type": "Story",
+      "@id": "story:backend-tests",
+      "name": "Backend API Tests",
+      "description": "Test all PocketBase endpoints, business logic, and error handling",
+      "status": "in-progress",
       "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "emotion-graph",
-        "items",
-        "create"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:graph-001"
-        }
+      "epic": "epic:testing-quality",
+      "tasks": [
+        "Auth endpoint tests (login, signup, logout)",
+        "Profile CRUD tests",
+        "Messaging tests (send, receive, list)",
+        "Matching algorithm tests",
+        "Load tests for high traffic scenarios",
+        "Race condition tests"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:graph-003",
-      "name": "Create Emotion Edge",
-      "description": "UI for creating g_emotion_edges connecting user to items with emotion terms and intensity",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
+      "@type": "Story",
+      "@id": "story:frontend-tests",
+      "name": "Frontend UI Tests",
+      "description": "Test UI components, state management, and user flows",
       "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "emotion-graph",
-        "edges",
-        "create"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:graph-002"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:graph-004",
-      "name": "Intensity Slider",
-      "description": "Intensity selector (0-100) for emotion edges with haptic feedback",
-      "dateCreated": "2025-12-05",
       "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "emotion-graph",
-        "ui",
-        "intensity"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m2"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:graph-003"
-        }
+      "epic": "epic:testing-quality",
+      "tasks": [
+        "Compose UI tests for screens",
+        "ViewModel unit tests",
+        "Navigation tests",
+        "Form validation tests",
+        "Snapshot tests for visual regression",
+        "Test on all target platforms"
       ]
     },
     {
-      "@type": "Task",
-      "@id": "task:msg-001",
-      "name": "Conversations List Screen",
-      "description": "List all active conversations with last message preview, timestamp, unread badge",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
+      "@type": "Story",
+      "@id": "story:e2e-tests",
+      "name": "End-to-End Tests",
+      "description": "Complete user journey tests from signup to matching",
       "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "messaging",
-        "conversations",
-        "list"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:msg-002",
-      "name": "Chat Screen",
-      "description": "Individual chat screen with message bubbles, input field, send button",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 12,
-      "tags": [
-        "messaging",
-        "chat",
-        "ui"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:msg-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:msg-003",
-      "name": "Message Sending",
-      "description": "Send messages to PocketBase with optimistic updates and error handling",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "messaging",
-        "send",
-        "pocketbase"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:msg-002"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:msg-004",
-      "name": "Realtime Message Updates",
-      "description": "Realtime message delivery using SSE subscriptions from PocketBase",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "messaging",
-        "realtime",
-        "sse"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:msg-002"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:msg-005",
-      "name": "Message Read Receipts",
-      "description": "Track and display read receipts for sent messages",
-      "dateCreated": "2025-12-05",
       "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "messaging",
-        "receipts"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:msg-003"
-        }
+      "epic": "epic:testing-quality",
+      "tasks": [
+        "Signup flow E2E test",
+        "Proust questionnaire E2E test",
+        "Messaging E2E test",
+        "Discovery and matching E2E test",
+        "Cross-platform E2E tests"
       ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:msg-006",
-      "name": "Typing Indicators",
-      "description": "Show typing indicators when match is composing a message",
-      "dateCreated": "2025-12-05",
-      "priority": "low",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "messaging",
-        "typing",
-        "realtime"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:msg-004"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:notif-001",
-      "name": "Push Notification Infrastructure",
-      "description": "Set up push notifications for Android (FCM) and iOS (APNs) with server integration",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 12,
-      "tags": [
-        "notifications",
-        "push",
-        "fcm",
-        "apns"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:notif-002",
-      "name": "New Message Notifications",
-      "description": "Push notifications for new messages with proper deep linking to conversation",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "notifications",
-        "messages"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:notif-001"
-        },
-        {
-          "@id": "task:msg-003"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:notif-003",
-      "name": "New Match Notifications",
-      "description": "Push notifications when a new match is made",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "notifications",
-        "matches"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:notif-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:notif-004",
-      "name": "In-App Notification Badges",
-      "description": "Badge system for bottom navigation showing unread counts",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "notifications",
-        "badges",
-        "ui"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m3"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:nav-004"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:polish-001",
-      "name": "Screen Transitions",
-      "description": "Smooth screen transitions with shared element animations where appropriate",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "polish",
-        "animation",
-        "transitions"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m4"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:polish-002",
-      "name": "Card Swipe Animations",
-      "description": "Polish swipe gestures with spring physics and satisfying feedback",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "polish",
-        "animation",
-        "swipe"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m4"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:match-004"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:polish-003",
-      "name": "Loading States & Skeletons",
-      "description": "Skeleton loading states for all data-driven screens",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "polish",
-        "loading",
-        "skeleton"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m4"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:a11y-001",
-      "name": "Screen Reader Support",
-      "description": "Semantic accessibility labels for all interactive elements",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "accessibility",
-        "screen-reader"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m4"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:a11y-002",
-      "name": "Touch Target Sizing",
-      "description": "Ensure all touch targets meet 48dp minimum size guidelines",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "accessibility",
-        "touch"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m4"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:a11y-003",
-      "name": "Color Contrast Verification",
-      "description": "Verify WCAG AA color contrast compliance across all themes",
-      "dateCreated": "2025-12-05",
-      "priority": "medium",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "accessibility",
-        "contrast",
-        "wcag"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m4"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:infra-001",
-      "name": "Android App Signing",
-      "description": "Configure release signing for Android with upload key and Play App Signing",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "infrastructure",
-        "android",
-        "signing"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m5"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:infra-002",
-      "name": "iOS Provisioning & Certificates",
-      "description": "Set up iOS distribution certificates, provisioning profiles, and App Store Connect",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "infrastructure",
-        "ios",
-        "certificates"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m5"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:infra-003",
-      "name": "Re-enable GitHub Actions",
-      "description": "Selectively re-enable CI/CD pipelines for automated testing and deployment",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "infrastructure",
-        "ci-cd",
-        "github-actions"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m5"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:infra-004",
-      "name": "Crash Reporting Setup",
-      "description": "Integrate crash reporting (Sentry/Crashlytics) for all platforms",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 6,
-      "tags": [
-        "infrastructure",
-        "crash-reporting",
-        "monitoring"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m5"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:beta-001",
-      "name": "TestFlight Setup",
-      "description": "Configure TestFlight for iOS beta distribution with external testers",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "beta",
-        "testflight",
-        "ios"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m5"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:infra-002"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:beta-002",
-      "name": "Internal Testing Track",
-      "description": "Set up Google Play Internal Testing track for Android beta",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "beta",
-        "play-store",
-        "android"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m5"
-      },
-      "dependsOn": [
-        {
-          "@id": "task:infra-001"
-        }
-      ]
-    },
-    {
-      "@type": "Task",
-      "@id": "task:launch-001",
-      "name": "App Store Listing",
-      "description": "Create App Store listing with screenshots, description, keywords",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "launch",
-        "app-store",
-        "marketing"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m6"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:launch-002",
-      "name": "Play Store Listing",
-      "description": "Create Play Store listing with screenshots, description, content rating",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "launch",
-        "play-store",
-        "marketing"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m6"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:launch-003",
-      "name": "Privacy Policy & Terms",
-      "description": "Draft and publish privacy policy and terms of service",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 4,
-      "tags": [
-        "launch",
-        "legal",
-        "privacy"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m6"
-      }
-    },
-    {
-      "@type": "Task",
-      "@id": "task:launch-004",
-      "name": "Load Testing",
-      "description": "Load test backend infrastructure before launch",
-      "dateCreated": "2025-12-05",
-      "priority": "high",
-      "status": "todo",
-      "estimatedHours": 8,
-      "tags": [
-        "launch",
-        "testing",
-        "performance"
-      ],
-      "targetMilestone": {
-        "@id": "milestone:m6"
-      }
     }
   ]
 }

@@ -73,6 +73,19 @@ fun ConversationListScreen(
 }
 
 @Composable
+fun PresenceIndicator(
+    isOnline: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.size(12.dp),
+        shape = androidx.compose.foundation.shape.CircleShape,
+        color = if (isOnline) BsideColors.Success else BsideColors.Neutral400,
+        border = androidx.compose.foundation.BorderStroke(2.dp, BsideColors.Background)
+    ) {}
+}
+
+@Composable
 fun ConversationItem(
     conversation: Conversation,
     onClick: () -> Unit
@@ -85,18 +98,25 @@ fun ConversationItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Avatar placeholder
-        Surface(
-            modifier = Modifier.size(48.dp),
-            shape = androidx.compose.foundation.shape.CircleShape,
-            color = BsideColors.Neutral200
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text = conversation.name?.take(1) ?: "U",
-                    style = BsideTypography.LabelLarge,
-                    color = BsideColors.TextPrimary
-                )
+        Box {
+            Surface(
+                modifier = Modifier.size(48.dp),
+                shape = androidx.compose.foundation.shape.CircleShape,
+                color = BsideColors.Neutral200
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = conversation.name?.take(1) ?: "U",
+                        style = BsideTypography.LabelLarge,
+                        color = BsideColors.TextPrimary
+                    )
+                }
             }
+            // TODO: Fetch real presence status
+            PresenceIndicator(
+                isOnline = true, // Placeholder
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
         }
         
         Spacer(modifier = Modifier.width(16.dp))

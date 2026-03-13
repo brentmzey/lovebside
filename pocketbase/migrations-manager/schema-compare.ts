@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://127.0.0.1:8091';
+const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://127.0.0.1:8092';
 const ADMIN_EMAIL = process.env.POCKETBASE_ADMIN_EMAIL || 'tester_admin@bside.love';
 const ADMIN_PASSWORD = process.env.POCKETBASE_ADMIN_PASSWORD || 'password123';
 

@@ -103,7 +103,9 @@ class AuthViewModel(
 
     fun submit(onSuccess: (AuthDetails) -> Unit) {
         val currentState = _uiState.value
-        if (currentState.isLoading || !currentState.canSubmit) return
+        if (currentState.isLoading || !currentState.canSubmit) {
+            return
+        }
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 

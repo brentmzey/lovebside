@@ -15,8 +15,8 @@ class MessagingRepository(
 ) {
     
     companion object {
-        private const val CONVERSATIONS_COLLECTION = "s_conversations"
-        private const val MESSAGES_COLLECTION = "s_messages"
+        private const val CONVERSATIONS_COLLECTION = "m_conversations"
+        private const val MESSAGES_COLLECTION = "m_messages"
         private const val TYPING_INDICATORS_COLLECTION = "s_typing_indicators"
         private const val READ_RECEIPTS_COLLECTION = "s_read_receipts"
     }

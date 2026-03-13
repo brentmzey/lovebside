@@ -26,7 +26,9 @@ class IosBiometricPromptBridge : BiometricPromptBridge {
             policy = LAPolicyDeviceOwnerAuthenticationWithBiometrics,
             localizedReason = reason
         ) { success, error ->
-            if (!continuation.isActive) return@evaluatePolicy
+            if (!continuation.isActive) {
+                return@evaluatePolicy
+            }
             when {
                 success -> continuation.resume(BiometricAuthResult.Success)
                 error?.code == LAErrorUserCancel || error?.code == LAErrorSystemCancel ->

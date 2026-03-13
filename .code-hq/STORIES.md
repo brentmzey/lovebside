@@ -145,12 +145,66 @@ As a **QA engineer**, I want **all platforms to build successfully** so that **s
 
 ---
 
+## Story 6: Fix Messaging Reactions Schema
+
+**Priority**: P1
+**Est**: 1 day
+**Dependencies**: Story 1
+
+### User Story
+
+As a **backend developer**, I want **a consistent reactions schema** so that **I can deploy messaging features without migration failures**.
+
+### Acceptance Criteria
+
+- [ ] `m_reactions` collection created with consistent `snake_case` fields (`message_id`, `user_id`)
+- [ ] Migration `20260127_000000_add_messaging_features.ts` handles existing/legacy `m_reactions` gracefully
+- [ ] Simulation script verifies reaction creation and real-time updates without 404/400 errors
+
+### Technical Tasks
+
+1. Analyze conflict in `pocketbase/migrations/20260127_000000_add_messaging_features.ts`
+2. Implement robust "check-or-create" logic for `m_reactions`
+3. Standardize field names (snake_case) across migration and app code
+4. Verify with `npm run simulate-messaging`
+
+---
+
+## Story 7: Implement Messaging UI (ComposeApp)
+
+**Priority**: P1
+**Est**: 5 days
+**Dependencies**: Story 5, Story 6
+
+### User Story
+
+As a **mobile user**, I want **a visual chat interface** so that **I can see who is typing and react to messages**.
+
+### Acceptance Criteria
+
+- [ ] Typing indicator dots appear in chat view
+- [ ] Double-tick icon indicates read status
+- [ ] Long-press on message opens reaction picker
+- [ ] Selected reaction appears attached to message bubble
+- [ ] Real-time updates reflect on screen immediately
+
+### Technical Tasks
+
+1. Create `TypingIndicator` composable
+2. Update `MessageBubble` to show status icons (sent/read)
+3. Implement `ReactionPicker` bottom sheet
+4. Wire up `RealtimeService` events to UI state (ViewModel)
+5. Handle optimistic UI updates for reactions
+
+---
+
 ## Dependencies Graph
 
 ```
 Story 1 (Migration System)
   ├─→ Story 2 (Env Config)
-  └─→ Story 4 (Performance)
+  ├─→ Story 4 (Performance)
+  └─→ Story 6 (Reactions Schema) → Story 7 (Msg UI)
   
 Story 3 (Nginx Routing) → Independent
 

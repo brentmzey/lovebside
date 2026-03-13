@@ -56,7 +56,6 @@ data class ProustQuestionnaireUiState(
     val questions: List<ProustQuestion> = emptyList(),
     val currentIndex: Int = 0,
     val answers: Map<String, ProustAnswerDraft> = emptyMap(),
-    val isRealtimeEnabled: Boolean = true,
     val isRealtimeConnected: Boolean = false,
     val activeTransport: RealtimeTransportKind = RealtimeTransportKind.INACTIVE,
     val realtimeFailures: Int = 0
@@ -111,6 +110,8 @@ class ProustQuestionnaireController(
             }
         }
         scope.launch { loadQuestions(force = true) }
+        // Always start realtime - it's throttled/managed internally, not disabled
+        scope.launch { startRealtimeSubscription(restart = false) }
     }
 
     fun refresh() {
@@ -142,17 +143,11 @@ class ProustQuestionnaireController(
     fun jumpToQuestion(questionId: String) {
         _state.update { current ->
             val newIndex = current.questions.indexOfFirst { it.id == questionId }
-            if (newIndex < 0) current else current.copy(currentIndex = newIndex)
-        }
-    }
-
-    fun setRealtimeEnabled(enabled: Boolean) {
-        if (enabled == state.value.isRealtimeEnabled) return
-        _state.update { it.copy(isRealtimeEnabled = enabled) }
-        if (enabled) {
-            startRealtimeSubscription(restart = true)
-        } else {
-            stopRealtime()
+            if (newIndex < 0) {
+                current
+            } else {
+                current.copy(currentIndex = newIndex)
+            }
         }
     }
 
@@ -163,7 +158,9 @@ class ProustQuestionnaireController(
     }
 
     private suspend fun loadQuestions(force: Boolean) {
-        if (state.value.isLoading && !force) return
+        if (state.value.isLoading && !force) {
+            return
+        }
         _state.update { it.copy(isLoading = true, errorMessage = null) }
 
         val questions = runCatching { fetchQuestions() }
@@ -190,9 +187,8 @@ class ProustQuestionnaireController(
                 currentIndex = normalized.safeIndex(0)
             )
         }
-        if (state.value.isRealtimeEnabled) {
-            startRealtimeSubscription(restart = true)
-        }
+        // Realtime is always enabled - restart subscription with new data
+        startRealtimeSubscription(restart = true)
     }
 
     private suspend fun fetchQuestions(): List<ProustQuestion> {
@@ -206,8 +202,10 @@ class ProustQuestionnaireController(
     }
 
     private fun startRealtimeSubscription(restart: Boolean) {
-        if (!state.value.isRealtimeEnabled) return
-        if (!restart && realtimeJob?.isActive == true) return
+        // Realtime is ALWAYS enabled - just check if already running
+        if (!restart && realtimeJob?.isActive == true) {
+            return
+        }
         realtimeJob?.cancel()
         realtimeJob = scope.launch {
             runCatching {

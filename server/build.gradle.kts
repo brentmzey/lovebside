@@ -69,6 +69,12 @@ tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJ
     mergeServiceFiles()
 }
 
+ktor {
+    fatJar {
+        archiveFileName.set("server-all.jar")
+    }
+}
+
 dependencies {
     implementation(projects.shared)
     implementation(libs.logback)
@@ -102,6 +108,9 @@ dependencies {
     
     // CLI for migrations
     implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.6")
+    
+    // Redis client
+    implementation(libs.lettuce.core)
     
     // Testing
     testImplementation(libs.ktor.serverTestHost)

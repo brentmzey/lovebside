@@ -1,6 +1,16 @@
 {
+  "name": "bside-root",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "simulate-messaging": "ts-node scripts/simulate_messaging.ts"
+  },
   "dependencies": {
-    "code-hq": "^1.6.1"
+    "code-hq": "^1.6.1",
+    "eventsource": "^4.1.0",
+    "pocketbase": "^0.26.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "basic-ftp": "^5.0.5"

@@ -66,10 +66,9 @@ fun ChatScreen(conversationId: String, onNavigateBack: () -> Unit) {
                             val bytes = it.readBytes()
                             val mimeType = "application/octet-stream" // Default/Fallback
                             val attachment =
-                                    AttachmentData(
+                                    love.bside.app.data.models.Attachment(
                                             fileName = it.name,
-                                            data = bytes,
-                                            mimeType = mimeType
+                                            data = bytes
                                     )
                             viewModel.sendAttachment(attachment)
                         } catch (e: Exception) {
@@ -80,7 +79,7 @@ fun ChatScreen(conversationId: String, onNavigateBack: () -> Unit) {
             }
 
     val listState = rememberLazyListState()
-    var replyToMessage by remember { mutableStateOf<love.bside.app.domain.models.Message?>(null) }
+    var replyToMessage by remember { mutableStateOf<love.bside.app.data.models.Message?>(null) }
 
     // Auto-scroll on new message
     LaunchedEffect(messages.size) {
@@ -171,7 +170,7 @@ fun ChatScreen(conversationId: String, onNavigateBack: () -> Unit) {
 
 @Composable
 fun ReplyPreview(
-    message: love.bside.app.domain.models.Message,
+    message: love.bside.app.data.models.Message,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
