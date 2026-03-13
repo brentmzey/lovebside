@@ -11,23 +11,23 @@ default:
 
 # Interactive development startup (recommended)
 dev:
-    ./scripts/dev-start.sh
+    ./scripts/dev/dev-start.sh
 
 # Start just the backend services (PocketBase + Ktor)
 backend:
-    ./scripts/backend-start.sh
+    ./scripts/dev/backend-start.sh
 
 # Run all possible targets and the backend (automated)
 start:
-    node scripts/start.js
+    node scripts/dev/start.js
 
 # Stop all B-Side processes and Docker containers
 stop:
-    ./scripts/stop-all.sh
+    ./scripts/dev/stop-all.sh
 
 # Open project in Android Studio
 android-studio:
-    ./scripts/open-android-studio.sh
+    ./scripts/dev/open-android-studio.sh
 
 # --- Backend Stack ---
 
@@ -51,7 +51,7 @@ restart: down up
 # Run manual setup script for PocketBase (Local Binary)
 
 pb-local:
-    ./scripts/setup_dev_env.sh
+    ./scripts/setup/setup_dev_env.sh
 
 # Run Ktor Server locally (JVM)
 
@@ -129,7 +129,7 @@ schema-diff SNAPSHOT:
 # Test migrations on fresh local DB (SAFE - destroys only local data)
 
 test-migrations:
-    ./scripts/test-migrations.sh
+    ./scripts/test/test-migrations.sh
 
 # Quick test: Check current migration status
 
@@ -153,7 +153,7 @@ migrate-prod:
 # Full validation workflow (recommended before PROD deploy)
 
 validate-all:
-    ./scripts/validate-all.sh
+    ./scripts/test/validate-all.sh
 
 # --- Phase Management ---
 
@@ -163,7 +163,7 @@ phase-0:
     @echo "🧪 Starting Phase 0: Pre-Deployment Validation"
     @echo "This will test all client targets and backend services"
     @echo ""
-    ./validate-phase-0.sh
+    ./scripts/test/validate-phase-0.sh
 
 # Run complete testing walkthrough (all environments)
 
@@ -171,7 +171,7 @@ phase-test:
     @echo "🧪 Starting Complete Stack Testing Walkthrough"
     @echo "Tests: dev, staging, production configs"
     @echo ""
-    ./test-walkthrough.sh
+    ./scripts/test/test-walkthrough.sh
 
 # View Phase 0 status and checklist
 
@@ -189,7 +189,7 @@ phase-status:
     @echo ""
     @echo "📝 Full checklist: .code-hq/PROJECT_TRACKER.md"
     @echo "🧪 Run validation: just phase-0"
-    @echo "📖 Testing guide: TESTING_GUIDE.md"
+    @echo "📖 Testing guide: docs/guides/TESTING_GUIDE.md"
     @echo ""
 
 # Quick validation - just backend and one client

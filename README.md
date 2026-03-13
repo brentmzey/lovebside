@@ -1,12 +1,13 @@
 # B-Side: Kotlin Multiplatform Messaging App
 
-![B-Side Banner](test_image.png)
+![B-Side Banner](docs/archive/test_image.png)
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.20-7f52ff?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Compose Multiplatform](https://img.shields.io/badge/Compose_Multiplatform-1.7.0-4285F4?logo=jetpackcompose&logoColor=white)](https://www.jetbrains.com/lp/compose-multiplatform/)
 [![Platform](https://img.shields.io/badge/Platform-Android_|_iOS_|_Desktop_|_Web-orange)](https://kotlinlang.org/docs/multiplatform.html)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-yellow?logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/brentmzey)
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/brentmzey?color=ea4aaa&logo=github)](https://github.com/sponsors/brentmzey)
 
 **B-Side** is a production-ready messaging application built with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform**. It demonstrates a "Supercharged" architecture sharing **100% of business logic** and **99% of UI code** across Android, iOS, Desktop, and Web.
 
@@ -32,7 +33,12 @@ cd bside
 
 # 2. Start everything (Backend + All Clients)
 just start
+
+# OR, if you use direnv/source .envrc, simply:
+start
 ```
+
+**Note:** This project uses a clean directory structure. Core commands are located in `bin/` and are automatically added to your `PATH` if you source `.envrc`.
 
 **This intelligent script will:**
 1. 🐳 Start PocketBase & Ktor Server (Docker)
