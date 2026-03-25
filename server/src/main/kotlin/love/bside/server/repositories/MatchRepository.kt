@@ -26,14 +26,17 @@ class MatchRepositoryImpl(
     private val pocketBase: PocketBaseClient
 ) : MatchRepository {
     
-    private val collection = "s_matches"
+    private val collection = "m_matches"
     
     override suspend fun getMatchesForUser(userId: String): Result<List<Match>> {
-        val filter = "userId = '$userId'"
-        val expand = "matchedUserId"
+        val filter = "user1 = '$userId' || user2 = '$userId'" // Updated filter
+        val expand = "user1,user2"
         
         return when (val result = pocketBase.getList<PBMatch>(collection, filter = filter, expand = expand, perPage = 100)) {
-            is Result.Success -> Result.Success(result.data.items.map { it.toDomain() })
+            is Result.Success -> {
+                val matches = result.data.items.map { it.toDomain() }
+                Result.Success(matches)
+            }
             is Result.Error -> result
             is Result.Loading -> result
         }
@@ -51,9 +54,8 @@ class MatchRepositoryImpl(
     
     override suspend fun createMatch(userId: String, matchedUserId: String, compatibilityScore: Double): Result<Match> {
         val body = buildJsonObject {
-            put("userId", userId)
-            put("matchedUserId", matchedUserId)
-            put("compatibilityScore", compatibilityScore)
+            put("user1", userId)
+            put("user2", matchedUserId)
             put("status", "PENDING")
         }
         

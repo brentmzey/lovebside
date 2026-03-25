@@ -70,7 +70,6 @@ class AuthService(
         validateName(request.firstName, "First name")
         validateName(request.lastName, "Last name")
         validateBirthDate(request.birthDate)
-        validateSeeking(request.seeking)
         
         // Check if user already exists
         when (val existingUser = userRepository.getUserByEmail(request.email)) {
@@ -101,7 +100,7 @@ class AuthService(
             firstName = request.firstName,
             lastName = request.lastName,
             birthDate = request.birthDate,
-            seeking = request.seeking
+            seeking = request.seeking.name
         )
         
         val profile = when (profileResult) {
@@ -188,9 +187,6 @@ class AuthService(
             }
         }
         
-        private fun validateSeeking(seeking: String) {
-            if (seeking !in listOf("FRIENDSHIP", "RELATIONSHIP", "BOTH")) {
-                throw ValidationException("Invalid seeking value. Must be FRIENDSHIP, RELATIONSHIP, or BOTH")
-            }
-        }
+        /** No-op: seeking is now validated by the SeekingTypeDTO enum deserializer */
+        private fun validateSeeking(@Suppress("UNUSED_PARAMETER") seeking: love.bside.server.models.api.SeekingTypeDTO) = Unit
     }

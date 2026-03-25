@@ -1,6 +1,10 @@
 package love.bside.app.domain.models
 
+import arrow.core.Option
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
+import love.bside.app.utils.OptionStringSerializer
+
 
 enum class MessageType {
     TEXT,
@@ -9,12 +13,14 @@ enum class MessageType {
     SYSTEM
 }
 
+@Serializable
 data class Message(
         val id: String,
         val collectionId: String,
         val conversationId: String,
         val senderId: String,
-        val content: String,
+        @Serializable(with = OptionStringSerializer::class)
+        val content: Option<String>,
         val messageType: MessageType,
         val attachments: List<String>,
         val sentAt: Instant,

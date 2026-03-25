@@ -11,6 +11,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import love.bside.app.core.Result
+import arrow.core.getOrElse
 import kotlin.test.Test
 import kotlin.test.Ignore
 import kotlin.test.assertEquals
@@ -75,7 +76,7 @@ class PocketBaseMessagingRepositoryTest {
     val sendResult = repo.sendMessage(conversationId, content)
     assertTrue(sendResult is Result.Success, "Should send message")
     val sentMessage = sendResult.data
-    assertEquals(content, sentMessage.content)
+    assertEquals(content, sentMessage.content.getOrElse { "" })
     
     // 4. Get Messages
     val messagesResult = repo.getMessages(conversationId, perPage = 10)
@@ -102,7 +103,7 @@ class PocketBaseMessagingRepositoryTest {
     }
     
     assertTrue(receivedMessages.isNotEmpty(), "Should receive realtime message")
-    assertEquals(rtContent, receivedMessages.first().content)
+    assertEquals(rtContent, receivedMessages.first().content.getOrElse { "" })
     
     // 6. Typing Status
     val setTypingResult = repo.setTypingStatus(conversationId, true)

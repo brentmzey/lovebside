@@ -235,7 +235,7 @@ class PocketBaseMessagingRepositoryUnitTest {
         assertTrue(result is Result.Success)
         val msgs = (result as Result.Success).data
         assertEquals(2, msgs.size)
-        assertTrue(msgs.all { it.content.contains("pizza", ignoreCase = true) })
+        assertTrue(msgs.all { it.content.fold({ false }, { text -> text.contains("pizza", ignoreCase = true) }) })
     }
 
     @Test

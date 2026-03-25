@@ -20,7 +20,8 @@ export interface VersionedEntity {
   id: string;
   version: number;
   updatedAt: string;
-  [key: string]: any;
+  /** Arbitrary extra fields preserved on the record */
+  metadata?: Record<string, unknown>;
 }
 
 export interface LockResult<T> {
@@ -76,7 +77,7 @@ export class DistributedLockService {
         data: result
       };
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Version mismatch or concurrent update
       return {
         success: false,
@@ -282,7 +283,7 @@ export class DistributedLockService {
    */
   cleanupWriteTimes(maxAge: number = 60000): void {
     const now = Date.now();
-    for (const [key, time] of this.writeTimes.entries()) {
+    for (const [key, time] of Array.from(this.writeTimes.entries())) {
       if (now - time > maxAge) {
         this.writeTimes.delete(key);
       }
@@ -313,7 +314,7 @@ export class DistributedLockService {
    */
   async storeSequencedMessage(
     conversationId: string,
-    message: any
+    message: Record<string, unknown>
   ): Promise<number> {
     const sequenceNumber = await this.getNextSequence(conversationId);
     
@@ -334,14 +335,14 @@ export class DistributedLockService {
     conversationId: string,
     fromSeq: number,
     toSeq: number
-  ): Promise<any[]> {
+  ): Promise<Record<string, unknown>[]> {
     const messages = await this.redis.zrangebyscore(
       `messages:${conversationId}`,
       fromSeq,
       toSeq
     );
     
-    return messages.map(m => JSON.parse(m));
+    return messages.map((m: string) => JSON.parse(m) as Record<string, unknown>);
   }
   
   // ==========================================
@@ -352,24 +353,22 @@ export class DistributedLockService {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
   
-  async getMetrics() {
+  async getMetrics(): Promise<RedisMetrics> {
     const info = await this.redis.info('stats');
     const lines = info.split('\r\n');
-    
-    const metrics: any = {};
+
+    const raw: Record<string, string> = {};
     for (const line of lines) {
       const [key, value] = line.split(':');
-      if (key && value) {
-        metrics[key] = value;
-      }
+      if (key && value) raw[key] = value;
     }
-    
+
     return {
-      totalConnections: metrics.total_connections_received,
-      totalCommands: metrics.total_commands_processed,
-      usedMemory: metrics.used_memory_human,
-      connectedClients: metrics.connected_clients,
-      blockedClients: metrics.blocked_clients
+      totalConnections: raw['total_connections_received'] ?? '0',
+      totalCommands: raw['total_commands_processed'] ?? '0',
+      usedMemory: raw['used_memory_human'] ?? '0B',
+      connectedClients: raw['connected_clients'] ?? '0',
+      blockedClients: raw['blocked_clients'] ?? '0'
     };
   }
   
@@ -387,41 +386,51 @@ export class DistributedLockService {
 // CLIENT-SIDE MESSAGE BUFFER
 // ==========================================
 
+export interface RedisMetrics {
+  totalConnections: string;
+  totalCommands: string;
+  usedMemory: string;
+  connectedClients: string;
+  blockedClients: string;
+}
+
+export interface SequencedMessage<T = Record<string, unknown>> {
+  sequenceNumber: number;
+  payload: T;
+}
+
 /**
- * Handle out-of-order message delivery
+ * Handle out-of-order message delivery.
  */
-export class MessageBuffer {
-  private buffer: Map<number, any> = new Map();
+export class MessageBuffer<T = Record<string, unknown>> {
+  private buffer: Map<number, SequencedMessage<T>> = new Map();
   private nextExpected: number = 1;
   
   /**
    * Add message to buffer, return ready messages
    */
-  addMessage(message: any): any[] {
+  addMessage(message: SequencedMessage<T>): SequencedMessage<T>[] {
     const { sequenceNumber } = message;
-    
-    // Already processed?
+
     if (sequenceNumber < this.nextExpected) {
       console.log(`⚠️  Duplicate message: seq=${sequenceNumber}`);
       return [];
     }
-    
-    // Add to buffer
+
     this.buffer.set(sequenceNumber, message);
-    
-    // Emit all consecutive messages
-    const ready: any[] = [];
+
+    const ready: SequencedMessage<T>[] = [];
     while (this.buffer.has(this.nextExpected)) {
       const msg = this.buffer.get(this.nextExpected)!;
       ready.push(msg);
       this.buffer.delete(this.nextExpected);
       this.nextExpected++;
     }
-    
+
     if (ready.length > 0) {
-      console.log(`📨 Emitting ${ready.length} messages (seq ${ready[0].sequenceNumber}-${ready[ready.length-1].sequenceNumber})`);
+      console.log(`📨 Emitting ${ready.length} messages (seq ${ready[0].sequenceNumber}-${ready[ready.length - 1].sequenceNumber})`);
     }
-    
+
     return ready;
   }
   

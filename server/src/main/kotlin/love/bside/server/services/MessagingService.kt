@@ -106,7 +106,7 @@ class MessagingService(
             conversationId = conversationId,
             senderId = senderId,
             receiverId = receiverId,
-            content = content,
+            content = arrow.core.Option.fromNullable(content),
             messageType = MessageType.valueOf(messageType.uppercase()),
             sentAt = now
         )
@@ -189,7 +189,7 @@ class MessagingService(
         val now = Clock.System.now().toString()
         
         // Update message
-        return repository.updateMessage(messageId, newContent, editedAt = now)
+        return repository.updateMessage(messageId, arrow.core.Option.fromNullable(newContent), editedAt = now)
     }
     
     /**

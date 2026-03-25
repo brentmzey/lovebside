@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import love.bside.app.core.Result
+import arrow.core.getOrElse
 import love.bside.app.data.repository.PocketBaseMessagingRepository
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -90,7 +91,7 @@ class RealTimeMultiUserTest {
                 try {
                     bobRepo.subscribeToConversation(testConversationId!!)
                         .collect { message ->
-                            println("Bob received: ${message.content}")
+                            println("Bob received: ${message.content.getOrElse { "" }}")
                             receivedMessages.add(message)
                         }
                 } catch (e: Exception) {
@@ -150,7 +151,7 @@ class RealTimeMultiUserTest {
             // ================= ASSERTION =================
             assertEquals(messagesToSend.size, receivedMessages.size, "Bob should have received all messages")
             messagesToSend.forEachIndexed { index, expected ->
-                assertEquals(expected, receivedMessages[index].content, "Message $index content mismatch")
+                assertEquals(expected, receivedMessages[index].content.getOrElse { "" }, "Message $index content mismatch")
             }
             
             println("✅ SUCCESS: Real-Time verification passed! (Chain length: ${messagesToSend.size})")

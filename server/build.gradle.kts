@@ -101,6 +101,10 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.arrow.core)
+    implementation(libs.brotli4j)
+    implementation(libs.brotli4j.native.osx.aarch64)
+    implementation(libs.brotli4j.native.linux.x64)
     
     // Dependency Injection
     implementation(libs.koin.core)

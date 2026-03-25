@@ -3,6 +3,9 @@ package love.bside.server.utils
 import love.bside.server.models.api.*
 import love.bside.server.models.domain.*
 import love.bside.server.models.db.*
+import love.bside.app.utils.CompressionService
+import arrow.core.toOption
+import arrow.core.getOrElse
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
@@ -28,17 +31,39 @@ fun PBUser.toDomain(): User = User(
     updatedAt = updated.toInstant()
 )
 
-fun PBProfile.toDomain(): Profile = Profile(
+suspend fun PBProfile.toDomain(): Profile = Profile(
     id = id,
     userId = user,
     firstName = firstName,
     lastName = lastName,
     birthDate = LocalDate.parse(birthDate),
-    bio = bio,
-    location = location,
+    // Transparently prefer compressed data
+    bio = CompressionService.decompressFromBase64(bioBrotliBase64.toOption()).let { 
+        if (it.isSome()) it else bio.toOption() 
+    },
+    location = CompressionService.decompressFromBase64(locationBrotliBase64.toOption()).let {
+        if (it.isSome()) it else location.toOption()
+    },
     seeking = SeekingType.fromString(seeking),
     createdAt = created.toInstant(),
     updatedAt = updated.toInstant()
+)
+
+suspend fun Profile.toDB(): PBProfile = PBProfile(
+    id = id,
+    user = userId,
+    firstName = firstName,
+    lastName = lastName,
+    birthDate = birthDate.toString(),
+    // Standard bio for legacy/admin readability
+    bio = bio.getOrElse { null },
+    // Extreme compression for optimized storage
+    bioBrotliBase64 = CompressionService.compressToBase64(bio).getOrElse { null },
+    location = location.getOrElse { null },
+    locationBrotliBase64 = CompressionService.compressToBase64(location).getOrElse { null },
+    seeking = seeking.name.lowercase(),
+    created = createdAt.toString(),
+    updated = updatedAt.toString()
 )
 
 fun PBKeyValue.toDomain(): KeyValue = KeyValue(
@@ -70,9 +95,9 @@ fun PBUserValue.toDomain(): UserValue = UserValue(
 
 fun PBMatch.toDomain(): Match = Match(
     id = id,
-    userId = userId,
-    matchedUserId = matchedUserId,
-    compatibilityScore = compatibilityScore,
+    userId = user1, // Updated for m_matches naming
+    matchedUserId = user2, // Updated for m_matches naming
+    compatibilityScore = 0.0, // Default for now
     status = MatchStatus.fromString(status),
     createdAt = created.toInstant(),
     updatedAt = updated.toInstant()
@@ -87,13 +112,38 @@ fun PBPrompt.toDomain(): Prompt = Prompt(
     updatedAt = updated.toInstant()
 )
 
-fun PBUserAnswer.toDomain(): UserAnswer = UserAnswer(
+suspend fun PBUserAnswer.toDomain(): UserAnswer = UserAnswer(
     id = id,
     userId = userId,
     promptId = promptId,
-    answer = answer,
+    // Prefer compressed response
+    answer = CompressionService.decompressFromBase64(responseBrotliBase64.toOption())
+        .map { if (it.isEmpty() && answer.isNotEmpty()) answer else it }
+        .getOrElse { answer },
     createdAt = created.toInstant(),
     updatedAt = updated.toInstant()
+)
+
+suspend fun PBMessage.toDomain(): Message = Message(
+    id = id,
+    collectionId = collectionId,
+    conversationId = conversation,
+    senderId = sender,
+    content = CompressionService.decompressFromBase64(contentBrotliBase64.toOption()).let {
+        if (it.isSome()) it else content.toOption()
+    },
+    messageType = MessageType.valueOf(type.uppercase()),
+    attachments = emptyList(),
+    sentAt = created.toInstant(),
+    editedAt = null,
+    deletedAt = null,
+    readByCount = 0,
+    created = created.toInstant(),
+    updated = updated.toInstant(),
+    replyToMessageId = replyTo,
+    threadRootId = null,
+    threadDepth = 0,
+    threadReplyCount = 0
 )
 
 // ===== Domain to API =====
@@ -108,9 +158,9 @@ fun Profile.toDTO(): ProfileDTO = ProfileDTO(
     firstName = firstName,
     lastName = lastName,
     age = age,
-    bio = bio,
-    location = location,
-    seeking = seeking.name
+    bio = bio.getOrNull(),
+    location = location.getOrNull(),
+    seeking = SeekingTypeDTO.fromString(seeking.name)
 )
 
 fun KeyValue.toDTO(): KeyValueDTO = KeyValueDTO(
@@ -132,7 +182,7 @@ fun Match.toDTO(matchedUser: User, matchedProfile: Profile?, sharedValues: List<
     user = matchedUser.toDTO(matchedProfile),
     compatibilityScore = compatibilityScore,
     sharedValues = sharedValues.map { it.toDTO() },
-    status = status.name,
+    status = MatchStatusDTO.fromString(status.name),
     createdAt = createdAt.toString()
 )
 
@@ -184,7 +234,7 @@ fun String.toErrorResponse(code: String = "INTERNAL_ERROR", details: Map<String,
 /**
  * Create paginated response
  */
-fun <T> PBListResponse<T>.toPaginatedResponse(transform: (T) -> Any): PaginatedResponse<Any> = PaginatedResponse(
+fun <T, R> PBListResponse<T>.toPaginatedResponse(transform: (T) -> R): PaginatedResponse<R> = PaginatedResponse(
     items = items.map(transform),
     page = page,
     perPage = perPage,

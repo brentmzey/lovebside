@@ -221,7 +221,7 @@ jobs:
       - name: Build Desktop JAR
         run: |
           ./gradlew \
-            :composeApp:createDistributable \
+            :composeApp:jvmJar \
             --parallel \
             --build-cache \
             --configuration-cache \

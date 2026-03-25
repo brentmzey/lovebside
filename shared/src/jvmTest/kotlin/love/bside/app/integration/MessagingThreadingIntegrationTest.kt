@@ -8,6 +8,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.JsonObject
 import love.bside.app.core.Result
+import arrow.core.getOrElse
+import love.bside.app.domain.models.Conversation
 import love.bside.app.data.repository.PocketBaseMessagingRepository
 import love.bside.app.domain.repository.MessagingRepository
 import org.junit.After
@@ -146,10 +148,10 @@ class MessagingThreadingIntegrationTest {
     fun testGetRepliesWithSimpleThread() = runTest {
          // Create conversation
         val convoResult = repository.createDirectConversation(listOf(testUserId!!, testUser2Id!!))
-        if (convoResult !is Result.Success<*>) {
+        if (convoResult !is Result.Success<Conversation>) {
             println("❌ Create Conversation Failed: ${(convoResult as? Result.Error)?.exception?.message}")
         }
-        assertTrue(convoResult is Result.Success<*>, "Failed to create conversation: ${(convoResult as? Result.Error)?.exception?.message}")
+        assertTrue(convoResult is Result.Success<Conversation>, "Failed to create conversation: ${(convoResult as? Result.Error)?.exception?.message}")
 
         testConversationId = (convoResult as Result.Success).data.id
 
@@ -216,7 +218,7 @@ class MessagingThreadingIntegrationTest {
         val threadRoot = repository.getThreadRoot(previousId)
         assertTrue(threadRoot is Result.Success, "Failed to get thread root")
         assertEquals(rootId, (threadRoot as Result.Success).data.id, "Should find the root message")
-        assertEquals("Root", threadRoot.data.content, "Root message content should match")
+        assertEquals("Root", threadRoot.data.content.getOrElse { "" }, "Root message content should match")
         
         println("✓ getThreadRoot test passed: Found root from depth 3")
     }
@@ -446,7 +448,7 @@ class MessagingThreadingIntegrationTest {
              println("❌ markAsRead FAILED: ${markResult.exception.message}")
              markResult.exception.printStackTrace()
         }
-        assertTrue(markResult is Result.Success<*>, "markAsRead failed: ${(markResult as? Result.Error)?.exception?.message}")
+        assertTrue(markResult is Result.Success<Unit>, "markAsRead failed: ${(markResult as? Result.Error)?.exception?.message}")
         
         // 3. Verify
         // Delay slightly to ensure propagation

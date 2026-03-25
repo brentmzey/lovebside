@@ -1,5 +1,6 @@
 package love.bside.app.data.cache
 
+import arrow.core.some
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -10,6 +11,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import love.bside.app.core.Result
 import love.bside.app.domain.models.Conversation
 import love.bside.app.domain.models.Message
 import love.bside.app.domain.models.Profile
@@ -124,7 +126,7 @@ class OfflineCacheManager {
             collectionId = "", // Placeholder for optimistic message
             conversationId = conversationId,
             senderId = "current_user", // Will be replaced on sync
-            content = content,
+            content = content.some(),
             messageType = love.bside.app.domain.models.MessageType.TEXT,
             attachments = emptyList(),
             sentAt = localTimestamp,

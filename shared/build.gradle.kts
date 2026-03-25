@@ -103,6 +103,7 @@ kotlin {
             implementation(libs.google.play.services.maps)
             implementation(libs.google.play.services.location)
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+            implementation(libs.brotli4j)
         }
         
         // iOS source set - automatically created by hierarchy template
@@ -115,6 +116,9 @@ kotlin {
         jvmMain.dependencies {
             implementation(libs.ktor.client.cio)
             implementation(libs.koin.core)
+            implementation(libs.brotli4j)
+            implementation(libs.brotli4j.native.osx.aarch64)
+            implementation(libs.brotli4j.native.linux.x64)
             
             // AWS SDK for S3 and CloudFront (JVM only - not available for iOS/JS yet)
             implementation(libs.aws.s3)
@@ -159,9 +163,19 @@ android {
     }
 }
 
+tasks.withType<AbstractTestTask> {
+    testLogging {
+        showStandardStreams = true
+        events("passed", "failed", "skipped", "standardOut", "standardError")
+    }
+    // Force tests to run if we want to see fresh logs
+    outputs.upToDateWhen { false }
+}
+
+// Ensure standard Test tasks also log
 tasks.withType<Test> {
     testLogging {
-        events("passed", "skipped", "failed", "standardOut", "standardError")
         showStandardStreams = true
+        events("passed", "failed", "skipped", "standardOut", "standardError")
     }
 }

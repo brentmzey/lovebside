@@ -9,6 +9,8 @@ import love.bside.server.utils.toDomain
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import love.bside.app.utils.CompressionService
+import arrow.core.toOption
 
 /**
  * Repository interface for profile operations
@@ -76,11 +78,33 @@ class ProfileRepositoryImpl(
                     Result.Error(AppException.Business.ResourceNotFound(collection, userId))
                 } else {
                     val body = buildJsonObject {
-                        updates.forEach { (key, value) ->
-                            when (value) {
-                                is String -> put(key, value)
-                                is Boolean -> put(key, value)
-                                is Number -> put(key, value.toLong())
+                        for ((key, value) in updates) {
+                            when (key) {
+                                "bio" -> {
+                                    val bioStr = value as? String ?: ""
+                                    put("bio", bioStr)
+                                    // Extreme compression
+                                    val compressed = CompressionService.compressToBase64(bioStr.toOption())
+                                    if (compressed.isSome()) {
+                                        put("bioBrotliBase64", (compressed as arrow.core.Some).value)
+                                    }
+                                }
+                                "location" -> {
+                                    val locStr = value as? String ?: ""
+                                    put("location", locStr)
+                                    // Extreme compression
+                                    val compressed = CompressionService.compressToBase64(locStr.toOption())
+                                    if (compressed.isSome()) {
+                                        put("locationBrotliBase64", (compressed as arrow.core.Some).value)
+                                    }
+                                }
+                                else -> {
+                                    when (value) {
+                                        is String -> put(key, value)
+                                        is Boolean -> put(key, value)
+                                        is Number -> put(key, value.toLong())
+                                    }
+                                }
                             }
                         }
                     }

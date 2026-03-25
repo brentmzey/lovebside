@@ -6,6 +6,7 @@ import io.pocketbase.models.RealtimeAction
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import love.bside.app.domain.models.Message
+import arrow.core.some
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.JsonObject
@@ -48,7 +49,7 @@ class RealtimeServiceImplTest {
       collectionId = "", // Added placeholder
       conversationId = conversationId,
       senderId = "userA",
-      content = "Hello",
+      content = "Hello".some(),
       messageType = love.bside.app.domain.models.MessageType.TEXT,
       attachments = emptyList(),
       sentAt = kotlinx.datetime.Instant.parse("2025-01-01T00:00:00Z"),

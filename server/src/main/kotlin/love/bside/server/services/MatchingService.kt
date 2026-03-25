@@ -84,7 +84,7 @@ class MatchingService(
                         age = p.age,
                         bio = p.bio,
                         location = p.location,
-                        seeking = p.seeking.name
+                        seeking = love.bside.server.models.api.SeekingTypeDTO.fromString(p.seeking.name)
                     )
                 }
             )
@@ -94,7 +94,7 @@ class MatchingService(
                 user = userDTO,
                 compatibilityScore = score.compositeScore,
                 sharedValues = emptyList(),
-                status = "discovered",
+                status = love.bside.server.models.api.MatchStatusDTO.DISCOVERED,
                 createdAt = kotlinx.datetime.Clock.System.now().toString()
             )
         }

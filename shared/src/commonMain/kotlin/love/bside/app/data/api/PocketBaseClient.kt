@@ -23,8 +23,15 @@ import love.bside.app.data.DatabaseCollections
  * Provides CRUD operations and authentication similar to the official PocketBase SDKs
  */
 class PocketBaseClient(
-    val client: HttpClient,  // Changed to public
-    val baseUrl: String = "https://bside.pockethost.io/api/"  // Changed to public
+    val client: HttpClient,
+    /**
+     * Base API URL for PocketBase.
+     * Defaults to local Docker for development.
+     * Production: set via `POCKETBASE_URL` env var or platform-specific config injection.
+     * - Local Docker: http://localhost:8092/api/
+     * - PocketHost:   https://bside.pockethost.io/api/
+     */
+    val baseUrl: String = "http://localhost:8092/api/"
 ) {
     
     /**

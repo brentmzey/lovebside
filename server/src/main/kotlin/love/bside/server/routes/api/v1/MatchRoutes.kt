@@ -49,11 +49,10 @@ fun Route.matchRoutes() {
                 
                 val request = call.receive<MatchActionRequest>()
                 
-                val match = when (request.action.uppercase()) {
-                    "LIKE" -> matchingService.likeMatch(matchId)
-                    "PASS" -> matchingService.passMatch(matchId)
-                    else -> return@post call.respond(HttpStatusCode.BadRequest,
-                        mapOf("error" to "Invalid action. Must be LIKE or PASS"))
+                val match = when (request.action) {
+                    love.bside.server.models.api.MatchActionDTO.LIKE -> matchingService.likeMatch(matchId)
+                    love.bside.server.models.api.MatchActionDTO.PASS -> matchingService.passMatch(matchId)
+                    love.bside.server.models.api.MatchActionDTO.SUPERLIKE -> matchingService.likeMatch(matchId)
                 }
                 
                 call.respond(HttpStatusCode.OK, match.toSuccessResponse())

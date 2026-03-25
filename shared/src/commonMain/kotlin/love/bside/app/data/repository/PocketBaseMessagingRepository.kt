@@ -48,6 +48,8 @@ import love.bside.app.domain.repository.AttachmentData
 import love.bside.app.domain.repository.MessagingRepository
 import love.bside.app.utils.parsePocketBaseInstant
 import love.bside.app.utils.parsePocketBaseInstantOr
+import arrow.core.Option
+import arrow.core.getOrElse
 
 @Serializable
 private data class ParticipantCreateRequest(
@@ -794,10 +796,7 @@ class PocketBaseMessagingRepository(
                                                 }
                                         val filtered =
                                                 items.filter { msg ->
-                                                        msg.content.contains(
-                                                                query,
-                                                                ignoreCase = true
-                                                        ) && msg.deletedAt == null
+                                                        msg.content.fold({ false }, { it.contains(query, ignoreCase = true) }) && msg.deletedAt == null
                                                 }
                                         Result.Success(filtered)
                                 },
@@ -1113,15 +1112,11 @@ class PocketBaseMessagingRepository(
         override suspend fun getUserAnswers(): Result<List<UserAnswer>> {
                 return runCatching {
                                 val model = pocketBase.authStore.model
-                                val userId =
-                                        (model as? RecordModel)?.id
-                                                ?: (model as? kotlinx.serialization.json.JsonObject)
-                                                        ?.get("id")
-                                                        ?.jsonPrimitive
-                                                        ?.content
-                                                        ?: throw AppException.Unknown(
-                                                        "Not authenticated"
-                                                )
+                                val userId = when (model) {
+                                    is RecordModel -> model.id
+                                    is JsonObject -> model["id"]?.jsonPrimitive?.content
+                                    else -> null
+                                } ?: throw AppException.Unknown("Not authenticated")
 
                                 val result =
                                         pocketBase
@@ -1333,16 +1328,8 @@ class PocketBaseMessagingRepository(
                                                                                         .parse(
                                                                                                 birthDateStr
                                                                                         ),
-                                                                        bio =
-                                                                                getString(
-                                                                                        json,
-                                                                                        "bio"
-                                                                                ),
-                                                                        location =
-                                                                                getString(
-                                                                                        json,
-                                                                                        "location"
-                                                                                ),
+                                                                        bio = Option.fromNullable(getString(json, "bio")),
+                                                                        location = Option.fromNullable(getString(json, "location")),
                                                                         seeking =
                                                                                 when (getString(
                                                                                                 json,
@@ -1372,11 +1359,7 @@ class PocketBaseMessagingRepository(
                                                                                                         .content
                                                                                         }
                                                                                         ?: emptyList(),
-                                                                        aboutMe =
-                                                                                getString(
-                                                                                        json,
-                                                                                        "aboutMe"
-                                                                                ),
+                                                                        aboutMe = Option.fromNullable(getString(json, "aboutMe")),
                                                                         height =
                                                                                 json["height"]
                                                                                         ?.jsonPrimitive
@@ -1527,7 +1510,7 @@ class PocketBaseMessagingRepository(
                         collectionId = getString("collectionId"),
                         conversationId = getString("conversation_id"),
                         senderId = getString("sender_id"),
-                        content = getString("content"),
+                        content = Option.fromNullable(getString("content")),
                         messageType =
                                 when (getString("type")) {
                                         "image" -> MessageType.IMAGE

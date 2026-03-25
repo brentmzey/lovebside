@@ -21,10 +21,10 @@ class SyncOrchestrator(
     private val _syncState = MutableStateFlow<SyncState>(SyncState.Idle)
     val syncState: StateFlow<SyncState> = _syncState.asStateFlow()
 
-    private val syncStrategies = mutableMapOf<String, SyncStrategy>()
+    private val syncStrategies = mutableMapOf<String, SyncStrategy<*>>()
     private val pendingOperations = mutableListOf<SyncOperation>()
 
-    fun registerStrategy(entityType: String, strategy: SyncStrategy) {
+    fun registerStrategy(entityType: String, strategy: SyncStrategy<*>) {
         syncStrategies[entityType] = strategy
     }
 
@@ -123,7 +123,7 @@ data class SyncOperation(
     val entityType: String,
     val operation: OperationType,
     val entityId: String,
-    val data: Map<String, Any>,
+    val payload: SyncPayload,
     val timestamp: Instant = Clock.System.now()
 )
 
@@ -133,8 +133,43 @@ enum class OperationType {
     DELETE
 }
 
-interface SyncStrategy {
+interface SyncStrategy<T : Any> {
     suspend fun sync(force: Boolean = false): Result<SyncResult>
     suspend fun applyOperation(operation: SyncOperation): Result<Unit>
-    suspend fun resolveConflict(local: Any, remote: Any): Any
+    suspend fun resolveConflict(local: T, remote: T): T
+}
+
+/**
+ * Strongly-typed sync payload hierarchy.
+ * Add a new subclass for each entity type that supports offline sync.
+ */
+sealed class SyncPayload {
+    data class Profile(
+        val firstName: String? = null,
+        val lastName: String? = null,
+        val bio: String? = null,
+        val seeking: String? = null,
+        val latitude: Double? = null,
+        val longitude: Double? = null
+    ) : SyncPayload()
+
+    data class Message(
+        val conversationId: String,
+        val content: String,
+        val type: String = "text",
+        val clientMessageId: String
+    ) : SyncPayload()
+
+    data class SwipeAction(
+        val targetUserId: String,
+        val direction: String // "like" | "pass" | "superlike"
+    ) : SyncPayload()
+
+    data class KeyValues(
+        val keyValueId: String,
+        val importance: Int
+    ) : SyncPayload()
+
+    /** Escape hatch for future entity types during migration */
+    data class Raw(val fields: Map<String, String>) : SyncPayload()
 }

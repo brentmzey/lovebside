@@ -29,7 +29,9 @@ data class PBProfile(
     val lastName: String = "",
     val birthDate: String = "2000-01-01",
     val bio: String? = null,
+    val bioBrotliBase64: String? = null, // brotli:base64:text
     val location: String? = null,
+    val locationBrotliBase64: String? = null, // brotli:base64:text
     val seeking: String = "both",
     val created: String,
     val updated: String
@@ -71,10 +73,9 @@ data class PBUserValueExpand(
 data class PBMatch(
     val id: String,
     val collectionId: String = "",
-    val collectionName: String = "s_matches",
-    val userId: String,
-    val matchedUserId: String,
-    val compatibilityScore: Double,
+    val collectionName: String = "m_matches",
+    val user1: String, // Changed to match migration
+    val user2: String, // Changed to match migration
     val status: String,
     val created: String,
     val updated: String,
@@ -108,6 +109,7 @@ data class PBUserAnswer(
     val userId: String,
     val promptId: String,
     val answer: String,
+    val responseBrotliBase64: String? = null, // brotli:base64:text
     val created: String,
     val updated: String,
     // Expanded relation fields
@@ -117,6 +119,21 @@ data class PBUserAnswer(
 @Serializable
 data class PBUserAnswerExpand(
     val promptId: PBPrompt? = null
+)
+
+@Serializable
+data class PBMessage(
+    val id: String,
+    val collectionId: String = "",
+    val collectionName: String = "m_messages",
+    val conversation: String,
+    val sender: String,
+    val content: String? = null,
+    val contentBrotliBase64: String? = null, // brotli:base64:text
+    val type: String = "text",
+    val replyTo: String? = null,
+    val created: String,
+    val updated: String
 )
 
 // ===== PocketBase API Response Wrappers =====

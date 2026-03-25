@@ -1,7 +1,11 @@
 package love.bside.server.models.domain
 
+import arrow.core.Option
+import arrow.core.getOrElse
+import arrow.core.toOption
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+
 
 /**
  * Domain models for server business logic
@@ -23,8 +27,9 @@ data class Profile(
     val firstName: String,
     val lastName: String,
     val birthDate: LocalDate,
-    val bio: String? = null,
-    val location: String? = null,
+    val bio: Option<String> = Option.fromNullable(null),
+    val location: Option<String> = Option.fromNullable(null),
+    val aboutMe: Option<String> = Option.fromNullable(null),
     val seeking: SeekingType,
     val createdAt: Instant,
     val updatedAt: Instant
@@ -38,6 +43,35 @@ data class Profile(
             return if (hasHadBirthdayThisYear) years else years - 1
         }
 }
+
+enum class MessageType {
+    TEXT,
+    IMAGE,
+    FILE,
+    SYSTEM
+}
+
+data class Message(
+    val id: String,
+    val collectionId: String,
+    val conversationId: String,
+    val senderId: String,
+    val content: Option<String>,
+    val messageType: MessageType,
+    val attachments: List<String>,
+    val sentAt: Instant,
+    val editedAt: Instant?,
+    val deletedAt: Instant?,
+    val readByCount: Int,
+    // Metadata
+    val created: Instant,
+    val updated: Instant,
+    // Threading
+    val replyToMessageId: String?,
+    val threadRootId: String?,
+    val threadDepth: Int?,
+    val threadReplyCount: Int?
+)
 
 enum class SeekingType {
     FRIENDSHIP,

@@ -1,5 +1,6 @@
 package love.bside.app.data.models
 
+import arrow.core.Option
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import love.bside.app.domain.models.Profile as DomainProfile
@@ -15,13 +16,13 @@ fun Profile.toDomain(): DomainProfile {
         firstName = this.firstName,
         lastName = this.lastName,
         birthDate = LocalDate.parse(this.birthDate.substring(0, 10)), // PocketBase date format is `YYYY-MM-DD HH:MM:SS.SSSZ`
-        bio = this.bio,
+        bio = Option.fromNullable(this.bio),
         education = this.education ?: "",
         interests = this.interests ?: emptyList(),
         videos = this.videos ?: emptyList(),
         profilePicture = this.profilePicture ?: "",
         photos = this.photos ?: emptyList(),
-        location = this.location,
+        location = Option.fromNullable(this.location),
         lat = this.lat,
         lng = this.lng,
         seeking = when (this.seeking) {

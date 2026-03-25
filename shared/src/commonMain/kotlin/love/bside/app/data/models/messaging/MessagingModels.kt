@@ -1,6 +1,8 @@
 package love.bside.app.data.models.messaging
 
 import kotlinx.serialization.Serializable
+import arrow.core.Option
+import love.bside.app.utils.OptionStringSerializer
 
 /**
  * Represents a 1-to-1 conversation between two users
@@ -56,7 +58,8 @@ data class Message(
     val conversationId: String,
     val senderId: String,
     val receiverId: String,
-    val content: String,
+    @Serializable(with = OptionStringSerializer::class)
+    val content: Option<String>,
     val messageType: MessageType,
     val status: MessageStatus,
     val sentAt: String,

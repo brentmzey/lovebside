@@ -1,32 +1,44 @@
-*.vscode
-*.iml
-.kotlin
-.gradle
+# Build and generated files
 **/build/
-xcuserdata
-!src/**/build/
+**/bin/
+**/out/
+.kotlin/
+.gradle/
+captures/
+.externalNativeBuild/
+.cxx/
 local.properties
-.idea
+
+# PocketBase local data
+pocketbase/pb_data/logs.db*
+pocketbase/pb_data/*.db-shm
+pocketbase/pb_data/*.db-wal
+
+# IDEs
+.idea/
+*.iml
+*.vscode/
+
+# macOS
 .DS_Store
-captures
-.externalNativeBuild
-.cxx
+
+# Node
+node_modules/
+dist/
+migrations-manager/dist/
+migrations-manager/coverage/
+
+# iOS / Apple
+xcshareddata/
 *.xcodeproj/*
 !*.xcodeproj/project.pbxproj
 !*.xcodeproj/xcshareddata/
 !*.xcodeproj/project.xcworkspace/
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
-node_modules/
 
-# Log files
+# Logs & Env
 *.log
-
-# Process ID files
-.pids/
-
-# Migrations Manager
-migrations-manager/.env
-migrations-manager/dist/
-migrations-manager/coverage/
 .env
+migrations-manager/.env
+.pids/

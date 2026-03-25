@@ -1,11 +1,64 @@
 package love.bside.server.models.api
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
  * API Request/Response DTOs
- * These are what clients send and receive over HTTP
+ * All enum fields use @SerialName to match wire format.
  */
+
+// ===== Enums (serialized as lowercase strings on the wire) =====
+
+@Serializable
+enum class SeekingTypeDTO {
+    @SerialName("friendship") FRIENDSHIP,
+    @SerialName("relationship") RELATIONSHIP,
+    @SerialName("both") BOTH;
+
+    companion object {
+        fun fromString(v: String): SeekingTypeDTO = when (v.lowercase()) {
+            "friendship" -> FRIENDSHIP
+            "relationship" -> RELATIONSHIP
+            else -> BOTH
+        }
+    }
+}
+
+@Serializable
+enum class MatchStatusDTO {
+    @SerialName("pending") PENDING,
+    @SerialName("liked") LIKED,
+    @SerialName("passed") PASSED,
+    @SerialName("mutual") MUTUAL,
+    @SerialName("discovered") DISCOVERED;
+
+    companion object {
+        fun fromString(v: String): MatchStatusDTO = when (v.lowercase()) {
+            "liked" -> LIKED
+            "passed" -> PASSED
+            "mutual" -> MUTUAL
+            "discovered" -> DISCOVERED
+            else -> PENDING
+        }
+    }
+}
+
+@Serializable
+enum class MatchActionDTO {
+    @SerialName("like") LIKE,
+    @SerialName("pass") PASS,
+    @SerialName("superlike") SUPERLIKE
+}
+
+@Serializable
+enum class MessageTypeDTO {
+    @SerialName("text") TEXT,
+    @SerialName("image") IMAGE,
+    @SerialName("audio") AUDIO,
+    @SerialName("video") VIDEO,
+    @SerialName("file") FILE
+}
 
 // ===== Authentication DTOs =====
 
@@ -22,27 +75,23 @@ data class RegisterRequest(
     val passwordConfirm: String,
     val firstName: String,
     val lastName: String,
-    val birthDate: String, // ISO date format: YYYY-MM-DD
-    val seeking: String // FRIENDSHIP, RELATIONSHIP, or BOTH
+    val birthDate: String, // ISO date: YYYY-MM-DD
+    val seeking: SeekingTypeDTO
 )
 
 @Serializable
 data class AuthResponse(
     val token: String,
     val refreshToken: String,
-    val expiresIn: Long, // milliseconds
+    val expiresIn: Long,
     val user: UserDTO
 )
 
 @Serializable
-data class RefreshTokenRequest(
-    val refreshToken: String
-)
+data class RefreshTokenRequest(val refreshToken: String)
 
 @Serializable
-data class ForgotPasswordRequest(
-    val email: String
-)
+data class ForgotPasswordRequest(val email: String)
 
 @Serializable
 data class ResetPasswordRequest(
@@ -67,7 +116,9 @@ data class ProfileDTO(
     val age: Int,
     val bio: String? = null,
     val location: String? = null,
-    val seeking: String
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val seeking: SeekingTypeDTO
 )
 
 @Serializable
@@ -76,7 +127,9 @@ data class UpdateProfileRequest(
     val lastName: String? = null,
     val bio: String? = null,
     val location: String? = null,
-    val seeking: String? = null
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val seeking: SeekingTypeDTO? = null
 )
 
 // ===== Values DTOs =====
@@ -98,9 +151,7 @@ data class UserValueDTO(
 )
 
 @Serializable
-data class SaveUserValuesRequest(
-    val values: List<UserValueInput>
-)
+data class SaveUserValuesRequest(val values: List<UserValueInput>)
 
 @Serializable
 data class UserValueInput(
@@ -116,19 +167,23 @@ data class MatchDTO(
     val user: UserDTO,
     val compatibilityScore: Double,
     val sharedValues: List<KeyValueDTO>,
-    val status: String, // PENDING, LIKED, PASSED, MUTUAL
+    val status: MatchStatusDTO,
     val createdAt: String
 )
 
 @Serializable
-data class MatchActionRequest(
-    val action: String // LIKE or PASS
-)
+data class MatchActionRequest(val action: MatchActionDTO)
 
 @Serializable
 data class DiscoverMatchesResponse(
     val matches: List<MatchDTO>,
     val hasMore: Boolean
+)
+
+@Serializable
+data class SwipeRequest(
+    val targetUserId: String,
+    val direction: MatchActionDTO
 )
 
 // ===== Prompt DTOs =====
