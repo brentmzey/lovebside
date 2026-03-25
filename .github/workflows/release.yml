@@ -129,7 +129,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
       
       - name: Decode Keystore
-        if: github.event_name != 'workflow_dispatch'
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
       
