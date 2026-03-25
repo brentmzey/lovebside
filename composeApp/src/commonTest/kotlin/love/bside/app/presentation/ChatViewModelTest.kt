@@ -11,11 +11,14 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import love.bside.app.core.AppException
-import love.bside.app.core.Result
 import love.bside.app.domain.models.*
 import love.bside.app.domain.repository.AttachmentData
 import love.bside.app.domain.repository.MessagingRepository
+import love.bside.app.core.AppException
+import love.bside.app.core.Result
+import arrow.core.Option
+import arrow.core.some
+import arrow.core.none
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChatViewModelTest {
@@ -56,7 +59,7 @@ class ChatViewModelTest {
                 // Emit a new message via flow
                 val newMessage =
                         createMessage("msg4", convId, "them", "New Message", Clock.System.now())
-                fakeRepository.emitMessage(convId, newMessage)
+                fakeRepository.emitMessage(newMessage)
                 testScheduler.advanceUntilIdle()
 
                 assertEquals(4, viewModel.messages.value.size)
@@ -82,7 +85,7 @@ class ChatViewModelTest {
 
                 // Emit UPDATE for msg2 (e.g. it was read)
                 val updatedMsg = originalMsg.copy(readAt = Clock.System.now())
-                fakeRepository.emitMessage(convId, updatedMsg)
+                fakeRepository.emitMessage(updatedMsg)
                 testScheduler.advanceUntilIdle()
 
                 // Verify update in list
@@ -96,7 +99,7 @@ class ChatViewModelTest {
                 // Receive another update that IS unread
                 val unreadUpdate =
                         createMessage("msgNew", convId, "them", "Unread", Clock.System.now())
-                fakeRepository.emitMessage(convId, unreadUpdate)
+                fakeRepository.emitMessage(unreadUpdate)
                 testScheduler.advanceUntilIdle()
 
                 assertTrue(fakeRepository.markAsReadCalled.contains(convId))
@@ -122,7 +125,7 @@ class ChatViewModelTest {
                 val updatedMsg = originalMsg.copy(
                     reactions = mapOf("👍" to listOf("me"))
                 )
-                fakeRepository.emitMessage(convId, updatedMsg)
+                fakeRepository.emitMessage(updatedMsg)
                 testScheduler.advanceUntilIdle()
                 
                 // Verify UI state
@@ -146,14 +149,6 @@ class FakeMessagingRepository : MessagingRepository {
     private val messageFlow = MutableSharedFlow<Message>()
     private val typingFlow = MutableSharedFlow<TypingStatus>()
 
-    suspend fun emitMessage(convId: String, msg: Message) {
-        messageFlow.emit(msg)
-    }
-
-    suspend fun emitTyping(convId: String, status: TypingStatus) {
-        typingFlow.emit(status)
-    }
-
     override suspend fun getMessages(
             conversationId: String,
             page: Int,
@@ -167,6 +162,10 @@ class FakeMessagingRepository : MessagingRepository {
                         createMessage("msg1", conversationId, "me", "Yo", Clock.System.now())
                 ) // Sorted by sentAt desc usually in repo
         return Result.Success(list)
+    }
+
+    suspend fun emitMessage(msg: Message) {
+        messageFlow.emit(msg)
     }
 
     // Helper for not impl error
@@ -218,7 +217,7 @@ class FakeMessagingRepository : MessagingRepository {
             content: String,
             replyToMessageId: String?,
             attachments: List<AttachmentData>?
-    ) = notImpl()
+    ): Result<Message> = Result.Success(createMessage("msgNew", conversationId, "me", content, Clock.System.now()))
     override suspend fun deleteMessage(messageId: String) = Result.Success(Unit)
     override suspend fun getReplies(messageId: String) = Result.Success(emptyList<Message>())
     override suspend fun getThreadRoot(messageId: String) = notImpl()
@@ -232,7 +231,7 @@ class FakeMessagingRepository : MessagingRepository {
             Result.Success(emptyList<Message>())
     override suspend fun getQuestionnaire() = Result.Success(emptyList<ProustQuestionnaire>())
     override suspend fun getUserAnswers() = Result.Success(emptyList<UserAnswer>())
-    override suspend fun submitQuestionnaireResponse(questionId: String, answer: String) = notImpl()
+    override suspend fun submitQuestionnaireResponse(questionId: String, answer: String): Result<UserAnswer> = notImpl()
     override suspend fun getMatches() = Result.Success(emptyList<Match>())
     override suspend fun getGlobalSettings() =
             Result.Success(
@@ -247,7 +246,7 @@ fun createMessage(id: String, convId: String, senderId: String, content: String,
                 collectionId = "col_messages",
                 conversationId = convId,
                 senderId = senderId,
-                content = content,
+                content = content.some(),
                 messageType = MessageType.TEXT,
                 attachments = emptyList(),
                 sentAt = sentAt,

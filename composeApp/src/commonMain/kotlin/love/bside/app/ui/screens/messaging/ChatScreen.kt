@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerType
 import kotlinx.coroutines.launch
+import love.bside.app.domain.models.Message
+import arrow.core.getOrElse
 import love.bside.app.domain.repository.AttachmentData
 import love.bside.app.domain.repository.AuthRepository
 import love.bside.app.domain.repository.MessagingRepository
@@ -66,9 +68,10 @@ fun ChatScreen(conversationId: String, onNavigateBack: () -> Unit) {
                             val bytes = it.readBytes()
                             val mimeType = "application/octet-stream" // Default/Fallback
                             val attachment =
-                                    love.bside.app.data.models.Attachment(
+                                    AttachmentData(
                                             fileName = it.name,
-                                            data = bytes
+                                            data = bytes,
+                                            mimeType = mimeType
                                     )
                             viewModel.sendAttachment(attachment)
                         } catch (e: Exception) {
@@ -79,7 +82,7 @@ fun ChatScreen(conversationId: String, onNavigateBack: () -> Unit) {
             }
 
     val listState = rememberLazyListState()
-    var replyToMessage by remember { mutableStateOf<love.bside.app.data.models.Message?>(null) }
+    var replyToMessage by remember { mutableStateOf<Message?>(null) }
 
     // Auto-scroll on new message
     LaunchedEffect(messages.size) {
@@ -170,7 +173,7 @@ fun ChatScreen(conversationId: String, onNavigateBack: () -> Unit) {
 
 @Composable
 fun ReplyPreview(
-    message: love.bside.app.data.models.Message,
+    message: Message,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -191,7 +194,7 @@ fun ReplyPreview(
         Spacer(Modifier.width(8.dp))
         Column(Modifier.weight(1f)) {
             Text("Replying to ${message.senderId}", style = MaterialTheme.typography.labelMedium, color = BsideColors.Primary)
-            Text(message.content, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(message.content.getOrElse { "" }, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         IconButton(onClick = onCancel) {
             Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel Reply", tint = BsideColors.TextSecondary)

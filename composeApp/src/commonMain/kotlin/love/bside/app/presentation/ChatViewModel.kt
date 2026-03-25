@@ -3,17 +3,19 @@ package love.bside.app.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import love.bside.app.core.Result
-import love.bside.app.data.models.Message
-import love.bside.app.data.repository.MessagingRepository
+import love.bside.app.domain.models.*
+import love.bside.app.domain.repository.MessagingRepository
+import love.bside.app.domain.repository.AttachmentData
 
 class ChatViewModel(
         private val repository: MessagingRepository,
-        private val userId: String // USING STRING NOW, BUT SHOULD BE UUID V4 TYPE
+        private val userId: String
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
@@ -37,7 +39,9 @@ class ChatViewModel(
         viewModelScope.launch {
             try {
                 val result = repository.getMessages(conversationId)
-                _messages.value = result.reversed()
+                if (result is Result.Success) {
+                    _messages.value = result.data.reversed()
+                }
             } catch (e: Exception) {
                 // Handle error
             }
@@ -101,13 +105,13 @@ class ChatViewModel(
         }
     }
 
-    fun sendAttachment(file: love.bside.app.data.models.Attachment) {
+    fun sendAttachment(file: AttachmentData) {
         val convId = currentConversationId ?: return
         viewModelScope.launch {
             try {
                 repository.sendMessage(
                     conversationId = convId,
-                    text = "",
+                    content = "",
                     attachments = listOf(file)
                 )
             } catch (e: Exception) {
@@ -132,7 +136,7 @@ class ChatViewModel(
         typingResetJob?.cancel()
         typingResetJob =
                 viewModelScope.launch {
-                    kotlinx.coroutines.delay(TYPING_THROTTLE_MS)
+                    delay(TYPING_THROTTLE_MS)
                     setTyping(false)
                 }
     }
@@ -158,7 +162,7 @@ class ChatViewModel(
         }
     }
 
-    fun toggleReaction(messageId: String, reaction: String) {
+    fun toggleReaction(messageId: String, emoji: String) {
         // Optimistically update local state? 
         // For now, just fire and forget, rely on realtime update
         viewModelScope.launch {
@@ -169,9 +173,7 @@ class ChatViewModel(
                     .find { it.id == messageId }
                 
                 if (message != null) {
-                    val alreadyReacted = message.reactions.any { 
-                        it.reaction == reaction && it.userId == userId 
-                    }
+                    val alreadyReacted = message.reactions[reaction]?.contains(userId) == true
                     if (alreadyReacted) {
                         repository.removeReaction(messageId, reaction)
                     } else {
@@ -188,5 +190,6 @@ class ChatViewModel(
         super.onCleared()
         subscriptionJob?.cancel()
         typingSubscriptionJob?.cancel()
+        typingResetJob?.cancel()
     }
 }

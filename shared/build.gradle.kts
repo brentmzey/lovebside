@@ -84,12 +84,14 @@ kotlin {
             implementation(libs.coil.network.ktor)
         }
         
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(libs.kotlinx.coroutinesCore)
-            implementation(libs.kotlinx.coroutines.test)
-            implementation(libs.ktor.client.mock)
-            implementation(libs.kotest.property)
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlinx.coroutinesCore)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.ktor.client.mock)
+                implementation(libs.kotest.property)
+            }
         }
 
         // Android source set

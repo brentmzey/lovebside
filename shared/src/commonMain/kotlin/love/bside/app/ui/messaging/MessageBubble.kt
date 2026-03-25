@@ -17,10 +17,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Instant
 import love.bside.app.ui.design.tokens.*
-
 import coil3.compose.AsyncImage
-import love.bside.app.data.models.Message
-import love.bside.app.data.models.Reaction
+
+import love.bside.app.domain.models.Message
+import arrow.core.getOrElse
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.layout.ContentScale
 
@@ -33,7 +33,7 @@ import androidx.compose.ui.layout.ContentScale
 @Composable
 fun MessageBubble(
     content: String,
-    timestamp: String,
+    timestamp: Instant,
     isSent: Boolean,
     modifier: Modifier = Modifier,
     showAvatar: Boolean = true,
@@ -195,12 +195,9 @@ fun MessageBubble(
 /**
  * Format timestamp for display (e.g., "2:30 PM")
  */
-private fun formatTimestamp(timestamp: String): String {
+private fun formatTimestamp(timestamp: Instant): String {
     return try {
-        val instant = Instant.parse(timestamp)
-        // Simple manual formatting until we have full DateTimeFormatter support
-        // This is a quick approximation
-        val iso = instant.toString() // 2024-01-30T14:30:00Z
+        val iso = timestamp.toString() // 2024-01-30T14:30:00Z
         val timePart = iso.substringAfter("T").substringBefore("Z").take(5) // 14:30
         timePart
     } catch (e: Exception) {
@@ -260,7 +257,7 @@ private fun QuotedReply(
                 maxLines = 1
             )
             Text(
-                text = message.content,
+                text = message.content.getOrElse { "" },
                 style = BsideTypography.BodySmall,
                 color = BsideColors.TextSecondary,
                 maxLines = 1
@@ -311,13 +308,10 @@ fun MessageBubble(
             null
         }
         
-        // Group reactions by emoji
-        val reactionCounts = message.reactions
-            .groupingBy { it.reaction }
-            .eachCount()
+        val reactionCounts = message.reactions.mapValues { it.value.size }
 
         MessageBubble(
-            content = message.content,
+            content = message.content.getOrElse { "" },
             timestamp = message.sentAt,
             isSent = isMyMessage,
             modifier = modifier,
