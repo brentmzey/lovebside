@@ -27,24 +27,10 @@ class PocketBaseMessagingRepositoryUnitTest {
     private fun createRepository(
         handler: suspend (io.ktor.client.request.HttpRequestData) -> io.ktor.client.request.HttpResponseData
     ): PocketBaseMessagingRepository {
-        val mockEngine = MockEngine { request ->
-            handler(request).let {
-                respond(
-                    content = ByteReadChannel(it.body.toString()),
-                    status = it.statusCode,
-                    headers = it.headers
-                )
-            }
-        }
         val client = HttpClient(MockEngine) {
             engine {
                 addHandler { request ->
-                    val responseData = handler(request)
-                    respond(
-                         content = ByteReadChannel(responseData.body as ByteArray),
-                         status = responseData.statusCode,
-                         headers = responseData.headers
-                    )
+                    handler(request)
                 }
             }
             install(ContentNegotiation) {
@@ -63,7 +49,7 @@ class PocketBaseMessagingRepositoryUnitTest {
     private fun jsonResponse(content: String, status: HttpStatusCode = HttpStatusCode.OK) = io.ktor.client.request.HttpResponseData(
         statusCode = status,
         headers = headersOf(HttpHeaders.ContentType, "application/json"),
-        body = content.encodeToByteArray(),
+        body = ByteReadChannel(content.encodeToByteArray()), // Use ByteReadChannel for Ktor 3 compatibility
         requestTime = io.ktor.util.date.GMTDate.START,
         version = io.ktor.http.HttpProtocolVersion.HTTP_1_1,
         callContext = kotlin.coroutines.EmptyCoroutineContext + kotlinx.coroutines.Job()
@@ -105,10 +91,10 @@ class PocketBaseMessagingRepositoryUnitTest {
                              jsonResponse("""
                                {
                                    "id": "msg123",
-                                   "conversationId": "conv123", 
-                                   "senderId": "alice",
+                                   "conversation_id": "conv123", 
+                                   "sender_id": "alice",
                                    "content": "Hello",
-                                   "sentAt": "2023-01-01 12:00:00"
+                                   "sent_at": "2023-01-01 12:00:00"
                                }
                              """.trimIndent())
                              
@@ -157,11 +143,11 @@ class PocketBaseMessagingRepositoryUnitTest {
                     val url = request.url.toString()
                     println("Mock Request: ${request.method.value} $url")
                     if (url.contains("/api/collections/m_messages/records/leaf")) {
-                        jsonResponse("""{"id":"leaf", "replyToMessageId":"child", "conversationId": "c"}""")
+                        jsonResponse("""{"id":"leaf", "reply_to_message_id":"child", "conversation_id": "c"}""")
                     } else if (url.contains("/api/collections/m_messages/records/child")) {
-                        jsonResponse("""{"id":"child", "replyToMessageId":"root", "conversationId": "c"}""")
+                        jsonResponse("""{"id":"child", "reply_to_message_id":"root", "conversation_id": "c"}""")
                     } else if (url.contains("/api/collections/m_messages/records/root")) {
-                        jsonResponse("""{"id":"root", "replyToMessageId":"", "conversationId": "c"}""")
+                        jsonResponse("""{"id":"root", "reply_to_message_id":"", "conversation_id": "c"}""")
                     } else {
                          println("Mock Request NOT FOUND: $url")
                         jsonResponse("{}", HttpStatusCode.NotFound)

@@ -149,6 +149,9 @@ kotlin {
         jvmTest.dependencies {
             implementation(libs.mockk)
             implementation(libs.ktor.client.cio)
+            implementation(libs.brotli4j)
+            implementation(libs.brotli4j.native.osx.aarch64)
+            implementation(libs.brotli4j.native.linux.x64)
         }
     }
 }
