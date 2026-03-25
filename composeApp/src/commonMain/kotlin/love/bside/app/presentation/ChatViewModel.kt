@@ -173,11 +173,11 @@ class ChatViewModel(
                     .find { it.id == messageId }
                 
                 if (message != null) {
-                    val alreadyReacted = message.reactions[reaction]?.contains(userId) == true
+                    val alreadyReacted = message.reactions[emoji]?.contains(userId) == true
                     if (alreadyReacted) {
-                        repository.removeReaction(messageId, reaction)
+                        repository.removeReaction(messageId, emoji)
                     } else {
-                        repository.addReaction(messageId, reaction)
+                        repository.addReaction(messageId, emoji)
                     }
                 }
             } catch (e: Exception) {
