@@ -59,6 +59,7 @@ kotlin {
                 implementation(libs.kotlinx.coroutinesCore)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(libs.arrow.core)
                 implementation(projects.shared)
                 implementation(libs.koin.compose.multiplatform)
                 implementation(libs.koin.compose.viewmodel)

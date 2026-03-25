@@ -424,17 +424,8 @@ class PocketBaseMessagingRepository(
                         runCatching {
                                         val model = pocketBase.authStore.model
                                         val userId =
-                                                (model as? RecordModel)?.id
-                                                        ?: (model as?
-                                                                        kotlinx.serialization.json.JsonObject)
-                                                                ?.get("id")
-                                                                ?.jsonPrimitive
-                                                                ?.content
-                                                                ?: return@runCatching Result.Error(
-                                                                AppException.Unknown(
-                                                                        "Not authenticated"
-                                                                )
-                                                        )
+                                                model?.get("id")?.jsonPrimitive?.content
+                                        ?: return@runCatching Result.Error(AppException.Unknown("Not authenticated"))
                                         val now = Clock.System.now().toString()
 
                                         // Resolve threadRootId and Depth if replying
@@ -1112,11 +1103,9 @@ class PocketBaseMessagingRepository(
         override suspend fun getUserAnswers(): Result<List<UserAnswer>> {
                 return runCatching {
                                 val model = pocketBase.authStore.model
-                                val userId = when (model) {
-                                    is RecordModel -> model.id
-                                    is JsonObject -> model["id"]?.jsonPrimitive?.content
-                                    else -> null
-                                } ?: throw AppException.Unknown("Not authenticated")
+                                val userId = model?.get("id")?.jsonPrimitive?.content
+                                        ?: (model as? kotlinx.serialization.json.JsonObject)?.get("id")?.jsonPrimitive?.content
+                                         ?: throw AppException.Unknown("Not authenticated")
 
                                 val result =
                                         pocketBase
@@ -1197,15 +1186,8 @@ class PocketBaseMessagingRepository(
         override suspend fun getMatches(): Result<List<Match>> =
                 runCatching {
                                 val model = pocketBase.authStore.model
-                                val currentUserId =
-                                        (model as? RecordModel)?.id
-                                                ?: (model as? kotlinx.serialization.json.JsonObject)
-                                                        ?.get("id")
-                                                        ?.jsonPrimitive
-                                                        ?.content
-                                                        ?: throw AppException.Unknown(
-                                                        "Not authenticated"
-                                                )
+                                val currentUserId = model?.get("id")?.jsonPrimitive?.content
+                                                        ?: throw AppException.Unknown("Not authenticated")
 
                                 val matchesResult =
                                         pocketBase
@@ -1565,7 +1547,7 @@ class PocketBaseMessagingRepository(
                         rateLimiter.acquireToken()
                         val model = pocketBase.authStore.model
                         val userId =
-                                (model as? RecordModel)?.id
+                                model?.get("id")?.jsonPrimitive?.content
                                         ?: (model as? kotlinx.serialization.json.JsonObject)?.get(
                                                         "id"
                                                 )
@@ -1616,17 +1598,8 @@ class PocketBaseMessagingRepository(
                         runCatching {
                                         val model = pocketBase.authStore.model
                                         val userId =
-                                                (model as? RecordModel)?.id
-                                                        ?: (model as?
-                                                                        kotlinx.serialization.json.JsonObject)
-                                                                ?.get("id")
-                                                                ?.jsonPrimitive
-                                                                ?.content
-                                                                ?: return@runCatching Result.Error(
-                                                                AppException.Unknown(
-                                                                        "Not authenticated"
-                                                                )
-                                                        )
+                                                model?.get("id")?.jsonPrimitive?.content
+                                        ?: return@runCatching Result.Error(AppException.Unknown("Not authenticated"))
 
                                         // Helper to upsert
                                         suspend fun upsertProperty(key: String, value: String) {

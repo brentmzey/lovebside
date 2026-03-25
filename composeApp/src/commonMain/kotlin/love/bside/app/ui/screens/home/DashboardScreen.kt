@@ -244,7 +244,7 @@ fun MatchCard(match: Match, onClick: () -> Unit) {
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                profile?.location?.let {
+                profile?.location?.getOrNull()?.let {
                     Text(
                         text = it,
                         style = MaterialTheme.typography.bodySmall,
