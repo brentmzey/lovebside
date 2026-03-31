@@ -290,6 +290,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
       
       - name: Build Desktop Package
+        shell: bash
         run: |
           ./gradlew :composeApp:package${{ matrix.artifact }} \
             --parallel \
@@ -302,13 +303,7 @@ jobs:
         id: find_package
         shell: bash
         run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            PACKAGE=$(find composeApp/build/compose/binaries/main -name "*.deb" | head -1)
-          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            PACKAGE=$(find composeApp/build/compose/binaries/main -name "*.dmg" | head -1)
-          else
-            PACKAGE=$(find composeApp/build/compose/binaries/main -name "*.msi" | head -1)
-          fi
+          PACKAGE=$(find composeApp/build/compose/binaries/main -name "*.${{ matrix.artifact }}" | head -1)
           echo "package=$PACKAGE" >> $GITHUB_OUTPUT
       
       - name: Rename package

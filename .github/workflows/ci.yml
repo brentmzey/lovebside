@@ -219,6 +219,7 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
       
       - name: Build Desktop JAR
+        shell: bash
         run: |
           ./gradlew \
             :composeApp:jvmJar \
