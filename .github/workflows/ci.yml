@@ -1,15 +1,15 @@
 name: CI - Build & Test
 
 on:
-  push:
-    branches: [ main, development ]
+  # push:
+    # branches: [ main, development ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
       - 'LICENSE'
       - '.gitignore'
-  pull_request:
-    branches: [ main, development ]
+  # pull_request:
+    # branches: [ main, development ]
     paths-ignore:
       - '**.md'
       - 'docs/**'
