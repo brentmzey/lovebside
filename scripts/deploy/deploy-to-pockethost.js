@@ -1,16 +1,42 @@
 const ftp = require("basic-ftp")
 const path = require("path")
 const fs = require("fs")
+const { execSync } = require("child_process")
+
+/**
+ * PocketHost is retiring SFTP/FTP file access on 2027-02-06 in favor of the `pockethost` CLI over
+ * HTTPS (see pockethost.io/blog/sftp-sunset). Prefer it whenever POCKETHOST_TOKEN is set (a personal
+ * access token from the PocketHost dashboard, sourced only from ~/.zshrc or ~/.zshenv - never
+ * hardcoded, never printed, never committed), and only fall back to the legacy FTP path below when
+ * it isn't, so deploys never silently break mid-transition.
+ */
+function deployMigrationsViaCli(instanceName) {
+    console.log(`[PocketHost CLI] POCKETHOST_TOKEN found; deploying pb_migrations/ via \`pockethost deploy\`.`)
+    execSync(
+        `pockethost deploy ${instanceName} --include pb_migrations "pb_migrations/**/*" --no-node-modules --message "pb_migrations deploy from lovebside repo"`,
+        { stdio: "inherit" }
+    )
+    console.log("[PocketHost CLI] Migration deployment successful.")
+}
 
 async function deploy() {
+    const instanceName = process.env.POCKETHOST_INSTANCE || "bside"
+    if (process.env.POCKETHOST_TOKEN) {
+        deployMigrationsViaCli(instanceName)
+        return
+    }
+    console.warn(
+        "[PocketHost FTP] POCKETHOST_TOKEN not set - falling back to legacy FTP, which PocketHost retires " +
+        "2027-02-06. Run `pockethost login <token>` (token from the PocketHost dashboard) and add " +
+        '`export POCKETHOST_TOKEN="ph_pat_..."` to ~/.zshrc to switch to the supported CLI path.'
+    )
+
     const client = new ftp.Client()
     client.ftp.verbose = true
 
     const host = process.env.POCKETHOST_FTP_HOST || "ftp.pockethost.io"
     const user = process.env.POCKETHOST_FTP_USER
     const password = process.env.POCKETHOST_FTP_PASSWORD
-    // Default to 'bside' but allow override
-    const instanceName = process.env.POCKETHOST_INSTANCE || "bside"
 
     if (!user || !password) {
         console.error("Error: POCKETHOST_FTP_USER and POCKETHOST_FTP_PASSWORD env vars must be set.")
