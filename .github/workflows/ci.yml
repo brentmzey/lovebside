@@ -2,19 +2,19 @@ name: CI - Build & Test
 
 on:
   # push:
-    # branches: [ main, development ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.gitignore'
+  #   branches: [ main, development ]
+  #   paths-ignore:
+  #     - '**.md'
+  #     - 'docs/**'
+  #     - 'LICENSE'
+  #     - '.gitignore'
   # pull_request:
-    # branches: [ main, development ]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.gitignore'
+  #   branches: [ main, development ]
+  #   paths-ignore:
+  #     - '**.md'
+  #     - 'docs/**'
+  #     - 'LICENSE'
+  #     - '.gitignore'
   workflow_dispatch:
 
 # Cancel in-progress runs for same PR/branch
